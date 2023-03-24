@@ -1,7 +1,8 @@
 import { Provider } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { DATA_SOURCE } from '../constants/DATA_SOURCE';
-const makeRepositoryProvider = <R extends Repository<any>>(
+
+export const makeRepositoryProvider = <R extends Repository<any>>(
   key: any,
   factory: (dataSource: DataSource) => R,
 ): Provider => ({

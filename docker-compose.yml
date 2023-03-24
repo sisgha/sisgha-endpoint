@@ -22,10 +22,13 @@ services:
     container_name: sisgha-endpoint-db
     volumes:
       - 'sisgha-endpoint-db-data:/bitnami/postgresql'
+      - ./volumes/db/scripts/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     env_file:
       - .db.env
     networks:
       - sisgha-net
+    ports:
+      - 5432:5432
 
 networks:
   sisgha-net:
