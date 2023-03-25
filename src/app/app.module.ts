@@ -13,6 +13,7 @@ import { AppResolver } from './app.resolver';
 import { CargoModule } from './modules/cargo/cargo.module';
 import { DiaSemanaModule } from './modules/dia-semana/dia-semana.module';
 import { LugarModule } from './modules/lugar/lugar.module';
+import { PeriodoDiaModule } from './modules/periodo-dia/periodo-dia.module';
 import { UsuarioHasCargoModule } from './modules/usuario-has-cargo/usuario-has-cargo.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 
@@ -51,6 +52,7 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
     LugarModule,
 
     DiaSemanaModule,
+    PeriodoDiaModule,
   ],
 
   controllers: [],
