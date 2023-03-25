@@ -11,6 +11,7 @@ import { DateScalar } from '../infrastructure/graphql/DateScalar';
 import { HttpExceptionFilter } from '../infrastructure/graphql/HttpExceptionFilter';
 import { AppResolver } from './app.resolver';
 import { CargoModule } from './modules/cargo/cargo.module';
+import { DiaSemanaModule } from './modules/dia-semana/dia-semana.module';
 import { LugarModule } from './modules/lugar/lugar.module';
 import { UsuarioHasCargoModule } from './modules/usuario-has-cargo/usuario-has-cargo.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
@@ -48,6 +49,8 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
     //
 
     LugarModule,
+
+    DiaSemanaModule,
   ],
 
   controllers: [],
