@@ -63,7 +63,7 @@ export class CargoResolver {
     return this.cargoService.updateCargo(appContext, dto);
   }
 
-  @Mutation(() => CargoType)
+  @Mutation(() => Boolean)
   async deleteCargo(
     @ResolveAppContext()
     appContext: AppContext,

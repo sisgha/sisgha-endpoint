@@ -64,7 +64,7 @@ export class LugarResolver {
     return this.lugarService.updateLugar(appContext, dto);
   }
 
-  @Mutation(() => LugarType)
+  @Mutation(() => Boolean)
   async deleteLugar(
     @ResolveAppContext()
     appContext: AppContext,

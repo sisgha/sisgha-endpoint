@@ -64,7 +64,7 @@ export class UsuarioResolver {
     return this.usuarioService.updateUsuario(appContext, dto);
   }
 
-  @Mutation(() => UsuarioType)
+  @Mutation(() => Boolean)
   async deleteUsuario(
     @ResolveAppContext()
     appContext: AppContext,

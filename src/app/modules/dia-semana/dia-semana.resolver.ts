@@ -64,7 +64,7 @@ export class DiaSemanaResolver {
     return this.diaSemanaService.updateDiaSemana(appContext, dto);
   }
 
-  @Mutation(() => DiaSemanaType)
+  @Mutation(() => Boolean)
   async deleteDiaSemana(
     @ResolveAppContext()
     appContext: AppContext,
