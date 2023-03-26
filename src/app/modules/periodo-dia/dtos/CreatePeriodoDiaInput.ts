@@ -1,14 +1,15 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { z } from 'zod';
 import {
-  PeriodoDiaIntervaloZod,
-  refinePeriodoDiaIntervalo,
-} from './PeriodoDiaIntervaloZod';
+  PeriodoDiaHoraIntervaloZod,
+  refinePeriodoDiaHoraIntervalo,
+} from '../interfaces/PeriodoDiaIntervalo';
 
-export const CreatePeriodoDiaInputZod = z
-  .object({})
-  .merge(PeriodoDiaIntervaloZod)
-  .superRefine(refinePeriodoDiaIntervalo);
+export const CreatePeriodoDiaInputBaseZod = z.object({});
+
+export const CreatePeriodoDiaInputZod = CreatePeriodoDiaInputBaseZod.extend({})
+  .merge(PeriodoDiaHoraIntervaloZod)
+  .superRefine(refinePeriodoDiaHoraIntervalo);
 
 export type ICreatePeriodoDiaInput = z.infer<typeof CreatePeriodoDiaInputZod>;
 
