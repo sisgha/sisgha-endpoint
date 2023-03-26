@@ -1,0 +1,10 @@
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+
+@Entity('{{ snakeCase name }}')
+export class {{ pascalCase name }}DbEntity {
+  @PrimaryGeneratedColumn({ name: 'id' })
+  id!: number;
+}

@@ -1,0 +1,15 @@
+import { Field, InputType, Int } from '@nestjs/graphql';
+import { z } from 'zod';
+import { Find{{ pascalCase name }}ByIdInputZod } from './Find{{ pascalCase name }}ByIdInput';
+
+export const Delete{{ pascalCase name }}InputZod = Find{{ pascalCase name }}ByIdInputZod.pick({
+  id: true,
+});
+
+export type IDelete{{ pascalCase name }}Input = z.infer<typeof Delete{{ pascalCase name }}InputZod>;
+
+@InputType('Delete{{ pascalCase name }}Input')
+export class Delete{{ pascalCase name }}InputType implements IDelete{{ pascalCase name }}Input {
+  @Field(() => Int)
+  id!: number;
+}

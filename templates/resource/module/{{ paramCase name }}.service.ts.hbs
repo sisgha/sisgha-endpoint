@@ -1,0 +1,147 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { omit } from 'lodash';
+import { {{ pascalCase name }}DbEntity } from 'src/app/entities/{{ camelCase name }}.db.entity';
+import { get{{ pascalCase name }}Repository } from 'src/app/repositories/{{ camelCase name }}.repository';
+import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { FindOneOptions } from 'typeorm';
+import {
+  ICreate{{ pascalCase name }}Input,
+  IDelete{{ pascalCase name }}Input,
+  IFind{{ pascalCase name }}ByIdInput,
+  IUpdate{{ pascalCase name }}Input,
+} from './dtos';
+
+@Injectable()
+export class {{ pascalCase name }}Service {
+  async find{{ pascalCase name }}ById(
+    appContext: AppContext,
+    dto: IFind{{ pascalCase name }}ByIdInput,
+    options?: FindOneOptions<{{ pascalCase name }}DbEntity>,
+  ) {
+    const { id } = dto;
+
+    const target{{ pascalCase name }} = await appContext.databaseRun(
+      async ({ entityManager }) => {
+        const {{ camelCase name }}Repository = get{{ pascalCase name }}Repository(entityManager);
+
+        return {{ camelCase name }}Repository.findOne({
+          where: { id },
+          select: ['id'],
+        });
+      },
+    );
+
+    if (!target{{ pascalCase name }}) {
+      return null;
+    }
+
+    const {{ camelCase name }} = await appContext.databaseRun<{{ pascalCase name }}DbEntity>(
+      async ({ entityManager }) => {
+        const {{ camelCase name }}Repository = get{{ pascalCase name }}Repository(entityManager);
+
+        return await {{ camelCase name }}Repository.findOneOrFail({
+          where: { id: target{{ pascalCase name }}.id },
+          select: ['id'],
+          ...options,
+        });
+      },
+    );
+
+    return {{ camelCase name }};
+  }
+
+  async find{{ pascalCase name }}ByIdStrict(
+    appContext: AppContext,
+    dto: IFind{{ pascalCase name }}ByIdInput,
+    options?: FindOneOptions<{{ pascalCase name }}DbEntity>,
+  ) {
+    const {{ camelCase name }} = await this.find{{ pascalCase name }}ById(appContext, dto, options);
+
+    if (!{{ camelCase name }}) {
+      throw new NotFoundException();
+    }
+
+    return {{ camelCase name }};
+  }
+
+  async find{{ pascalCase name }}ByIdStrictSimple(
+    appContext: AppContext,
+    {{ camelCase name }}Id: number,
+  ): Promise<Pick<{{ pascalCase name }}DbEntity, 'id'>> {
+    const {{ camelCase name }} = await this.find{{ pascalCase name }}ByIdStrict(appContext, {
+      id: {{ camelCase name }}Id,
+    });
+
+    return {{ camelCase name }} as Pick<{{ pascalCase name }}DbEntity, 'id'>;
+  }
+
+  async get{{ pascalCase name }}GenericField<K extends keyof {{ pascalCase name }}DbEntity>(
+    appContext: AppContext,
+  {{ camelCase name }}Id: number,
+    field: K,
+  ): Promise<{{ pascalCase name }}DbEntity[K]> {
+    const {{ camelCase name }} = await this.find{{ pascalCase name }}ByIdStrict(
+      appContext,
+      { id: {{ camelCase name }}Id },
+      { select: ['id', field] },
+    );
+
+    return <{{ pascalCase name }}DbEntity[K]>{{ camelCase name }}[field];
+  }
+
+  /*
+  async get{{ pascalCase name }}GenericField(appContext: AppContext, {{ camelCase name }}Id: number) {
+    return this.get{{ pascalCase name }}GenericField(appContext, {{ camelCase name }}Id, 'genericField');
+  }
+  */
+
+  async create{{ pascalCase name }}(appContext: AppContext, dto: ICreate{{ pascalCase name }}Input) {
+    const fieldsData = omit(dto, []);
+
+    const {{ camelCase name }} = await appContext.databaseRun(async ({ entityManager }) => {
+      const {{ camelCase name }}Repository = get{{ pascalCase name }}Repository(entityManager);
+
+      const {{ camelCase name }} = <{{ pascalCase name }}DbEntity>{ ...fieldsData };
+      await {{ camelCase name }}Repository.save({{ camelCase name }});
+
+      return {{ camelCase name }};
+    });
+
+    return this.find{{ pascalCase name }}ByIdStrictSimple(appContext, {{ camelCase name }}.id);
+  }
+
+  async update{{ pascalCase name }}(appContext: AppContext, dto: IUpdate{{ pascalCase name }}Input) {
+    const { id } = dto;
+
+    const {{ camelCase name }} = await this.find{{ pascalCase name }}ByIdStrictSimple(appContext, id);
+
+    const fieldsData = omit(dto, ['id']);
+
+    await appContext.databaseRun(async ({ entityManager }) => {
+      const {{ camelCase name }}Repository = get{{ pascalCase name }}Repository(entityManager);
+
+      const updated{{ pascalCase name }} = <{{ pascalCase name }}DbEntity>{ ...{{ camelCase name }}, ...fieldsData };
+
+      await {{ camelCase name }}Repository.update{{ pascalCase name }}(updated{{ pascalCase name }}, {{ camelCase name }}.id);
+
+      return updated{{ pascalCase name }};
+    });
+
+    return this.find{{ pascalCase name }}ByIdStrictSimple(appContext, {{ camelCase name }}.id);
+  }
+
+  async delete{{ pascalCase name }}(appContext: AppContext, dto: IDelete{{ pascalCase name }}Input) {
+    const {{ camelCase name }} = await this.find{{ pascalCase name }}ByIdStrictSimple(appContext, dto.id);
+
+    return appContext.databaseRun(async ({ entityManager }) => {
+      const {{ camelCase name }}Repository = get{{ pascalCase name }}Repository(entityManager);
+
+      try {
+        await {{ camelCase name }}Repository.delete({{ camelCase name }}.id);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    });
+  }
+}

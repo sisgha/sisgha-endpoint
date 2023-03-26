@@ -1,0 +1,7 @@
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+
+@ObjectType('{{ pascalCase name }}')
+export class {{ pascalCase name }}Type {
+  @Field(() => Int)
+  id!: number;
+}

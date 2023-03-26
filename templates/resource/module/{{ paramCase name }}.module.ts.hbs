@@ -1,0 +1,11 @@
+import { Module } from '@nestjs/common';
+import { DatabaseModule } from '../../../infrastructure/database/database.module';
+import { {{ pascalCase name }}Resolver } from './{{ paramCase name }}.resolver';
+import { {{ pascalCase name }}Service } from './{{ paramCase name }}.service';
+
+@Module({
+  imports: [DatabaseModule],
+  exports: [{{ pascalCase name }}Service],
+  providers: [{{ pascalCase name }}Service, {{ pascalCase name }}Resolver],
+})
+export class {{ pascalCase name }}Module {}

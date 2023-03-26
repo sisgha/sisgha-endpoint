@@ -1,0 +1,15 @@
+import { Field, InputType, Int } from '@nestjs/graphql';
+import { IdZod } from 'src/infrastructure/zod/IdZod';
+import { z } from 'zod';
+
+export const Find{{ pascalCase name }}ByIdInputZod = z.object({
+  id: IdZod,
+});
+
+export type IFind{{ pascalCase name }}ByIdInput = z.infer<typeof Find{{ pascalCase name }}ByIdInputZod>;
+
+@InputType('Find{{ pascalCase name }}ByIdInput')
+export class Find{{ pascalCase name }}ByIdInputType implements IFind{{ pascalCase name }}ByIdInput {
+  @Field(() => Int)
+  id!: number;
+}
