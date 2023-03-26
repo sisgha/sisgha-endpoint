@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { TurnoAulaDbEntity } from './turno-aula.db.entity';
 
 @Entity('periodo_dia')
 export class PeriodoDiaDbEntity {
@@ -10,4 +11,7 @@ export class PeriodoDiaDbEntity {
 
   @Column({ name: 'hora_fim', type: 'timetz' })
   horaFim!: string;
+
+  @OneToMany(() => TurnoAulaDbEntity, (turnoAula) => turnoAula.periodoDia)
+  turnoAula!: TurnoAulaDbEntity[];
 }
