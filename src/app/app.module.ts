@@ -11,6 +11,7 @@ import { DateScalar } from '../infrastructure/graphql/DateScalar';
 import { HttpExceptionFilter } from '../infrastructure/graphql/HttpExceptionFilter';
 import { AppResolver } from './app.resolver';
 import { CargoModule } from './modules/cargo/cargo.module';
+import { CursoModule } from './modules/curso/curso.module';
 import { DiaSemanaModule } from './modules/dia-semana/dia-semana.module';
 import { LugarModule } from './modules/lugar/lugar.module';
 import { PeriodoDiaModule } from './modules/periodo-dia/periodo-dia.module';
@@ -58,6 +59,7 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
     TurnoAulaModule,
 
     SemanaModule,
+    CursoModule,
   ],
 
   controllers: [],
