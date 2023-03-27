@@ -13,6 +13,7 @@ import { AppResolver } from './app.resolver';
 import { CargoModule } from './modules/cargo/cargo.module';
 import { CursoModule } from './modules/curso/curso.module';
 import { DiaSemanaModule } from './modules/dia-semana/dia-semana.module';
+import { DisciplinaModule } from './modules/disciplina/disciplina.module';
 import { LugarModule } from './modules/lugar/lugar.module';
 import { PeriodoDiaModule } from './modules/periodo-dia/periodo-dia.module';
 import { SemanaModule } from './modules/semana/semana.module';
@@ -60,6 +61,8 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
 
     SemanaModule,
     CursoModule,
+
+    DisciplinaModule,
   ],
 
   controllers: [],

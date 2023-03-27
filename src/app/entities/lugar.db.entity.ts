@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { DisciplinaDbEntity } from './disciplina.db.entity';
 
 @Entity('lugar')
 export class LugarDbEntity {
@@ -13,4 +14,7 @@ export class LugarDbEntity {
 
   @Column({ name: 'descricao', type: 'varchar', nullable: true })
   descricao!: string | null;
+
+  @OneToMany(() => DisciplinaDbEntity, (disciplina) => disciplina.lugarPadrao)
+  disciplinas!: DisciplinaDbEntity[];
 }
