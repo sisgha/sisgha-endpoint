@@ -3,8 +3,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { DisciplinaCursoDbEntity } from './disciplina-curso.db.entity';
 import { LugarDbEntity } from './lugar.db.entity';
 
 @Entity('disciplina')
@@ -18,4 +20,10 @@ export class DisciplinaDbEntity {
   @ManyToOne(() => LugarDbEntity, { nullable: true })
   @JoinColumn({ name: 'id_lugar_padrao' })
   lugarPadrao!: LugarDbEntity | null;
+
+  @OneToMany(
+    () => DisciplinaCursoDbEntity,
+    (disciplinaCurso) => disciplinaCurso.disciplina,
+  )
+  disciplinaCurso!: DisciplinaCursoDbEntity[];
 }

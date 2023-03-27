@@ -195,10 +195,7 @@ export class UsuarioHasCargoService {
       });
 
     if (usuarioHasCargoAlreadyExists) {
-      return this.findUsuarioHasCargoByIdStrictSimple(
-        appContext,
-        usuarioHasCargoAlreadyExists.id,
-      );
+      return usuarioHasCargoAlreadyExists;
     }
 
     const usuarioHasCargo = await appContext.databaseRun(
@@ -231,10 +228,7 @@ export class UsuarioHasCargoService {
 
     const usuarioHasCargo = await this.findUsuarioHasCargoByUsuarioIdAndCargoId(
       appContext,
-      {
-        cargoId,
-        usuarioId,
-      },
+      { cargoId, usuarioId },
     );
 
     if (!usuarioHasCargo) {

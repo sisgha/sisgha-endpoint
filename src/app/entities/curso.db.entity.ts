@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { DisciplinaCursoDbEntity } from './disciplina-curso.db.entity';
 
 @Entity('curso')
 export class CursoDbEntity {
@@ -10,4 +11,10 @@ export class CursoDbEntity {
 
   @Column({ name: 'tipo', type: 'varchar' })
   tipo!: string;
+
+  @OneToMany(
+    () => DisciplinaCursoDbEntity,
+    (disciplinaCurso) => disciplinaCurso.curso,
+  )
+  disciplinaCurso!: DisciplinaCursoDbEntity[];
 }
