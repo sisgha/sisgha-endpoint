@@ -17,6 +17,7 @@ import { DisciplinaCursoModule } from './modules/disciplina-curso/disciplina-cur
 import { DisciplinaModule } from './modules/disciplina/disciplina.module';
 import { LugarModule } from './modules/lugar/lugar.module';
 import { PeriodoDiaModule } from './modules/periodo-dia/periodo-dia.module';
+import { ProfessorModule } from './modules/professor/professor.module';
 import { SemanaModule } from './modules/semana/semana.module';
 import { TurnoAulaModule } from './modules/turno-aula/turno-aula.module';
 import { UsuarioHasCargoModule } from './modules/usuario-has-cargo/usuario-has-cargo.module';
@@ -65,6 +66,8 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
 
     DisciplinaModule,
     DisciplinaCursoModule,
+
+    ProfessorModule,
   ],
 
   controllers: [],
