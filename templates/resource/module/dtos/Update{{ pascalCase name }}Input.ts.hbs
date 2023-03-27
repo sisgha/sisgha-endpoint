@@ -6,7 +6,7 @@ import { Find{{ pascalCase name }}ByIdInputZod } from './Find{{ pascalCase name 
 export const Update{{ pascalCase name }}InputZod = z
   .object({})
   .merge(Find{{ pascalCase name }}ByIdInputZod)
-  .merge(Create{{ pascalCase name }}InputZod.partial());
+  .merge(Create{{ pascalCase name }}InputZod.pick({}).partial());
 
 export type IUpdate{{ pascalCase name }}Input = z.infer<typeof Update{{ pascalCase name }}InputZod>;
 

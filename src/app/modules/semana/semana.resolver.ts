@@ -101,7 +101,7 @@ export class SemanaResolver {
     return this.semanaService.getSemanaDataFim(appContext, parent.id);
   }
 
-  @ResolveField('status', () => Date)
+  @ResolveField('status', () => String)
   async status(
     @ResolveAppContext()
     appContext: AppContext,

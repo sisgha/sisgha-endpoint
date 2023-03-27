@@ -1,16 +1,16 @@
 import { ForbiddenException } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
-import { {{ pascalCase name }}DbEntity } from '../entities/{{ paramCase name }}.db.entity.ts';
+import { {{ pascalCase name }}DbEntity } from '../entities/{{ paramCase name }}.db.entity';
 
 export type I{{ pascalCase name }}Repository = ReturnType<typeof get{{ pascalCase name }}Repository>;
 
 export const get{{ pascalCase name }}Repository = (
   dataSource: DataSource | EntityManager,
 ) =>
-  dataSource.getRepository({ pascalCase name {}}DbEntity).extend({
-    async update{{ pascalCase name }}(payload: Partial<{ pascalCase name {}}DbEntity>, id: number) {
+  dataSource.getRepository({{ pascalCase name }}DbEntity).extend({
+    async update{{ pascalCase name }}(payload: Partial<{{ pascalCase name }}DbEntity>, id: number) {
       const updatedData = await this.createQueryBuilder('{{ snakeCase name }}')
-        .update<{ pascalCase name {}}DbEntity>( pascalCase name {{}}DbEntity, { ...payload })
+        .update<{{ pascalCase name }}DbEntity>( {{ pascalCase name }}DbEntity, { ...payload })
         .where('{{ snakeCase name }}.id = :id', { id: id })
         .returning('*')
         .updateEntity(true)

@@ -122,11 +122,11 @@ export class CursoService {
     await appContext.databaseRun(async ({ entityManager }) => {
       const cursoRepository = getCursoRepository(entityManager);
 
-      const updatedPeriodoDia = <CursoDbEntity>{ ...curso, ...fieldsData };
+      const updatedCurso = <CursoDbEntity>{ ...curso, ...fieldsData };
 
-      await cursoRepository.updateCurso(updatedPeriodoDia, curso.id);
+      await cursoRepository.updateCurso(updatedCurso, curso.id);
 
-      return updatedPeriodoDia;
+      return updatedCurso;
     });
 
     return this.findCursoByIdStrictSimple(appContext, curso.id);

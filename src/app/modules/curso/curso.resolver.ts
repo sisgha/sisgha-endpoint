@@ -79,7 +79,7 @@ export class CursoResolver {
 
   // START: fields resolvers
 
-  @ResolveField('nome', () => Date)
+  @ResolveField('nome', () => String)
   async nome(
     @ResolveAppContext()
     appContext: AppContext,
@@ -90,7 +90,7 @@ export class CursoResolver {
     return this.cursoService.getCursoNome(appContext, parent.id);
   }
 
-  @ResolveField('tipo', () => Date)
+  @ResolveField('tipo', () => String)
   async tipo(
     @ResolveAppContext()
     appContext: AppContext,
