@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { omit } from 'lodash';
-import { {{ pascalCase name }}DbEntity } from 'src/app/entities/{{ camelCase name }}.db.entity';
-import { get{{ pascalCase name }}Repository } from 'src/app/repositories/{{ camelCase name }}.repository';
+import { {{ pascalCase name }}DbEntity } from 'src/app/entities/{{ paramCase name }}.db.entity';
+import { get{{ pascalCase name }}Repository } from 'src/app/repositories/{{ paramCase name }}.repository';
 import { AppContext } from 'src/infrastructure/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import {
@@ -98,10 +98,11 @@ export class {{ pascalCase name }}Service {
   async create{{ pascalCase name }}(appContext: AppContext, dto: ICreate{{ pascalCase name }}Input) {
     const fieldsData = omit(dto, []);
 
-    const {{ camelCase name }} = await appContext.databaseRun(async ({ entityManager }) => {
+    const {{ camelCase name }} = <{{ pascalCase name }}DbEntity>{ ...fieldsData };
+
+    await appContext.databaseRun(async ({ entityManager }) => {
       const {{ camelCase name }}Repository = get{{ pascalCase name }}Repository(entityManager);
 
-      const {{ camelCase name }} = <{{ pascalCase name }}DbEntity>{ ...fieldsData };
       await {{ camelCase name }}Repository.save({{ camelCase name }});
 
       return {{ camelCase name }};
@@ -117,10 +118,10 @@ export class {{ pascalCase name }}Service {
 
     const fieldsData = omit(dto, ['id']);
 
+    const updated{{ pascalCase name }} = <{{ pascalCase name }}DbEntity>{ ...{{ camelCase name }}, ...fieldsData };
+
     await appContext.databaseRun(async ({ entityManager }) => {
       const {{ camelCase name }}Repository = get{{ pascalCase name }}Repository(entityManager);
-
-      const updated{{ pascalCase name }} = <{{ pascalCase name }}DbEntity>{ ...{{ camelCase name }}, ...fieldsData };
 
       await {{ camelCase name }}Repository.update{{ pascalCase name }}(updated{{ pascalCase name }}, {{ camelCase name }}.id);
 
