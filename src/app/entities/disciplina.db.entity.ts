@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { DiarioDbEntity } from './diario.db.entity';
 import { DisciplinaCursoDbEntity } from './disciplina-curso.db.entity';
 import { LugarDbEntity } from './lugar.db.entity';
 
@@ -26,4 +27,7 @@ export class DisciplinaDbEntity {
     (disciplinaCurso) => disciplinaCurso.disciplina,
   )
   disciplinaCurso!: DisciplinaCursoDbEntity[];
+
+  @OneToMany(() => DiarioDbEntity, (diario) => diario.disciplina)
+  diarios!: DiarioDbEntity[];
 }

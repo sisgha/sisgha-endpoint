@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { CursoDbEntity } from './curso.db.entity';
+import { DiarioDbEntity } from './diario.db.entity';
 import { LugarDbEntity } from './lugar.db.entity';
 import { TurmaHasTurnoAulaDbEntity } from './turma-has-turno-aula.db.entity';
 
@@ -34,4 +35,7 @@ export class TurmaDbEntity {
     (turmaHasTurnoAula) => turmaHasTurnoAula.turma,
   )
   turmaHasTurnoAula!: TurmaHasTurnoAulaDbEntity[];
+
+  @OneToMany(() => DiarioDbEntity, (diario) => diario.turma)
+  diarios!: DiarioDbEntity[];
 }
