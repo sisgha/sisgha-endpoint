@@ -13,6 +13,7 @@ import { AppResolver } from './app.resolver';
 import { CargoModule } from './modules/cargo/cargo.module';
 import { CursoModule } from './modules/curso/curso.module';
 import { DiaSemanaModule } from './modules/dia-semana/dia-semana.module';
+import { DiarioProfessorModule } from './modules/diario-professor/diario-professor.module';
 import { DiarioModule } from './modules/diario/diario.module';
 import { DisciplinaCursoModule } from './modules/disciplina-curso/disciplina-curso.module';
 import { DisciplinaModule } from './modules/disciplina/disciplina.module';
@@ -77,6 +78,7 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
     TurmaHasTurnoAulaModule,
 
     DiarioModule,
+    DiarioProfessorModule,
   ],
 
   controllers: [],

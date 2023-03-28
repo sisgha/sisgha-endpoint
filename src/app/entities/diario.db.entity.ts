@@ -1,4 +1,11 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { DiarioProfessorDbEntity } from './diario-professor.db.entity';
 import { DisciplinaDbEntity } from './disciplina.db.entity';
 import { TurmaDbEntity } from './turma.db.entity';
 
@@ -14,4 +21,10 @@ export class DiarioDbEntity {
   @ManyToOne(() => DisciplinaDbEntity, (disciplina) => disciplina.diarios)
   @JoinColumn({ name: 'id_disciplina' })
   disciplina!: DisciplinaDbEntity;
+
+  @OneToMany(
+    () => DiarioProfessorDbEntity,
+    (diarioProfessor) => diarioProfessor.diario,
+  )
+  diarioProfessor!: DiarioProfessorDbEntity[];
 }

@@ -198,21 +198,19 @@ export class UsuarioHasCargoService {
       return usuarioHasCargoAlreadyExists;
     }
 
-    const usuarioHasCargo = await appContext.databaseRun(
-      async ({ entityManager }) => {
-        const usuarioHasCargoRepository =
-          getUsuarioHasCargoRepository(entityManager);
+    const usuarioHasCargo = <UsuarioHasCargoDbEntity>{};
 
-        const usuarioHasCargo = new UsuarioHasCargoDbEntity();
+    usuarioHasCargo.cargo = <CargoDbEntity>{ id: cargoId };
+    usuarioHasCargo.usuario = <UsuarioDbEntity>{ id: usuarioId };
 
-        usuarioHasCargo.cargo = <CargoDbEntity>{ id: cargoId };
-        usuarioHasCargo.usuario = <UsuarioDbEntity>{ id: usuarioId };
+    await appContext.databaseRun(async ({ entityManager }) => {
+      const usuarioHasCargoRepository =
+        getUsuarioHasCargoRepository(entityManager);
 
-        await usuarioHasCargoRepository.save(usuarioHasCargo);
+      await usuarioHasCargoRepository.save(usuarioHasCargo);
 
-        return usuarioHasCargo;
-      },
-    );
+      return usuarioHasCargo;
+    });
 
     return this.findUsuarioHasCargoByIdStrictSimple(
       appContext,
@@ -224,11 +222,9 @@ export class UsuarioHasCargoService {
     appContext: AppContext,
     dto: IRemoveCargoFromUsuarioInput,
   ) {
-    const { usuarioId, cargoId } = dto;
-
     const usuarioHasCargo = await this.findUsuarioHasCargoByUsuarioIdAndCargoId(
       appContext,
-      { cargoId, usuarioId },
+      { cargoId: dto.cargoId, usuarioId: dto.usuarioId },
     );
 
     if (!usuarioHasCargo) {
