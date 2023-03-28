@@ -115,13 +115,15 @@ export class TurmaService {
   }
 
   async getTurmaCurso(appContext: AppContext, turmaId: number) {
+    const turma = await this.findTurmaByIdStrictSimple(appContext, turmaId);
+
     const curso = await appContext.databaseRun(async ({ entityManager }) => {
       const cursoRepository = getCursoRepository(entityManager);
 
       return cursoRepository
         .createQueryBuilder('curso')
         .innerJoin('curso.turmas', 'turma')
-        .where('turma.id = :turmaId', { turmaId })
+        .where('turma.id = :turmaId', { turmaId: turma.id })
         .select(['curso.id'])
         .getOne();
     });
@@ -130,6 +132,8 @@ export class TurmaService {
   }
 
   async getTurmaLugarPadrao(appContext: AppContext, turmaId: number) {
+    const turma = await this.findTurmaByIdStrictSimple(appContext, turmaId);
+
     const lugarPadrao = await appContext.databaseRun(
       async ({ entityManager }) => {
         const lugarRepository = getLugarRepository(entityManager);
@@ -137,7 +141,7 @@ export class TurmaService {
         return lugarRepository
           .createQueryBuilder('lugar')
           .innerJoin('lugar.turmas', 'turma')
-          .where('turma.id = :turmaId', { turmaId })
+          .where('turma.id = :turmaId', { turmaId: turma.id })
           .select(['lugar.id'])
           .getOne();
       },

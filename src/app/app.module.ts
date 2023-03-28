@@ -10,6 +10,7 @@ import { DatabaseModule } from '../infrastructure/database/database.module';
 import { DateScalar } from '../infrastructure/graphql/DateScalar';
 import { HttpExceptionFilter } from '../infrastructure/graphql/HttpExceptionFilter';
 import { AppResolver } from './app.resolver';
+import { AulaModule } from './modules/aula/aula.module';
 import { CargoModule } from './modules/cargo/cargo.module';
 import { CursoModule } from './modules/curso/curso.module';
 import { DiaSemanaModule } from './modules/dia-semana/dia-semana.module';
@@ -79,6 +80,10 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
 
     DiarioModule,
     DiarioProfessorModule,
+
+    //
+
+    AulaModule,
   ],
 
   controllers: [],

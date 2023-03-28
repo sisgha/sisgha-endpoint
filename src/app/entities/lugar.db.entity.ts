@@ -1,4 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { AulaDbEntity } from './aula.db.entity';
 import { DisciplinaDbEntity } from './disciplina.db.entity';
 import { TurmaDbEntity } from './turma.db.entity';
 
@@ -21,4 +22,8 @@ export class LugarDbEntity {
 
   @OneToMany(() => TurmaDbEntity, (turma) => turma.lugarPadrao)
   turmas!: TurmaDbEntity[];
+
+
+  @OneToMany(() => AulaDbEntity, (aula) => aula.lugar)
+  aulas!: AulaDbEntity[];
 }

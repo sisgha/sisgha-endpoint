@@ -5,6 +5,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { AulaDbEntity } from './aula.db.entity';
 import { DiaSemanaDbEntity } from './dia-semana.db.entity';
 import { PeriodoDiaDbEntity } from './periodo-dia.db.entity';
 import { TurmaHasTurnoAulaDbEntity } from './turma-has-turno-aula.db.entity';
@@ -27,4 +28,7 @@ export class TurnoAulaDbEntity {
     (turmaHasTurnoAula) => turmaHasTurnoAula.turnoAula,
   )
   turmaHasTurnoAula!: TurmaHasTurnoAulaDbEntity[];
+
+  @OneToMany(() => AulaDbEntity, (aula) => aula.turnoAula)
+  aulas!: AulaDbEntity[];
 }

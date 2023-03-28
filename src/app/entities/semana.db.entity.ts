@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { SemanaStatus } from '../modules/semana/interfaces/SemanaStatus';
+import { AulaDbEntity } from './aula.db.entity';
 
 @Entity('semana')
 export class SemanaDbEntity {
@@ -14,4 +15,7 @@ export class SemanaDbEntity {
 
   @Column({ name: 'status', type: 'enum', enum: Object.values(SemanaStatus) })
   status!: SemanaStatus;
+
+  @OneToMany(() => AulaDbEntity, (aula) => aula.semana)
+  aulas!: AulaDbEntity[];
 }
