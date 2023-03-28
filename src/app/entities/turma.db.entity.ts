@@ -3,10 +3,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { CursoDbEntity } from './curso.db.entity';
 import { LugarDbEntity } from './lugar.db.entity';
+import { TurmaHasTurnoAulaDbEntity } from './turma-has-turno-aula.db.entity';
 
 @Entity('turma')
 export class TurmaDbEntity {
@@ -26,4 +28,10 @@ export class TurmaDbEntity {
   @ManyToOne(() => LugarDbEntity, (lugar) => lugar.turmas, { nullable: true })
   @JoinColumn({ name: 'id_lugar_padrao' })
   lugarPadrao!: LugarDbEntity | null;
+
+  @OneToMany(
+    () => TurmaHasTurnoAulaDbEntity,
+    (turmaHasTurnoAula) => turmaHasTurnoAula.turma,
+  )
+  turmaHasTurnoAula!: TurmaHasTurnoAulaDbEntity[];
 }

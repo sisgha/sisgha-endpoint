@@ -1,6 +1,13 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { DiaSemanaDbEntity } from './dia-semana.db.entity';
 import { PeriodoDiaDbEntity } from './periodo-dia.db.entity';
+import { TurmaHasTurnoAulaDbEntity } from './turma-has-turno-aula.db.entity';
 
 @Entity('turno_aula')
 export class TurnoAulaDbEntity {
@@ -14,4 +21,10 @@ export class TurnoAulaDbEntity {
   @ManyToOne(() => PeriodoDiaDbEntity)
   @JoinColumn({ name: 'id_periodo_dia' })
   periodoDia!: PeriodoDiaDbEntity;
+
+  @OneToMany(
+    () => TurmaHasTurnoAulaDbEntity,
+    (turmaHasTurnoAula) => turmaHasTurnoAula.turnoAula,
+  )
+  turmaHasTurnoAula!: TurmaHasTurnoAulaDbEntity[];
 }
