@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { DisciplinaDbEntity } from './disciplina.db.entity';
+import { TurmaDbEntity } from './turma.db.entity';
 
 @Entity('lugar')
 export class LugarDbEntity {
@@ -17,4 +18,7 @@ export class LugarDbEntity {
 
   @OneToMany(() => DisciplinaDbEntity, (disciplina) => disciplina.lugarPadrao)
   disciplinas!: DisciplinaDbEntity[];
+
+  @OneToMany(() => TurmaDbEntity, (turma) => turma.lugarPadrao)
+  turmas!: TurmaDbEntity[];
 }
