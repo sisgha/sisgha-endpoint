@@ -17,8 +17,7 @@ export class TableProfessor1679180212866 implements MigrationInterface {
 
           {
             name: 'nome',
-            type: 'varchar',
-            length: '200',
+            type: 'text',
           },
         ],
       }),

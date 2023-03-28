@@ -17,14 +17,12 @@ export class TableCurso1679180212858 implements MigrationInterface {
 
           {
             name: 'nome',
-            type: 'varchar',
-            length: '200',
+            type: 'text',
           },
 
           {
             name: 'tipo',
-            type: 'varchar',
-            length: '200',
+            type: 'text',
           },
         ],
       }),

@@ -24,15 +24,13 @@ export class TableUsuario1679180212830 implements MigrationInterface {
 
           {
             name: 'matricula_siape',
-            type: 'varchar',
-            length: '200',
+            type: 'text',
             isNullable: true,
           },
 
           {
             name: 'email',
-            type: 'varchar',
-            length: '400',
+            type: 'text',
             isNullable: true,
           },
         ],

@@ -17,22 +17,19 @@ export class TableLugar1679180212836 implements MigrationInterface {
 
           {
             name: 'numero',
-            type: 'varchar',
-            length: '10',
+            type: 'text',
             isNullable: true,
           },
 
           {
             name: 'tipo',
-            type: 'varchar',
-            length: '20',
+            type: 'text',
             isNullable: true,
           },
 
           {
             name: 'descricao',
-            type: 'varchar',
-            length: '100',
+            type: 'text',
             isNullable: true,
           },
         ],

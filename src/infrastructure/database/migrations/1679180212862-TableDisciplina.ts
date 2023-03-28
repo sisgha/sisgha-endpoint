@@ -17,8 +17,7 @@ export class TableDisciplina1679180212862 implements MigrationInterface {
 
           {
             name: 'nome',
-            type: 'varchar',
-            length: '200',
+            type: 'text',
           },
 
           {

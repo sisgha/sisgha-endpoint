@@ -17,8 +17,7 @@ export class TableCargo1679180212828 implements MigrationInterface {
 
           {
             name: 'slug',
-            type: 'varchar',
-            length: '100',
+            type: 'text',
             isUnique: true,
           },
         ],
