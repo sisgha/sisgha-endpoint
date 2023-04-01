@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { omit, pick } from 'lodash';
+import { getCargoRepository } from 'src/app/repositories/cargo.repository';
+import { getUsuarioHasCargoRepository } from 'src/app/repositories/usuario-has-cargo.repository';
 import { getUsuarioRepository } from 'src/app/repositories/usuario.repository';
 import { AppContext } from 'src/infrastructure/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
@@ -94,9 +96,32 @@ export class UsuarioService {
     const newUser = await appContext.databaseRun(async ({ entityManager }) => {
       const usuarioRepository = getUsuarioRepository(entityManager);
 
+      const usuarioHasCargoRepository =
+        getUsuarioHasCargoRepository(entityManager);
+
+      const cargoRepository = getCargoRepository(entityManager);
+
       const newUser = usuarioRepository.create();
       newUser.keycloakId = keycloakId;
+
+      const hasUsers = await usuarioRepository.findOne({
+        select: ['id'],
+      });
+
       await usuarioRepository.save(newUser);
+
+      if (!hasUsers) {
+        const cargo = await cargoRepository.findOne({
+          where: { slug: 'dape' },
+        });
+
+        if (cargo) {
+          const usuarioHasCargo = usuarioHasCargoRepository.create();
+          usuarioHasCargo.usuario = newUser;
+          usuarioHasCargo.cargo = cargo;
+          await usuarioHasCargoRepository.save(usuarioHasCargo);
+        }
+      }
 
       return await usuarioRepository.findOneOrFail({
         where: { keycloakId: keycloakId },

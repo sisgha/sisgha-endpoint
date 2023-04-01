@@ -33,18 +33,6 @@ export class AppPolicies1679180212854 implements MigrationInterface {
     );
 
     await queryRunner.query(
-      `CREATE POLICY "Authed user with cargo 'dape' can read all usuario"
-      ON usuario 
-      FOR SELECT
-      TO authenticated
-      USING (
-        EXISTS (
-          SELECT * FROM authed_user_has_cargo('dape')
-        )
-      );`,
-    );
-
-    await queryRunner.query(
       `CREATE POLICY "Authed user with cargo 'dape' can manage usuario"
       ON usuario
       FOR ALL
@@ -62,18 +50,6 @@ export class AppPolicies1679180212854 implements MigrationInterface {
       FOR SELECT
       USING (
         id_usuario = public.auth_user_id()
-      );`,
-    );
-
-    await queryRunner.query(
-      `CREATE POLICY "Authed user with cargo 'dape' can read all usuario_has_cargo"
-      ON usuario_has_cargo 
-      FOR SELECT
-      TO authenticated
-      USING (
-        EXISTS (
-          SELECT * FROM authed_user_has_cargo('dape')
-        )
       );`,
     );
 
@@ -103,15 +79,7 @@ export class AppPolicies1679180212854 implements MigrationInterface {
     );
 
     await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can read all usuario" ON usuario;`,
-    );
-
-    await queryRunner.query(
       `DROP POLICY "Authed user with cargo 'dape' can manage usuario" ON usuario;`,
-    );
-
-    await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can manage usuario_has_cargo" ON usuario_has_cargo`,
     );
 
     await queryRunner.query(
@@ -119,7 +87,7 @@ export class AppPolicies1679180212854 implements MigrationInterface {
     );
 
     await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can read all usuario_has_cargo" ON usuario_has_cargo;`,
+      `DROP POLICY "Authed user with cargo 'dape' can manage usuario_has_cargo" ON usuario_has_cargo`,
     );
   }
 }
