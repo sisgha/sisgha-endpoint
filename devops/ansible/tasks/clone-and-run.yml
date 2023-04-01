@@ -1,0 +1,50 @@
+---
+- name: Deploy Docker Container
+  hosts: jipalab
+  become: yes
+  vars:
+    repo_url: "https://github.com/legacybiel/sisgha-endpoint.git"
+    # token: "<personal_access_token>"
+
+  tasks:
+    - name: Clone the repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "/opt/sisgha/sisgha-endpoint"
+        version: main
+        accept_hostkey: yes
+        clone: yes
+        depth: 1
+        recursive: yes
+        update: yes
+        refspec: "+refs/heads/main:refs/remotes/origin/main"
+        # ssh_opts:
+        #   - "StrictHostKeyChecking=no"
+        # extra_args: "-c core.sshCommand='ssh -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o IdentitiesOnly=yes -i /root/.ssh/id_rsa -F /dev/null'"
+        # credentials: "{{ token }}"
+
+    - name: Build the Docker image
+      docker_image:
+        source: build
+        build:
+          path: /opt/sisgha/sisgha-endpoint
+          # pull: yes
+        name: sisgha-endpoint:latest
+
+    - name: Stop and remove the old container
+      docker_container:
+        name: sisgha-endpoint
+        state: absent
+      ignore_errors: true
+
+    - name: Start the new container
+      docker_container:
+        name: sisgha-endpoint
+        image: sisgha-endpoint:latest
+        restart: true
+        networks:
+          - name: sisgha-net
+        restart_policy: unless-stopped
+        env_file: /opt/sisgha/hosted/credentials/.endpoint.env
+        ports:
+          - "5101:5101"
