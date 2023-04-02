@@ -5,9 +5,9 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
-import { ResolveAppContext } from 'src/infrastructure/app-context/ResolveAppContext';
-import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
+import { AppContext } from 'src/app-context/AppContext';
+import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { LugarType } from '../lugar/lugar.type';
 import { DisciplinaService } from './disciplina.service';
 import { DisciplinaType } from './disciplina.type';
@@ -32,7 +32,6 @@ export class DisciplinaResolver {
   async findDisciplinaById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindDisciplinaByIdInputZod)
     dto: FindDisciplinaByIdInputType,
   ) {
@@ -47,7 +46,6 @@ export class DisciplinaResolver {
   async createDisciplina(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', CreateDisciplinaInputZod)
     dto: CreateDisciplinaInputType,
   ) {
@@ -58,7 +56,6 @@ export class DisciplinaResolver {
   async updateDisciplina(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdateDisciplinaInputZod)
     dto: UpdateDisciplinaInputType,
   ) {
@@ -69,7 +66,6 @@ export class DisciplinaResolver {
   async deleteDisciplina(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeleteDisciplinaInputZod)
     dto: DeleteDisciplinaInputType,
   ) {
@@ -84,7 +80,7 @@ export class DisciplinaResolver {
   @ResolveField('genericField', () => String)
   async genericField(
     @ResolveAppContext()
-    appContext: AppContext,
+    appContext: app-context,
 
     @Parent()
     parent: DisciplinaType,
@@ -97,7 +93,6 @@ export class DisciplinaResolver {
   async nome(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: DisciplinaType,
   ) {
@@ -108,7 +103,6 @@ export class DisciplinaResolver {
   async lugarPadrao(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: DisciplinaType,
   ) {

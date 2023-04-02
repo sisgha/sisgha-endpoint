@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { has, omit } from 'lodash';
-import { DisciplinaDbEntity } from 'src/app/entities/disciplina.db.entity';
-import { LugarDbEntity } from 'src/app/entities/lugar.db.entity';
-import { getDisciplinaRepository } from 'src/app/repositories/disciplina.repository';
-import { getLugarRepository } from 'src/app/repositories/lugar.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { DisciplinaDbEntity } from 'src/database/entities/disciplina.db.entity';
+import { LugarDbEntity } from 'src/database/entities/lugar.db.entity';
+import { getDisciplinaRepository } from 'src/database/repositories/disciplina.repository';
+import { getLugarRepository } from 'src/database/repositories/lugar.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import { LugarService } from '../lugar/lugar.service';
 import {
@@ -95,7 +95,7 @@ export class DisciplinaService {
   }
 
   /*
-  async getDisciplinaGenericField(appContext: AppContext, disciplinaId: number) {
+  async getDisciplinaGenericField(appContext: app-context, disciplinaId: number) {
     return this.getDisciplinaGenericField(appContext, disciplinaId, 'genericField');
   }
   */

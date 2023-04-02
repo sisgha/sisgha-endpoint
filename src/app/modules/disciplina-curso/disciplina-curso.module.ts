@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../../infrastructure/database/database.module';
+import { DatabaseModule } from '../../../database/database.module';
 import { CursoModule } from '../curso/curso.module';
 import { DisciplinaModule } from '../disciplina/disciplina.module';
 import { DisciplinaCursoResolver } from './disciplina-curso.resolver';

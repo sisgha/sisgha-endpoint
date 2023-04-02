@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../../infrastructure/database/database.module';
+import { DatabaseModule } from '../../../database/database.module';
 import { TurmaModule } from '../turma/turma.module';
 import { TurnoAulaModule } from '../turno-aula/turno-aula.module';
 import { TurmaHasTurnoAulaResolver } from './turma-has-turno-aula.resolver';

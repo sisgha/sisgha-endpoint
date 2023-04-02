@@ -3,8 +3,8 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import compression from 'compression';
 import 'reflect-metadata';
 import { AppModule } from './app/app.module';
-import { IS_PRODUCTION_MODE } from './infrastructure/consts/IS_PRODUCTION_MODE.const';
-import { getHelmet } from './infrastructure/fixtures';
+import { IS_PRODUCTION_MODE } from './common/constants/IS_PRODUCTION_MODE.const';
+import { getHelmet } from './common/fixtures';
 
 async function bootstrap() {
   const PORT = process.env.PORT ?? 3001;

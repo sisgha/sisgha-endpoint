@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { omit } from 'lodash';
-import { ProfessorDbEntity } from 'src/app/entities/professor.db.entity';
-import { getProfessorRepository } from 'src/app/repositories/professor.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { ProfessorDbEntity } from 'src/database/entities/professor.db.entity';
+import { getProfessorRepository } from 'src/database/repositories/professor.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import {
   ICreateProfessorInput,
@@ -90,7 +90,7 @@ export class ProfessorService {
   }
 
   /*
-  async getProfessorGenericField(appContext: AppContext, professorId: number) {
+  async getProfessorGenericField(appContext: app-context, professorId: number) {
     return this.getProfessorGenericField(appContext, professorId, 'genericField');
   }
   */

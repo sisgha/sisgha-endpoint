@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { omit, pick } from 'lodash';
-import { getCargoRepository } from 'src/app/repositories/cargo.repository';
-import { getUsuarioHasCargoRepository } from 'src/app/repositories/usuario-has-cargo.repository';
-import { getUsuarioRepository } from 'src/app/repositories/usuario.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { getCargoRepository } from 'src/database/repositories/cargo.repository';
+import { getUsuarioHasCargoRepository } from 'src/database/repositories/usuario-has-cargo.repository';
+import { getUsuarioRepository } from 'src/database/repositories/usuario.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
-import { UsuarioDbEntity } from '../../entities/usuario.db.entity';
+import { UsuarioDbEntity } from '../../../database/entities/usuario.db.entity';
 import {
   ICreateUsuarioInput,
   IDeleteUsuarioInput,

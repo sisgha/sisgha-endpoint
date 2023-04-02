@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { omit } from 'lodash';
-import { CursoDbEntity } from 'src/app/entities/curso.db.entity';
-import { getCursoRepository } from 'src/app/repositories/curso.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { CursoDbEntity } from 'src/database/entities/curso.db.entity';
+import { getCursoRepository } from 'src/database/repositories/curso.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import {
   ICreateCursoInput,

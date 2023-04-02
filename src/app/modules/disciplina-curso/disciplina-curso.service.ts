@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CursoDbEntity } from 'src/app/entities/curso.db.entity';
-import { DisciplinaCursoDbEntity } from 'src/app/entities/disciplina-curso.db.entity';
-import { DisciplinaDbEntity } from 'src/app/entities/disciplina.db.entity';
-import { getCursoRepository } from 'src/app/repositories/curso.repository';
-import { getDisciplinaCursoRepository } from 'src/app/repositories/disciplina-curso.repository';
-import { getDisciplinaRepository } from 'src/app/repositories/disciplina.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { CursoDbEntity } from 'src/database/entities/curso.db.entity';
+import { DisciplinaCursoDbEntity } from 'src/database/entities/disciplina-curso.db.entity';
+import { DisciplinaDbEntity } from 'src/database/entities/disciplina.db.entity';
+import { getCursoRepository } from 'src/database/repositories/curso.repository';
+import { getDisciplinaCursoRepository } from 'src/database/repositories/disciplina-curso.repository';
+import { getDisciplinaRepository } from 'src/database/repositories/disciplina.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import { CursoService } from '../curso/curso.service';
 import { DisciplinaService } from '../disciplina/disciplina.service';
@@ -149,7 +149,7 @@ export class DisciplinaCursoService {
   }
 
   /*
-  async getDisciplinaCursoGenericField(appContext: AppContext, disciplinaCursoId: number) {
+  async getDisciplinaCursoGenericField(appContext: app-context, disciplinaCursoId: number) {
     return this.getDisciplinaCursoGenericField(appContext, disciplinaCursoId, 'genericField');
   }
   */

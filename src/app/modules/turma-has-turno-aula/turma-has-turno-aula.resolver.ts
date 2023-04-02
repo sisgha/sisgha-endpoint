@@ -5,9 +5,9 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
-import { ResolveAppContext } from 'src/infrastructure/app-context/ResolveAppContext';
-import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
+import { AppContext } from 'src/app-context/AppContext';
+import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { TurmaType } from '../turma/turma.type';
 import { TurnoAulaType } from '../turno-aula/turno-aula.type';
 import {
@@ -31,7 +31,6 @@ export class TurmaHasTurnoAulaResolver {
   async findTurmaHasTurnoAulaById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindTurmaHasTurnoAulaByIdInputZod)
     dto: FindTurmaHasTurnoAulaByIdInputType,
   ) {
@@ -49,7 +48,6 @@ export class TurmaHasTurnoAulaResolver {
   async addTurnoAulaToTurma(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', AddTurnoAulaToTurmaInputZod)
     dto: AddTurnoAulaToTurmaInputType,
   ) {
@@ -60,7 +58,6 @@ export class TurmaHasTurnoAulaResolver {
   async removeTurnoAulaFromTurma(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', RemoveTurnoAulaFromTurmaInputZod)
     dto: RemoveTurnoAulaFromTurmaInputType,
   ) {
@@ -78,7 +75,7 @@ export class TurmaHasTurnoAulaResolver {
   @ResolveField('genericField', () => String)
   async genericField(
     @ResolveAppContext()
-    appContext: AppContext,
+    appContext: app-context,
 
     @Parent()
     parent: TurmaHasTurnoAulaType,
@@ -91,7 +88,6 @@ export class TurmaHasTurnoAulaResolver {
   async disciplina(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: TurmaHasTurnoAulaType,
   ) {
@@ -105,7 +101,6 @@ export class TurmaHasTurnoAulaResolver {
   async turnoAula(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: TurmaHasTurnoAulaType,
   ) {

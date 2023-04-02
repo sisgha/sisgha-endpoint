@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { has, isUndefined, omit } from 'lodash';
-import { DiarioDbEntity } from 'src/app/entities/diario.db.entity';
-import { DisciplinaDbEntity } from 'src/app/entities/disciplina.db.entity';
-import { TurmaDbEntity } from 'src/app/entities/turma.db.entity';
-import { getDiarioRepository } from 'src/app/repositories/diario.repository';
-import { getDisciplinaRepository } from 'src/app/repositories/disciplina.repository';
-import { getTurmaRepository } from 'src/app/repositories/turma.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { DiarioDbEntity } from 'src/database/entities/diario.db.entity';
+import { DisciplinaDbEntity } from 'src/database/entities/disciplina.db.entity';
+import { TurmaDbEntity } from 'src/database/entities/turma.db.entity';
+import { getDiarioRepository } from 'src/database/repositories/diario.repository';
+import { getDisciplinaRepository } from 'src/database/repositories/disciplina.repository';
+import { getTurmaRepository } from 'src/database/repositories/turma.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import { DisciplinaService } from '../disciplina/disciplina.service';
 import { TurmaService } from '../turma/turma.service';
@@ -101,7 +101,7 @@ export class DiarioService {
   }
 
   /*
-  async getDiarioGenericField(appContext: AppContext, diarioId: number) {
+  async getDiarioGenericField(appContext: app-context, diarioId: number) {
     return this.getDiarioGenericField(appContext, diarioId, 'genericField');
   }
   */

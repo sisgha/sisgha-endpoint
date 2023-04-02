@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CargoDbEntity } from 'src/app/entities/cargo.db.entity';
-import { UsuarioHasCargoDbEntity } from 'src/app/entities/usuario-has-cargo.db.entity';
-import { UsuarioDbEntity } from 'src/app/entities/usuario.db.entity';
-import { getCargoRepository } from 'src/app/repositories/cargo.repository';
-import { getUsuarioHasCargoRepository } from 'src/app/repositories/usuario-has-cargo.repository';
-import { getUsuarioRepository } from 'src/app/repositories/usuario.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { CargoDbEntity } from 'src/database/entities/cargo.db.entity';
+import { UsuarioHasCargoDbEntity } from 'src/database/entities/usuario-has-cargo.db.entity';
+import { UsuarioDbEntity } from 'src/database/entities/usuario.db.entity';
+import { getCargoRepository } from 'src/database/repositories/cargo.repository';
+import { getUsuarioHasCargoRepository } from 'src/database/repositories/usuario-has-cargo.repository';
+import { getUsuarioRepository } from 'src/database/repositories/usuario.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 
 import {

@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { omit } from 'lodash';
-import { LugarDbEntity } from 'src/app/entities/lugar.db.entity';
-import { getLugarRepository } from 'src/app/repositories/lugar.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { LugarDbEntity } from 'src/database/entities/lugar.db.entity';
+import { getLugarRepository } from 'src/database/repositories/lugar.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import {
   ICreateLugarInput,

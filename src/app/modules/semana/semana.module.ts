@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../../infrastructure/database/database.module';
+import { DatabaseModule } from '../../../database/database.module';
 import { SemanaResolver } from './semana.resolver';
 import { SemanaService } from './semana.service';
 

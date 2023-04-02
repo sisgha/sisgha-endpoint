@@ -1,4 +1,4 @@
-import { parseTimeTz, TimetzZod } from 'src/infrastructure/zod/TimetzZod';
+import { parseTimeTz, TimetzZod } from 'src/common/zod/TimetzZod';
 import { RefinementCtx, z } from 'zod';
 
 export const PeriodoDiaHoraIntervaloZod = z.object({

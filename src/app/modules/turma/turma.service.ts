@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { has, isNumber, isUndefined, omit } from 'lodash';
-import { CursoDbEntity } from 'src/app/entities/curso.db.entity';
-import { LugarDbEntity } from 'src/app/entities/lugar.db.entity';
-import { TurmaDbEntity } from 'src/app/entities/turma.db.entity';
-import { getCursoRepository } from 'src/app/repositories/curso.repository';
-import { getLugarRepository } from 'src/app/repositories/lugar.repository';
-import { getTurmaRepository } from 'src/app/repositories/turma.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { CursoDbEntity } from 'src/database/entities/curso.db.entity';
+import { LugarDbEntity } from 'src/database/entities/lugar.db.entity';
+import { TurmaDbEntity } from 'src/database/entities/turma.db.entity';
+import { getCursoRepository } from 'src/database/repositories/curso.repository';
+import { getLugarRepository } from 'src/database/repositories/lugar.repository';
+import { getTurmaRepository } from 'src/database/repositories/turma.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import { CursoService } from '../curso/curso.service';
 import { LugarService } from '../lugar/lugar.service';
@@ -101,7 +101,7 @@ export class TurmaService {
   }
 
   /*
-  async getTurmaGenericField(appContext: AppContext, turmaId: number) {
+  async getTurmaGenericField(appContext: app-context, turmaId: number) {
     return this.getTurmaGenericField(appContext, turmaId, 'genericField');
   }
   */

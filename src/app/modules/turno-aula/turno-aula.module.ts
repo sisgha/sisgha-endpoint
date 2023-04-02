@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../../infrastructure/database/database.module';
+import { DatabaseModule } from '../../../database/database.module';
 import { DiaSemanaModule } from '../dia-semana/dia-semana.module';
 import { PeriodoDiaModule } from '../periodo-dia/periodo-dia.module';
 import { TurnoAulaResolver } from './turno-aula.resolver';

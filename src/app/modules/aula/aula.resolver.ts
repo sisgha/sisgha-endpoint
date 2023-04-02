@@ -5,9 +5,9 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
-import { ResolveAppContext } from 'src/infrastructure/app-context/ResolveAppContext';
-import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
+import { AppContext } from 'src/app-context/AppContext';
+import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { DiarioType } from '../diario/diario.type';
 import { LugarType } from '../lugar/lugar.type';
 import { SemanaType } from '../semana/semana.type';
@@ -87,7 +87,7 @@ export class AulaResolver {
   @ResolveField('genericField', () => String)
   async genericField(
     @ResolveAppContext()
-    appContext: AppContext,
+    appContext: app-context,
 
     @Parent()
     parent: AulaType,

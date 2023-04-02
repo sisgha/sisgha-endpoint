@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../../infrastructure/database/database.module';
+import { DatabaseModule } from '../../../database/database.module';
 import { CursoModule } from '../curso/curso.module';
 import { LugarModule } from '../lugar/lugar.module';
 import { TurmaResolver } from './turma.resolver';

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../../infrastructure/database/database.module';
+import { DatabaseModule } from '../../../database/database.module';
 import { DiarioModule } from '../diario/diario.module';
 import { LugarModule } from '../lugar/lugar.module';
 import { SemanaModule } from '../semana/semana.module';

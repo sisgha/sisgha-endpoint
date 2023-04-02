@@ -5,9 +5,9 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
-import { ResolveAppContext } from 'src/infrastructure/app-context/ResolveAppContext';
-import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
+import { AppContext } from 'src/app-context/AppContext';
+import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { DiarioType } from '../diario/diario.type';
 import { ProfessorType } from '../professor/professor.type';
 import { DiarioProfessorService } from './diario-professor.service';
@@ -31,7 +31,6 @@ export class DiarioProfessorResolver {
   async findDiarioProfessorById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindDiarioProfessorByIdInputZod)
     dto: FindDiarioProfessorByIdInputType,
   ) {
@@ -49,7 +48,6 @@ export class DiarioProfessorResolver {
   async addProfessorToDiario(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', AddProfessorToDiarioInputZod)
     dto: AddProfessorToDiarioInputType,
   ) {
@@ -60,7 +58,6 @@ export class DiarioProfessorResolver {
   async removeProfessorFromDiario(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', RemoveProfessorFromDiarioInputZod)
     dto: RemoveProfessorFromDiarioInputType,
   ) {
@@ -78,7 +75,7 @@ export class DiarioProfessorResolver {
   @ResolveField('genericField', () => String)
   async genericField(
     @ResolveAppContext()
-    appContext: AppContext,
+    appContext: app-context,
 
     @Parent()
     parent: DiarioProfessorType,
@@ -91,7 +88,6 @@ export class DiarioProfessorResolver {
   async diario(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: DiarioProfessorType,
   ) {
@@ -105,7 +101,6 @@ export class DiarioProfessorResolver {
   async professor(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: DiarioProfessorType,
   ) {

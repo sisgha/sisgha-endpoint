@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { has, isUndefined, omit } from 'lodash';
-import { AulaDbEntity } from 'src/app/entities/aula.db.entity';
-import { DiarioDbEntity } from 'src/app/entities/diario.db.entity';
-import { LugarDbEntity } from 'src/app/entities/lugar.db.entity';
-import { SemanaDbEntity } from 'src/app/entities/semana.db.entity';
-import { TurnoAulaDbEntity } from 'src/app/entities/turno-aula.db.entity';
-import { getAulaRepository } from 'src/app/repositories/aula.repository';
-import { getDiarioRepository } from 'src/app/repositories/diario.repository';
-import { getLugarRepository } from 'src/app/repositories/lugar.repository';
-import { getSemanaRepository } from 'src/app/repositories/semana.repository';
-import { getTurnoAulaRepository } from 'src/app/repositories/turno-aula.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { AulaDbEntity } from 'src/database/entities/aula.db.entity';
+import { DiarioDbEntity } from 'src/database/entities/diario.db.entity';
+import { LugarDbEntity } from 'src/database/entities/lugar.db.entity';
+import { SemanaDbEntity } from 'src/database/entities/semana.db.entity';
+import { TurnoAulaDbEntity } from 'src/database/entities/turno-aula.db.entity';
+import { getAulaRepository } from 'src/database/repositories/aula.repository';
+import { getDiarioRepository } from 'src/database/repositories/diario.repository';
+import { getLugarRepository } from 'src/database/repositories/lugar.repository';
+import { getSemanaRepository } from 'src/database/repositories/semana.repository';
+import { getTurnoAulaRepository } from 'src/database/repositories/turno-aula.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import { DiarioService } from '../diario/diario.service';
 import { LugarService } from '../lugar/lugar.service';
@@ -109,7 +109,7 @@ export class AulaService {
   }
 
   /*
-  async getAulaGenericField(appContext: AppContext, aulaId: number) {
+  async getAulaGenericField(appContext: app-context, aulaId: number) {
     return this.getAulaGenericField(appContext, aulaId, 'genericField');
   }
   */

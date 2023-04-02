@@ -5,9 +5,9 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
-import { ResolveAppContext } from 'src/infrastructure/app-context/ResolveAppContext';
-import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
+import { AppContext } from 'src/app-context/AppContext';
+import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import {
   CreateSemanaInputType,
   CreateSemanaInputZod,

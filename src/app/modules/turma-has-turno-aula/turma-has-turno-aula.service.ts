@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { TurmaHasTurnoAulaDbEntity } from 'src/app/entities/turma-has-turno-aula.db.entity';
-import { TurmaDbEntity } from 'src/app/entities/turma.db.entity';
-import { TurnoAulaDbEntity } from 'src/app/entities/turno-aula.db.entity';
-import { getTurmaHasTurnoAulaRepository } from 'src/app/repositories/turma-has-turno-aula.repository';
-import { getTurmaRepository } from 'src/app/repositories/turma.repository';
-import { getTurnoAulaRepository } from 'src/app/repositories/turno-aula.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { TurmaHasTurnoAulaDbEntity } from 'src/database/entities/turma-has-turno-aula.db.entity';
+import { TurmaDbEntity } from 'src/database/entities/turma.db.entity';
+import { TurnoAulaDbEntity } from 'src/database/entities/turno-aula.db.entity';
+import { getTurmaHasTurnoAulaRepository } from 'src/database/repositories/turma-has-turno-aula.repository';
+import { getTurmaRepository } from 'src/database/repositories/turma.repository';
+import { getTurnoAulaRepository } from 'src/database/repositories/turno-aula.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import { TurmaService } from '../turma/turma.service';
 import { TurnoAulaService } from '../turno-aula/turno-aula.service';
@@ -151,7 +151,7 @@ export class TurmaHasTurnoAulaService {
   }
 
   /*
-  async getTurmaHasTurnoAulaGenericField(appContext: AppContext, turmaHasTurnoAulaId: number) {
+  async getTurmaHasTurnoAulaGenericField(appContext: app-context, turmaHasTurnoAulaId: number) {
     return this.getTurmaHasTurnoAulaGenericField(appContext, turmaHasTurnoAulaId, 'genericField');
   }
   */

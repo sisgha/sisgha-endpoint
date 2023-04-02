@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { omit } from 'lodash';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { isNil, omit } from 'lodash';
+import MeiliSearch from 'meilisearch';
+import { INDEX_CARGO } from 'src/meilisearch/constants/meilisearch-tokens';
+import { AppContext } from 'src/app-context/AppContext';
+import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
+import { parralelMap } from 'src/common/utils/parralel-map';
 import { FindOneOptions } from 'typeorm';
-import { CargoDbEntity } from '../../entities/cargo.db.entity';
-import { getCargoRepository } from '../../repositories/cargo.repository';
+import { CargoDbEntity } from '../../../database/entities/cargo.db.entity';
+import { getCargoRepository } from '../../../database/repositories/cargo.repository';
+import { CargoType } from './cargo.type';
 import {
   ICreateCargoInput,
   IDeleteCargoInput,

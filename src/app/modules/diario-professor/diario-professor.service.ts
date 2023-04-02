@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DiarioProfessorDbEntity } from 'src/app/entities/diario-professor.db.entity';
-import { DiarioDbEntity } from 'src/app/entities/diario.db.entity';
-import { ProfessorDbEntity } from 'src/app/entities/professor.db.entity';
-import { getDiarioProfessorRepository } from 'src/app/repositories/diario-professor.repository';
-import { getDiarioRepository } from 'src/app/repositories/diario.repository';
-import { getProfessorRepository } from 'src/app/repositories/professor.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { DiarioProfessorDbEntity } from 'src/database/entities/diario-professor.db.entity';
+import { DiarioDbEntity } from 'src/database/entities/diario.db.entity';
+import { ProfessorDbEntity } from 'src/database/entities/professor.db.entity';
+import { getDiarioProfessorRepository } from 'src/database/repositories/diario-professor.repository';
+import { getDiarioRepository } from 'src/database/repositories/diario.repository';
+import { getProfessorRepository } from 'src/database/repositories/professor.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import { DiarioService } from '../diario/diario.service';
 import { ProfessorService } from '../professor/professor.service';
@@ -149,7 +149,7 @@ export class DiarioProfessorService {
   }
 
   /*
-  async getDiarioProfessorGenericField(appContext: AppContext, diarioProfessorId: number) {
+  async getDiarioProfessorGenericField(appContext: app-context, diarioProfessorId: number) {
     return this.getDiarioProfessorGenericField(appContext, diarioProfessorId, 'genericField');
   }
   */

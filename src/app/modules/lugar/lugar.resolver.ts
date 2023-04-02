@@ -5,9 +5,9 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
-import { ResolveAppContext } from 'src/infrastructure/app-context/ResolveAppContext';
-import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
+import { AppContext } from 'src/app-context/AppContext';
+import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import {
   CreateLugarInputType,
   CreateLugarInputZod,
@@ -31,7 +31,6 @@ export class LugarResolver {
   async findLugarById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindLugarByIdInputZod)
     dto: FindLugarByIdInputType,
   ) {
@@ -46,7 +45,6 @@ export class LugarResolver {
   async createLugar(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', CreateLugarInputZod)
     dto: CreateLugarInputType,
   ) {
@@ -57,7 +55,6 @@ export class LugarResolver {
   async updateLugar(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdateLugarInputZod)
     dto: UpdateLugarInputType,
   ) {
@@ -68,7 +65,6 @@ export class LugarResolver {
   async deleteLugar(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeleteLugarInputZod)
     dto: DeleteLugarInputType,
   ) {
@@ -83,7 +79,6 @@ export class LugarResolver {
   async numero(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: LugarType,
   ) {
@@ -94,7 +89,6 @@ export class LugarResolver {
   async descricao(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: LugarType,
   ) {

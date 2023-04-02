@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { omit } from 'lodash';
-import { SemanaDbEntity } from 'src/app/entities/semana.db.entity';
-import { getSemanaRepository } from 'src/app/repositories/semana.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { SemanaDbEntity } from 'src/database/entities/semana.db.entity';
+import { getSemanaRepository } from 'src/database/repositories/semana.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import {
   ICreateSemanaInput,

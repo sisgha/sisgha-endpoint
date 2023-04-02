@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { omit } from 'lodash';
-import { PeriodoDiaDbEntity } from 'src/app/entities/periodo-dia.db.entity';
-import { getPeriodoDiaRepository } from 'src/app/repositories/periodo-dia.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { PeriodoDiaDbEntity } from 'src/database/entities/periodo-dia.db.entity';
+import { getPeriodoDiaRepository } from 'src/database/repositories/periodo-dia.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import {
   ICreatePeriodoDiaInput,

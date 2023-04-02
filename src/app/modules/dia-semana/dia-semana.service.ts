@@ -4,9 +4,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { has, omit } from 'lodash';
-import { DiaSemanaDbEntity } from 'src/app/entities/dia-semana.db.entity';
-import { getDiaSemanaRepository } from 'src/app/repositories/dia-semana.repository';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
+import { DiaSemanaDbEntity } from 'src/database/entities/dia-semana.db.entity';
+import { getDiaSemanaRepository } from 'src/database/repositories/dia-semana.repository';
+import { AppContext } from 'src/app-context/AppContext';
 import { FindOneOptions } from 'typeorm';
 import {
   ICreateDiaSemanaInput,

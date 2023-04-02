@@ -1,7 +1,7 @@
 import { Mutation, Parent, ResolveField, Resolver } from '@nestjs/graphql';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
-import { ResolveAppContext } from 'src/infrastructure/app-context/ResolveAppContext';
-import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
+import { AppContext } from 'src/app-context/AppContext';
+import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { CursoType } from '../curso/curso.type';
 import { DisciplinaType } from '../disciplina/disciplina.type';
 import { DisciplinaCursoService } from './disciplina-curso.service';
@@ -56,7 +56,7 @@ export class DisciplinaCursoResolver {
   @ResolveField('genericField', () => String)
   async genericField(
     @ResolveAppContext()
-    appContext: AppContext,
+    appContext: app-context,
 
     @Parent()
     parent: DisciplinaCursoType,
