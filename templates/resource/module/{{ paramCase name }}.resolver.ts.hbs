@@ -5,9 +5,9 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/infrastructure/app-context/AppContext';
-import { ResolveAppContext } from 'src/infrastructure/app-context/ResolveAppContext';
-import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
+import { AppContext } from 'src/app-context/AppContext';
+import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { ValidatedArgs } from 'src/graphql/ValidatedArgs.decorator';
 import { {{ pascalCase name }}Service } from './{{ paramCase name }}.service';
 import { {{ pascalCase name }}Type } from './{{ paramCase name }}.type';
 import {
@@ -17,9 +17,13 @@ import {
   Delete{{ pascalCase name }}InputZod,
   Find{{ pascalCase name }}ByIdInputType,
   Find{{ pascalCase name }}ByIdInputZod,
+  List{{ pascalCase name }}InputType,
+  List{{ pascalCase name }}InputZod,
+  List{{ pascalCase name }}ResultType,
   Update{{ pascalCase name }}InputType,
   Update{{ pascalCase name }}InputZod,
 } from './dtos';
+
 
 @Resolver(() => {{ pascalCase name }}Type)
 export class {{ pascalCase name }}Resolver {
@@ -36,6 +40,18 @@ export class {{ pascalCase name }}Resolver {
     dto: Find{{ pascalCase name }}ByIdInputType,
   ) {
     return this.{{ camelCase name }}Service.find{{ pascalCase name }}ByIdStrict(appContext, dto);
+  }
+
+
+  @Query(() => List{{ pascalCase name }}ResultType)
+  async list{{ pascalCase name }}s(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', List{{ pascalCase name }}InputZod)
+    dto: List{{ pascalCase name }}InputType,
+  ) {
+    return this.{{ camelCase name }}Service.list{{ pascalCase name }}s(appContext, dto);
   }
 
   // END: queries

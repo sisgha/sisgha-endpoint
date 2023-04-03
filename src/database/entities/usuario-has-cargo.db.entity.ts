@@ -1,4 +1,11 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { CargoDbEntity } from './cargo.db.entity';
 import { UsuarioDbEntity } from './usuario.db.entity';
 
@@ -14,4 +21,14 @@ export class UsuarioHasCargoDbEntity {
   @ManyToOne(() => CargoDbEntity)
   @JoinColumn({ name: 'id_cargo' })
   cargo!: CargoDbEntity;
+
+  @UpdateDateColumn({
+    name: 'last_update',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  lastUpdate!: Date | null;
+
+  @Column({ name: 'last_search_sync', type: 'timestamptz', nullable: true })
+  lastSearchSync!: Date | null;
 }

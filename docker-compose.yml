@@ -4,7 +4,7 @@ services:
     user: node
     command: sh -c "tail -f /dev/null"
     container_name: sisgha-endpoint
-    restart: always
+    # restart: always
     working_dir: /code
     depends_on:
       - endpoint-db
@@ -20,9 +20,10 @@ services:
   endpoint-db:
     image: bitnami/postgresql:15
     container_name: sisgha-endpoint-db
+    # restart: always
     volumes:
       - 'sisgha-endpoint-db-data:/bitnami/postgresql'
-      - ./volumes/db/scripts/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - './volumes/db/scripts/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d'
     env_file:
       - .db.env
     networks:
@@ -30,8 +31,23 @@ services:
     ports:
       - 5432:5432
 
+  endpoint-meilisearch:
+    image: getmeili/meilisearch:v1.0.2
+    container_name: sisgha-endpoint-meilisearch
+    # restart: always
+    ports:
+      - 7700:7700
+    env_file:
+      - .meilisearch.env
+    volumes:
+      - 'sisgha-endpoint-meilisearch-data:/data.ms'
+    networks:
+      - sisgha-net
+
+
 networks:
   sisgha-net:
 
 volumes:
   sisgha-endpoint-db-data:
+  sisgha-endpoint-meilisearch-data:

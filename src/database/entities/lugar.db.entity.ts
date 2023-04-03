@@ -33,12 +33,12 @@ export class LugarDbEntity {
   @Column({ name: 'last_search_sync', type: 'timestamptz', nullable: true })
   lastSearchSync!: Date | null;
 
-  @OneToMany(() => DisciplinaDbEntity, (disciplina) => disciplina.lugarPadrao)
-  disciplinas!: DisciplinaDbEntity[];
+  @OneToMany(() => AulaDbEntity, (aula) => aula.lugar)
+  aulas!: AulaDbEntity[];
 
   @OneToMany(() => TurmaDbEntity, (turma) => turma.lugarPadrao)
   turmas!: TurmaDbEntity[];
 
-  @OneToMany(() => AulaDbEntity, (aula) => aula.lugar)
-  aulas!: AulaDbEntity[];
+  @OneToMany(() => DisciplinaDbEntity, (disciplina) => disciplina.lugarPadrao)
+  disciplinas!: DisciplinaDbEntity[];
 }

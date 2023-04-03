@@ -15,9 +15,6 @@ export class DiaSemanaDbEntity {
   @Column({ name: 'ordem', type: 'int' })
   ordem!: number;
 
-  @OneToMany(() => TurnoAulaDbEntity, (turnoAula) => turnoAula.diaSemana)
-  turnoAula!: TurnoAulaDbEntity[];
-
   @UpdateDateColumn({
     name: 'last_update',
     type: 'timestamptz',
@@ -27,4 +24,7 @@ export class DiaSemanaDbEntity {
 
   @Column({ name: 'last_search_sync', type: 'timestamptz', nullable: true })
   lastSearchSync!: Date | null;
+
+  @OneToMany(() => TurnoAulaDbEntity, (turnoAula) => turnoAula.diaSemana)
+  turnoAula!: TurnoAulaDbEntity[];
 }

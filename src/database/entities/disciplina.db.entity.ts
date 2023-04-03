@@ -33,12 +33,12 @@ export class DisciplinaDbEntity {
   @Column({ name: 'last_search_sync', type: 'timestamptz', nullable: true })
   lastSearchSync!: Date | null;
 
+  @OneToMany(() => DiarioDbEntity, (diario) => diario.disciplina)
+  diarios!: DiarioDbEntity[];
+
   @OneToMany(
     () => DisciplinaCursoDbEntity,
     (disciplinaCurso) => disciplinaCurso.disciplina,
   )
   disciplinaCurso!: DisciplinaCursoDbEntity[];
-
-  @OneToMany(() => DiarioDbEntity, (diario) => diario.disciplina)
-  diarios!: DiarioDbEntity[];
 }

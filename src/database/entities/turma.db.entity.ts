@@ -41,12 +41,12 @@ export class TurmaDbEntity {
   @Column({ name: 'last_search_sync', type: 'timestamptz', nullable: true })
   lastSearchSync!: Date | null;
 
+  @OneToMany(() => DiarioDbEntity, (diario) => diario.turma)
+  diarios!: DiarioDbEntity[];
+
   @OneToMany(
     () => TurmaHasTurnoAulaDbEntity,
     (turmaHasTurnoAula) => turmaHasTurnoAula.turma,
   )
   turmaHasTurnoAula!: TurmaHasTurnoAulaDbEntity[];
-
-  @OneToMany(() => DiarioDbEntity, (diario) => diario.turma)
-  diarios!: DiarioDbEntity[];
 }

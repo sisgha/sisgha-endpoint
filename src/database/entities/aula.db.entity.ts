@@ -1,4 +1,11 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { DiarioDbEntity } from './diario.db.entity';
 import { LugarDbEntity } from './lugar.db.entity';
 import { SemanaDbEntity } from './semana.db.entity';
@@ -24,4 +31,14 @@ export class AulaDbEntity {
   @ManyToOne(() => LugarDbEntity, { nullable: true })
   @JoinColumn({ name: 'id_lugar' })
   lugar!: LugarDbEntity | null;
+
+  @UpdateDateColumn({
+    name: 'last_update',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  lastUpdate!: Date | null;
+
+  @Column({ name: 'last_search_sync', type: 'timestamptz', nullable: true })
+  lastSearchSync!: Date | null;
 }

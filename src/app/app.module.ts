@@ -66,6 +66,10 @@ import { AppController } from './app.controller';
 
     //
 
+    MeiliSearchModule,
+
+    //
+
     UsuarioModule,
     CargoModule,
     UsuarioHasCargoModule,

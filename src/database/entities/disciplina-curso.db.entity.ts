@@ -1,4 +1,11 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { CursoDbEntity } from './curso.db.entity';
 import { DisciplinaDbEntity } from './disciplina.db.entity';
 
@@ -14,4 +21,14 @@ export class DisciplinaCursoDbEntity {
   @ManyToOne(() => CursoDbEntity)
   @JoinColumn({ name: 'id_curso' })
   curso!: CursoDbEntity;
+
+  @UpdateDateColumn({
+    name: 'last_update',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  lastUpdate!: Date | null;
+
+  @Column({ name: 'last_search_sync', type: 'timestamptz', nullable: true })
+  lastSearchSync!: Date | null;
 }

@@ -30,7 +30,7 @@ export default function (
 
       {
         type: 'addMany',
-        destination: 'src/app/repositories/',
+        destination: 'src/database/repositories/',
         base: `templates/resource/repositories`,
         templateFiles: `templates/resource/repositories/**/*.hbs`,
         skipIfExists: true,
@@ -38,7 +38,7 @@ export default function (
 
       {
         type: 'addMany',
-        destination: 'src/app/entities/',
+        destination: 'src/database/entities/',
         base: `templates/resource/entities`,
         templateFiles: `templates/resource/entities/**/*.hbs`,
         skipIfExists: true,

@@ -29,12 +29,12 @@ export class CursoDbEntity {
   @Column({ name: 'last_search_sync', type: 'timestamptz', nullable: true })
   lastSearchSync!: Date | null;
 
+  @OneToMany(() => TurmaDbEntity, (turma) => turma.curso)
+  turmas!: TurmaDbEntity[];
+
   @OneToMany(
     () => DisciplinaCursoDbEntity,
     (disciplinaCurso) => disciplinaCurso.curso,
   )
   disciplinaCurso!: DisciplinaCursoDbEntity[];
-
-  @OneToMany(() => TurmaDbEntity, (turma) => turma.curso)
-  turmas!: TurmaDbEntity[];
 }

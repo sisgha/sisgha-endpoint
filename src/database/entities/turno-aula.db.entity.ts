@@ -1,9 +1,11 @@
 import {
+  Column,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { AulaDbEntity } from './aula.db.entity';
 import { DiaSemanaDbEntity } from './dia-semana.db.entity';
@@ -23,12 +25,22 @@ export class TurnoAulaDbEntity {
   @JoinColumn({ name: 'id_periodo_dia' })
   periodoDia!: PeriodoDiaDbEntity;
 
+  @UpdateDateColumn({
+    name: 'last_update',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  lastUpdate!: Date | null;
+
+  @Column({ name: 'last_search_sync', type: 'timestamptz', nullable: true })
+  lastSearchSync!: Date | null;
+
+  @OneToMany(() => AulaDbEntity, (aula) => aula.turnoAula)
+  aulas!: AulaDbEntity[];
+
   @OneToMany(
     () => TurmaHasTurnoAulaDbEntity,
     (turmaHasTurnoAula) => turmaHasTurnoAula.turnoAula,
   )
   turmaHasTurnoAula!: TurmaHasTurnoAulaDbEntity[];
-
-  @OneToMany(() => AulaDbEntity, (aula) => aula.turnoAula)
-  aulas!: AulaDbEntity[];
 }
