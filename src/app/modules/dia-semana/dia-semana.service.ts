@@ -9,7 +9,7 @@ import { parralelMap } from 'src/common/utils/parralel-map';
 import { DiaSemanaDbEntity } from 'src/database/entities/dia-semana.db.entity';
 import { getDiaSemanaRepository } from 'src/database/repositories/dia-semana.repository';
 import { INDEX_DIA_SEMANA } from 'src/meilisearch/constants/meilisearch-tokens';
-import { IGenericListInput, IGenericListInput } from 'src/meilisearch/dtos';
+import { IGenericListInput } from 'src/meilisearch/dtos';
 import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import { DiaSemanaType } from './dia-semana.type';

@@ -18,10 +18,10 @@ import {
   ICreateDiarioInput,
   IDeleteDiarioInput,
   IFindDiarioByIdInput,
-  IListDiarioInput,
   IUpdateDiarioInput,
   ListDiarioResultType,
 } from './dtos';
+import { IGenericListInput } from 'src/meilisearch/dtos';
 
 @Injectable()
 export class DiarioService {
@@ -96,7 +96,7 @@ export class DiarioService {
 
   async listDiario(
     appContext: AppContext,
-    dto: IListDiarioInput,
+    dto: IGenericListInput,
   ): Promise<ListDiarioResultType> {
     const result = await this.meilisearchService.listResource<DiarioType>(
       INDEX_DIARIO,

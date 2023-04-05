@@ -5,13 +5,13 @@ import { parralelMap } from 'src/common/utils/parralel-map';
 import { PeriodoDiaDbEntity } from 'src/database/entities/periodo-dia.db.entity';
 import { getPeriodoDiaRepository } from 'src/database/repositories/periodo-dia.repository';
 import { INDEX_PERIODO_DIA } from 'src/meilisearch/constants/meilisearch-tokens';
+import { IGenericListInput } from 'src/meilisearch/dtos';
 import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import {
   ICreatePeriodoDiaInput,
   IDeletePeriodoDiaInput,
   IFindPeriodoDiaByIdInput,
-  IListPeriodoDiaInput,
   IUpdatePeriodoDiaInput,
   ListPeriodoDiaResultType,
 } from './dtos';
@@ -85,7 +85,7 @@ export class PeriodoDiaService {
 
   async listPeriodoDia(
     appContext: AppContext,
-    dto: IListPeriodoDiaInput,
+    dto: IGenericListInput,
   ): Promise<ListPeriodoDiaResultType> {
     const result = await this.meilisearchService.listResource<PeriodoDiaType>(
       INDEX_PERIODO_DIA,
