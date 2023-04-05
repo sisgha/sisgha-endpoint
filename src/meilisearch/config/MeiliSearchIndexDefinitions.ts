@@ -59,8 +59,9 @@ export const MeilisearchIndexDefinitions: IMeiliSearchIndexDefinition[] = [
 
     primaryKey: 'id',
 
-    searchable: ['id', 'diario.id', 'semana.id', 'turnoAula.id', 'lugar.id'],
+    searchable: ['id'],
     filterable: ['id', 'diario.id', 'semana.id', 'turnoAula.id', 'lugar.id'],
+
     sortable: [],
 
     getSearchableDataView: () => [
@@ -81,6 +82,7 @@ export const MeilisearchIndexDefinitions: IMeiliSearchIndexDefinition[] = [
     primaryKey: 'id',
 
     searchable: ['id', 'slug'],
+
     filterable: ['id'],
     sortable: ['slug'],
 
@@ -125,7 +127,7 @@ export const MeilisearchIndexDefinitions: IMeiliSearchIndexDefinition[] = [
 
     primaryKey: 'id',
 
-    searchable: ['id', 'professor.id', 'diario.id'],
+    searchable: ['id'],
     filterable: ['id', 'professor.id', 'diario.id'],
     sortable: ['professor.id', 'diario.id'],
 
@@ -140,7 +142,7 @@ export const MeilisearchIndexDefinitions: IMeiliSearchIndexDefinition[] = [
 
     primaryKey: 'id',
 
-    searchable: ['id', 'turma.id', 'disciplina.id'],
+    searchable: ['id'],
     filterable: ['id', 'turma.id', 'disciplina.id'],
     sortable: ['turma.id', 'disciplina.id'],
 
@@ -155,7 +157,7 @@ export const MeilisearchIndexDefinitions: IMeiliSearchIndexDefinition[] = [
 
     primaryKey: 'id',
 
-    searchable: ['id', 'curso.id', 'disciplina.id'],
+    searchable: ['id'],
     filterable: ['id', 'curso.id', 'disciplina.id'],
     sortable: ['curso.id', 'disciplina.id'],
 
@@ -170,7 +172,7 @@ export const MeilisearchIndexDefinitions: IMeiliSearchIndexDefinition[] = [
 
     primaryKey: 'id',
 
-    searchable: ['id', 'nome', 'lugarPadrao.id'],
+    searchable: ['id', 'nome'],
     filterable: ['id', 'nome', 'lugarPadrao.id'],
     sortable: ['nome', 'lugarPadrao.id'],
 
@@ -245,7 +247,7 @@ export const MeilisearchIndexDefinitions: IMeiliSearchIndexDefinition[] = [
 
     primaryKey: 'id',
 
-    searchable: ['id', 'turma.id', 'turnoAula.id'],
+    searchable: ['id'],
     filterable: ['id', 'turma.id', 'turnoAula.id'],
     sortable: ['turma.id', 'turnoAula.id'],
 
@@ -260,7 +262,7 @@ export const MeilisearchIndexDefinitions: IMeiliSearchIndexDefinition[] = [
 
     primaryKey: 'id',
 
-    searchable: ['id', 'periodo.id', 'turno.id', 'curso.id', 'lugarPadrao.id'],
+    searchable: ['id'],
     filterable: ['id', 'periodo.id', 'turno.id', 'curso.id', 'lugarPadrao.id'],
     sortable: ['periodo.id', 'turno.id', 'curso.id', 'lugarPadrao.id'],
 
@@ -281,7 +283,7 @@ export const MeilisearchIndexDefinitions: IMeiliSearchIndexDefinition[] = [
 
     primaryKey: 'id',
 
-    searchable: ['id', 'diaSemana.id', 'periodoDia.id'],
+    searchable: ['id'],
     filterable: ['id', 'diaSemana.id', 'periodoDia.id'],
     sortable: ['diaSemana.id', 'periodoDia.id'],
 
@@ -296,7 +298,7 @@ export const MeilisearchIndexDefinitions: IMeiliSearchIndexDefinition[] = [
 
     primaryKey: 'id',
 
-    searchable: ['id', 'usuario.id', 'cargo.id'],
+    searchable: ['id'],
     filterable: ['id'],
     sortable: ['usuario.id', 'cargo.id'],
 
