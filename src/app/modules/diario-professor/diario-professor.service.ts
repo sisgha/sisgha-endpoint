@@ -1,19 +1,27 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { isNil } from 'lodash';
+import MeiliSearch from 'meilisearch';
+import { AppContext } from 'src/app-context/AppContext';
+import { parralelMap } from 'src/common/utils/parralel-map';
 import { DiarioProfessorDbEntity } from 'src/database/entities/diario-professor.db.entity';
 import { DiarioDbEntity } from 'src/database/entities/diario.db.entity';
 import { ProfessorDbEntity } from 'src/database/entities/professor.db.entity';
 import { getDiarioProfessorRepository } from 'src/database/repositories/diario-professor.repository';
 import { getDiarioRepository } from 'src/database/repositories/diario.repository';
 import { getProfessorRepository } from 'src/database/repositories/professor.repository';
-import { AppContext } from 'src/app-context/AppContext';
+import { INDEX_DIARIO_PROFESSOR } from 'src/meilisearch/constants/meilisearch-tokens';
+import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 import { FindOneOptions } from 'typeorm';
 import { DiarioService } from '../diario/diario.service';
 import { ProfessorService } from '../professor/professor.service';
+import { DiarioProfessorType } from './diario-professor.type';
 import {
   IAddProfessorToDiarioInput,
   IFindDiarioProfessorByIdInput,
   IFindDiarioProfessorByProfessorIdAndDiarioIdInput,
+  IListDiarioProfessorInput,
   IRemoveProfessorFromDiarioInput,
+  ListDiarioProfessorResultType,
 } from './dtos';
 
 @Injectable()
@@ -21,6 +29,9 @@ export class DiarioProfessorService {
   constructor(
     private professorService: ProfessorService,
     private diarioService: DiarioService,
+
+    @Inject(MEILISEARCH_CLIENT)
+    private meilisearchClient: MeiliSearch,
   ) {}
 
   async findDiarioProfessorById(
@@ -132,6 +143,46 @@ export class DiarioProfessorService {
     }
 
     return diarioProfessor;
+  }
+
+  async listDiarioProfessor(
+    appContext: AppContext,
+    dto: IListDiarioProfessorInput,
+  ): Promise<ListDiarioProfessorResultType> {
+    const { query, limit, offset } = dto;
+
+    const meilisearchResult = await this.meilisearchClient
+      .index(INDEX_DIARIO_PROFESSOR)
+      .search<DiarioProfessorType>(query, { limit, offset });
+
+    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+      const id = hit.id;
+
+      if (!isNil(id)) {
+        const diarioProfessor = await this.findDiarioProfessorById(appContext, {
+          id: hit.id,
+        });
+
+        if (diarioProfessor) {
+          return diarioProfessor;
+        }
+      }
+
+      return null;
+    });
+
+    const result: ListDiarioProfessorResultType = {
+      query: meilisearchResult.query,
+
+      limit: meilisearchResult.limit,
+      offset: meilisearchResult.offset,
+
+      total: meilisearchResult.estimatedTotalHits,
+
+      items: items,
+    };
+
+    return result;
   }
 
   async getDiarioProfessorGenericField<K extends keyof DiarioProfessorDbEntity>(

@@ -15,6 +15,9 @@ import {
   DeleteLugarInputZod,
   FindLugarByIdInputType,
   FindLugarByIdInputZod,
+  ListLugarInputType,
+  ListLugarInputZod,
+  ListLugarResultType,
   UpdateLugarInputType,
   UpdateLugarInputZod,
 } from './dtos';
@@ -35,6 +38,17 @@ export class LugarResolver {
     dto: FindLugarByIdInputType,
   ) {
     return this.lugarService.findLugarByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListLugarResultType)
+  async listLugar(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListLugarInputZod)
+    dto: ListLugarInputType,
+  ) {
+    return this.lugarService.listLugar(appContext, dto);
   }
 
   // END: queries

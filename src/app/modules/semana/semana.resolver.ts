@@ -15,6 +15,9 @@ import {
   DeleteSemanaInputZod,
   FindSemanaByIdInputType,
   FindSemanaByIdInputZod,
+  ListSemanaInputType,
+  ListSemanaInputZod,
+  ListSemanaResultType,
   UpdateSemanaInputType,
   UpdateSemanaInputZod,
 } from './dtos';
@@ -36,6 +39,17 @@ export class SemanaResolver {
     dto: FindSemanaByIdInputType,
   ) {
     return this.semanaService.findSemanaByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListSemanaResultType)
+  async listSemana(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListSemanaInputZod)
+    dto: ListSemanaInputType,
+  ) {
+    return this.semanaService.listSemana(appContext, dto);
   }
 
   // END: queries

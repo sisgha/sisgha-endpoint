@@ -18,6 +18,11 @@ import {
   UpdateUsuarioInputType,
   UpdateUsuarioInputZod,
 } from './dtos';
+import {
+  ListUsuarioInputType,
+  ListUsuarioInputZod,
+} from './dtos/ListUsuarioInput';
+import { ListUsuarioResultType } from './dtos/ListUsuarioResult';
 import { UsuarioService } from './usuario.service';
 import { UsuarioType } from './usuario.type';
 
@@ -36,6 +41,17 @@ export class UsuarioResolver {
     dto: FindUsuarioByIdInputType,
   ) {
     return this.usuarioService.findUsuarioByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListUsuarioResultType)
+  async listUsuario(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListUsuarioInputZod)
+    dto: ListUsuarioInputType,
+  ) {
+    return this.usuarioService.listUsuario(appContext, dto);
   }
 
   // END: queries

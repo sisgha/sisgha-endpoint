@@ -17,6 +17,9 @@ import {
   AddProfessorToDiarioInputZod,
   FindDiarioProfessorByIdInputType,
   FindDiarioProfessorByIdInputZod,
+  ListDiarioProfessorInputType,
+  ListDiarioProfessorInputZod,
+  ListDiarioProfessorResultType,
   RemoveProfessorFromDiarioInputType,
   RemoveProfessorFromDiarioInputZod,
 } from './dtos';
@@ -38,6 +41,17 @@ export class DiarioProfessorResolver {
       appContext,
       dto,
     );
+  }
+
+  @Query(() => ListDiarioProfessorResultType)
+  async listDiarioProfessor(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListDiarioProfessorInputZod)
+    dto: ListDiarioProfessorInputType,
+  ) {
+    return this.diarioProfessorService.listDiarioProfessor(appContext, dto);
   }
 
   // END: queries

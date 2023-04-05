@@ -1,18 +1,30 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { omit } from 'lodash';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { isNil, omit } from 'lodash';
+import MeiliSearch from 'meilisearch';
+import { AppContext } from 'src/app-context/AppContext';
+import { parralelMap } from 'src/common/utils/parralel-map';
 import { ProfessorDbEntity } from 'src/database/entities/professor.db.entity';
 import { getProfessorRepository } from 'src/database/repositories/professor.repository';
-import { AppContext } from 'src/app-context/AppContext';
+import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
+import { INDEX_PROFESSOR } from 'src/meilisearch/constants/meilisearch-tokens';
 import { FindOneOptions } from 'typeorm';
 import {
   ICreateProfessorInput,
   IDeleteProfessorInput,
   IFindProfessorByIdInput,
+  IListProfessorInput,
   IUpdateProfessorInput,
+  ListProfessorResultType,
 } from './dtos';
+import { ProfessorType } from './professor.type';
 
 @Injectable()
 export class ProfessorService {
+  constructor(
+    @Inject(MEILISEARCH_CLIENT)
+    private meilisearchClient: MeiliSearch,
+  ) {}
+
   async findProfessorById(
     appContext: AppContext,
     dto: IFindProfessorByIdInput,
@@ -73,6 +85,46 @@ export class ProfessorService {
     });
 
     return professor as Pick<ProfessorDbEntity, 'id'>;
+  }
+
+  async listProfessor(
+    appContext: AppContext,
+    dto: IListProfessorInput,
+  ): Promise<ListProfessorResultType> {
+    const { query, limit, offset } = dto;
+
+    const meilisearchResult = await this.meilisearchClient
+      .index(INDEX_PROFESSOR)
+      .search<ProfessorType>(query, { limit, offset });
+
+    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+      const id = hit.id;
+
+      if (!isNil(id)) {
+        const professor = await this.findProfessorById(appContext, {
+          id: hit.id,
+        });
+
+        if (professor) {
+          return professor;
+        }
+      }
+
+      return null;
+    });
+
+    const result: ListProfessorResultType = {
+      query: meilisearchResult.query,
+
+      limit: meilisearchResult.limit,
+      offset: meilisearchResult.offset,
+
+      total: meilisearchResult.estimatedTotalHits,
+
+      items: items,
+    };
+
+    return result;
   }
 
   async getProfessorGenericField<K extends keyof ProfessorDbEntity>(

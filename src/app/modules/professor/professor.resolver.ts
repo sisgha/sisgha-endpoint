@@ -15,6 +15,9 @@ import {
   DeleteProfessorInputZod,
   FindProfessorByIdInputType,
   FindProfessorByIdInputZod,
+  ListProfessorInputType,
+  ListProfessorInputZod,
+  ListProfessorResultType,
   UpdateProfessorInputType,
   UpdateProfessorInputZod,
 } from './dtos';
@@ -36,6 +39,17 @@ export class ProfessorResolver {
     dto: FindProfessorByIdInputType,
   ) {
     return this.professorService.findProfessorByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListProfessorResultType)
+  async listProfessor(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListProfessorInputZod)
+    dto: ListProfessorInputType,
+  ) {
+    return this.professorService.listProfessor(appContext, dto);
   }
 
   // END: queries

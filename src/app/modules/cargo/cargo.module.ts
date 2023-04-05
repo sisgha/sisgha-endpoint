@@ -5,7 +5,11 @@ import { CargoResolver } from './cargo.resolver';
 import { CargoService } from './cargo.service';
 
 @Module({
-  imports: [DatabaseModule, MeiliSearchModule],
+  imports: [
+    DatabaseModule,
+    MeiliSearchModule,
+    //...
+  ],
   exports: [CargoService],
   providers: [CargoService, CargoResolver],
 })

@@ -17,6 +17,9 @@ import {
   DeleteTurmaInputZod,
   FindTurmaByIdInputType,
   FindTurmaByIdInputZod,
+  ListTurmaInputType,
+  ListTurmaInputZod,
+  ListTurmaResultType,
   UpdateTurmaInputType,
   UpdateTurmaInputZod,
 } from './dtos';
@@ -38,6 +41,17 @@ export class TurmaResolver {
     dto: FindTurmaByIdInputType,
   ) {
     return this.turmaService.findTurmaByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListTurmaResultType)
+  async listTurma(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListTurmaInputZod)
+    dto: ListTurmaInputType,
+  ) {
+    return this.turmaService.listTurma(appContext, dto);
   }
 
   // END: queries

@@ -1,6 +1,24 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
-const TARGET_TABLES = ['cargo', 'usuario', ''];
+const TARGET_TABLES = [
+  'aula',
+  'cargo',
+  'curso',
+  'dia_semana',
+  'diario',
+  'diario_professor',
+  'disciplina',
+  'disciplina_curso',
+  'lugar',
+  'periodo_dia',
+  'professor',
+  'semana',
+  'turma',
+  'turma_has_turno_aula',
+  'turno_aula',
+  'usuario',
+  'usuario_has_cargo',
+];
 
 export class TablesLastUpdate1679180212882 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

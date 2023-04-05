@@ -1,18 +1,30 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { omit } from 'lodash';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { isNil, omit } from 'lodash';
+import MeiliSearch from 'meilisearch';
+import { AppContext } from 'src/app-context/AppContext';
+import { parralelMap } from 'src/common/utils/parralel-map';
 import { CursoDbEntity } from 'src/database/entities/curso.db.entity';
 import { getCursoRepository } from 'src/database/repositories/curso.repository';
-import { AppContext } from 'src/app-context/AppContext';
+import { INDEX_AULA } from 'src/meilisearch/constants/meilisearch-tokens';
+import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 import { FindOneOptions } from 'typeorm';
+import { AulaType } from '../aula/aula.type';
 import {
   ICreateCursoInput,
   IDeleteCursoInput,
   IFindCursoByIdInput,
+  IListCursoInput,
   IUpdateCursoInput,
+  ListCursoResultType,
 } from './dtos';
 
 @Injectable()
 export class CursoService {
+  constructor(
+    @Inject(MEILISEARCH_CLIENT)
+    private meilisearchClient: MeiliSearch,
+  ) {}
+
   async findCursoById(
     appContext: AppContext,
     dto: IFindCursoByIdInput,
@@ -73,6 +85,46 @@ export class CursoService {
     });
 
     return curso as Pick<CursoDbEntity, 'id'>;
+  }
+
+  async listCurso(
+    appContext: AppContext,
+    dto: IListCursoInput,
+  ): Promise<ListCursoResultType> {
+    const { query, limit, offset } = dto;
+
+    const meilisearchResult = await this.meilisearchClient
+      .index(INDEX_AULA)
+      .search<AulaType>(query, { limit, offset });
+
+    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+      const id = hit.id;
+
+      if (!isNil(id)) {
+        const curso = await this.findCursoById(appContext, {
+          id: hit.id,
+        });
+
+        if (curso) {
+          return curso;
+        }
+      }
+
+      return null;
+    });
+
+    const result: ListCursoResultType = {
+      query: meilisearchResult.query,
+
+      limit: meilisearchResult.limit,
+      offset: meilisearchResult.offset,
+
+      total: meilisearchResult.estimatedTotalHits,
+
+      items: items,
+    };
+
+    return result;
   }
 
   async getCursoGenericField<K extends keyof CursoDbEntity>(

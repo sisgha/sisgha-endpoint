@@ -1,22 +1,34 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { has, omit } from 'lodash';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { has, isNil, omit } from 'lodash';
+import MeiliSearch from 'meilisearch';
+import { AppContext } from 'src/app-context/AppContext';
+import { parralelMap } from 'src/common/utils/parralel-map';
 import { DisciplinaDbEntity } from 'src/database/entities/disciplina.db.entity';
 import { LugarDbEntity } from 'src/database/entities/lugar.db.entity';
 import { getDisciplinaRepository } from 'src/database/repositories/disciplina.repository';
 import { getLugarRepository } from 'src/database/repositories/lugar.repository';
-import { AppContext } from 'src/app-context/AppContext';
+import { INDEX_DISCIPLINA } from 'src/meilisearch/constants/meilisearch-tokens';
+import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 import { FindOneOptions } from 'typeorm';
 import { LugarService } from '../lugar/lugar.service';
+import { DisciplinaType } from './disciplina.type';
 import {
   ICreateDisciplinaInput,
   IDeleteDisciplinaInput,
   IFindDisciplinaByIdInput,
+  IListDisciplinaInput,
   IUpdateDisciplinaInput,
+  ListDisciplinaResultType,
 } from './dtos';
 
 @Injectable()
 export class DisciplinaService {
-  constructor(private lugarService: LugarService) {}
+  constructor(
+    private lugarService: LugarService,
+
+    @Inject(MEILISEARCH_CLIENT)
+    private meilisearchClient: MeiliSearch,
+  ) {}
 
   async findDisciplinaById(
     appContext: AppContext,
@@ -78,6 +90,46 @@ export class DisciplinaService {
     });
 
     return disciplina as Pick<DisciplinaDbEntity, 'id'>;
+  }
+
+  async listDisciplina(
+    appContext: AppContext,
+    dto: IListDisciplinaInput,
+  ): Promise<ListDisciplinaResultType> {
+    const { query, limit, offset } = dto;
+
+    const meilisearchResult = await this.meilisearchClient
+      .index(INDEX_DISCIPLINA)
+      .search<DisciplinaType>(query, { limit, offset });
+
+    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+      const id = hit.id;
+
+      if (!isNil(id)) {
+        const curso = await this.findDisciplinaById(appContext, {
+          id: hit.id,
+        });
+
+        if (curso) {
+          return curso;
+        }
+      }
+
+      return null;
+    });
+
+    const result: ListDisciplinaResultType = {
+      query: meilisearchResult.query,
+
+      limit: meilisearchResult.limit,
+      offset: meilisearchResult.offset,
+
+      total: meilisearchResult.estimatedTotalHits,
+
+      items: items,
+    };
+
+    return result;
   }
 
   async getDisciplinaGenericField<K extends keyof DisciplinaDbEntity>(

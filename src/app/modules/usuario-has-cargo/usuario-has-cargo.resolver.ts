@@ -1,4 +1,10 @@
-import { Mutation, Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
@@ -7,6 +13,9 @@ import { UsuarioType } from '../usuario/usuario.type';
 import {
   AddCargoToUsuarioInputType,
   AddCargoToUsuarioInputZod,
+  ListUsuarioHasCargoInputType,
+  ListUsuarioHasCargoInputZod,
+  ListUsuarioHasCargoResultType,
   RemoveCargoFromUsuarioInputType,
   RemoveCargoFromUsuarioInputZod,
 } from './dtos';
@@ -18,6 +27,17 @@ export class UsuarioResolver {
   constructor(private usuarioHasCargoService: UsuarioHasCargoService) {}
 
   // START: queries
+
+  @Query(() => ListUsuarioHasCargoResultType)
+  async listUsuarioHasCargo(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListUsuarioHasCargoInputZod)
+    dto: ListUsuarioHasCargoInputType,
+  ) {
+    return this.usuarioHasCargoService.listUsuarioHasCargo(appContext, dto);
+  }
 
   // END: queries
 

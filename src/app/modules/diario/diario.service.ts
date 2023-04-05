@@ -1,20 +1,27 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { has, isUndefined, omit } from 'lodash';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { has, isNil, isUndefined, omit } from 'lodash';
+import MeiliSearch from 'meilisearch';
+import { AppContext } from 'src/app-context/AppContext';
+import { parralelMap } from 'src/common/utils/parralel-map';
 import { DiarioDbEntity } from 'src/database/entities/diario.db.entity';
 import { DisciplinaDbEntity } from 'src/database/entities/disciplina.db.entity';
 import { TurmaDbEntity } from 'src/database/entities/turma.db.entity';
 import { getDiarioRepository } from 'src/database/repositories/diario.repository';
 import { getDisciplinaRepository } from 'src/database/repositories/disciplina.repository';
 import { getTurmaRepository } from 'src/database/repositories/turma.repository';
-import { AppContext } from 'src/app-context/AppContext';
+import { INDEX_DIARIO } from 'src/meilisearch/constants/meilisearch-tokens';
+import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 import { FindOneOptions } from 'typeorm';
 import { DisciplinaService } from '../disciplina/disciplina.service';
 import { TurmaService } from '../turma/turma.service';
+import { DiarioType } from './diario.type';
 import {
   ICreateDiarioInput,
   IDeleteDiarioInput,
   IFindDiarioByIdInput,
+  IListDiarioInput,
   IUpdateDiarioInput,
+  ListDiarioResultType,
 } from './dtos';
 
 @Injectable()
@@ -22,6 +29,9 @@ export class DiarioService {
   constructor(
     private turmaService: TurmaService,
     private disciplinaService: DisciplinaService,
+
+    @Inject(MEILISEARCH_CLIENT)
+    private meilisearchClient: MeiliSearch,
   ) {}
 
   async findDiarioById(
@@ -84,6 +94,46 @@ export class DiarioService {
     });
 
     return diario as Pick<DiarioDbEntity, 'id'>;
+  }
+
+  async listDiario(
+    appContext: AppContext,
+    dto: IListDiarioInput,
+  ): Promise<ListDiarioResultType> {
+    const { query, limit, offset } = dto;
+
+    const meilisearchResult = await this.meilisearchClient
+      .index(INDEX_DIARIO)
+      .search<DiarioType>(query, { limit, offset });
+
+    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+      const id = hit.id;
+
+      if (!isNil(id)) {
+        const curso = await this.findDiarioById(appContext, {
+          id: hit.id,
+        });
+
+        if (curso) {
+          return curso;
+        }
+      }
+
+      return null;
+    });
+
+    const result: ListDiarioResultType = {
+      query: meilisearchResult.query,
+
+      limit: meilisearchResult.limit,
+      offset: meilisearchResult.offset,
+
+      total: meilisearchResult.estimatedTotalHits,
+
+      items: items,
+    };
+
+    return result;
   }
 
   async getDiarioGenericField<K extends keyof DiarioDbEntity>(

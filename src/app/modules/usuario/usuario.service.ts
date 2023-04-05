@@ -1,9 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { omit, pick } from 'lodash';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { isNil, omit, pick } from 'lodash';
+import MeiliSearch from 'meilisearch';
+import { AppContext } from 'src/app-context/AppContext';
+import { parralelMap } from 'src/common/utils/parralel-map';
 import { getCargoRepository } from 'src/database/repositories/cargo.repository';
 import { getUsuarioHasCargoRepository } from 'src/database/repositories/usuario-has-cargo.repository';
 import { getUsuarioRepository } from 'src/database/repositories/usuario.repository';
-import { AppContext } from 'src/app-context/AppContext';
+import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
+import { INDEX_USUARIO } from 'src/meilisearch/constants/meilisearch-tokens';
 import { FindOneOptions } from 'typeorm';
 import { UsuarioDbEntity } from '../../../database/entities/usuario.db.entity';
 import {
@@ -12,9 +16,17 @@ import {
   IFindUsuarioByIdInput,
   IUpdateUsuarioInput,
 } from './dtos';
+import { IListUsuarioInput } from './dtos/ListUsuarioInput';
+import { ListUsuarioResultType } from './dtos/ListUsuarioResult';
+import { UsuarioType } from './usuario.type';
 
 @Injectable()
 export class UsuarioService {
+  constructor(
+    @Inject(MEILISEARCH_CLIENT)
+    private meilisearchClient: MeiliSearch,
+  ) {}
+
   async findUsuarioById(
     appContext: AppContext,
     dto: IFindUsuarioByIdInput,
@@ -75,6 +87,46 @@ export class UsuarioService {
     });
 
     return usuario as Pick<UsuarioDbEntity, 'id'>;
+  }
+
+  async listUsuario(
+    appContext: AppContext,
+    dto: IListUsuarioInput,
+  ): Promise<ListUsuarioResultType> {
+    const { query, limit, offset } = dto;
+
+    const meilisearchResult = await this.meilisearchClient
+      .index(INDEX_USUARIO)
+      .search<UsuarioType>(query, { limit, offset });
+
+    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+      const id = hit.id;
+
+      if (!isNil(id)) {
+        const usuario = await this.findUsuarioById(appContext, {
+          id: hit.id,
+        });
+
+        if (usuario) {
+          return usuario;
+        }
+      }
+
+      return null;
+    });
+
+    const listUsuarioResult: ListUsuarioResultType = {
+      query: meilisearchResult.query,
+
+      limit: meilisearchResult.limit,
+      offset: meilisearchResult.offset,
+
+      total: meilisearchResult.estimatedTotalHits,
+
+      items: items,
+    };
+
+    return listUsuarioResult;
   }
 
   async getUsuarioFromKeycloakId(appContext: AppContext, keycloakId: string) {

@@ -1,10 +1,10 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
 import MeiliSearch from 'meilisearch';
-import { INDEX_CARGO } from 'src/meilisearch/constants/meilisearch-tokens';
 import { AppContext } from 'src/app-context/AppContext';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 import { parralelMap } from 'src/common/utils/parralel-map';
+import { INDEX_CARGO } from 'src/meilisearch/constants/meilisearch-tokens';
+import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 import { FindOneOptions } from 'typeorm';
 import { CargoDbEntity } from '../../../database/entities/cargo.db.entity';
 import { getCargoRepository } from '../../../database/repositories/cargo.repository';
@@ -15,10 +15,15 @@ import {
   IFindCargoByIdInput,
   IUpdateCargoInput,
 } from './dtos';
+import { IListCargoInput } from './dtos/ListCargoInput';
+import { ListCargoResultType } from './dtos/ListCargoResult';
 
 @Injectable()
 export class CargoService {
-  constructor() {}
+  constructor(
+    @Inject(MEILISEARCH_CLIENT)
+    private meilisearchClient: MeiliSearch,
+  ) {}
 
   async findCargoById(
     appContext: AppContext,
@@ -67,6 +72,46 @@ export class CargoService {
     }
 
     return cargo;
+  }
+
+  async listCargo(
+    appContext: AppContext,
+    dto: IListCargoInput,
+  ): Promise<ListCargoResultType> {
+    const { query, limit, offset } = dto;
+
+    const result = await this.meilisearchClient
+      .index(INDEX_CARGO)
+      .search<CargoType>(query, { limit, offset });
+
+    const items = await parralelMap(result.hits, async (hit) => {
+      const id = hit.id;
+
+      if (!isNil(id)) {
+        const cargo = await this.findCargoById(appContext, {
+          id: hit.id,
+        });
+
+        if (cargo) {
+          return cargo;
+        }
+      }
+
+      return null;
+    });
+
+    const listCargoResult: ListCargoResultType = {
+      query: result.query,
+
+      limit: result.limit,
+      offset: result.offset,
+
+      total: result.estimatedTotalHits,
+
+      items: items,
+    };
+
+    return listCargoResult;
   }
 
   async findCargoByIdStrictSimple<T = Pick<CargoDbEntity, 'id'>>(

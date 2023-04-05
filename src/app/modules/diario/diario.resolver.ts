@@ -19,6 +19,9 @@ import {
   DeleteDiarioInputZod,
   FindDiarioByIdInputType,
   FindDiarioByIdInputZod,
+  ListDiarioInputType,
+  ListDiarioInputZod,
+  ListDiarioResultType,
   UpdateDiarioInputType,
   UpdateDiarioInputZod,
 } from './dtos';
@@ -38,6 +41,17 @@ export class DiarioResolver {
     dto: FindDiarioByIdInputType,
   ) {
     return this.diarioService.findDiarioByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListDiarioResultType)
+  async listDiario(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListDiarioInputZod)
+    dto: ListDiarioInputType,
+  ) {
+    return this.diarioService.listDiario(appContext, dto);
   }
 
   // END: queries

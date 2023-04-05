@@ -87,7 +87,7 @@ export class {{ pascalCase name }}Service {
     return {{ camelCase name }} as Pick<{{ pascalCase name }}DbEntity, 'id'>;
   }
 
-  async list{{ pascalCase name }}s(
+  async list{{ pascalCase name }}(
     appContext: AppContext,
     dto: IList{{ pascalCase name }}Input,
   ): Promise<List{{ pascalCase name }}ResultType> {

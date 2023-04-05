@@ -21,6 +21,9 @@ import {
   DeleteAulaInputZod,
   FindAulaByIdInputType,
   FindAulaByIdInputZod,
+  ListAulaInputType,
+  ListAulaInputZod,
+  ListAulaResultType,
   UpdateAulaInputType,
   UpdateAulaInputZod,
 } from './dtos';
@@ -40,6 +43,17 @@ export class AulaResolver {
     dto: FindAulaByIdInputType,
   ) {
     return this.aulaService.findAulaByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListAulaResultType)
+  async listAula(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListAulaInputZod)
+    dto: ListAulaInputType,
+  ) {
+    return this.aulaService.listAula(appContext, dto);
   }
 
   // END: queries

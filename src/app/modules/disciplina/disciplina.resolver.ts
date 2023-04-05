@@ -18,6 +18,9 @@ import {
   DeleteDisciplinaInputZod,
   FindDisciplinaByIdInputType,
   FindDisciplinaByIdInputZod,
+  ListDisciplinaInputType,
+  ListDisciplinaInputZod,
+  ListDisciplinaResultType,
   UpdateDisciplinaInputType,
   UpdateDisciplinaInputZod,
 } from './dtos';
@@ -36,6 +39,17 @@ export class DisciplinaResolver {
     dto: FindDisciplinaByIdInputType,
   ) {
     return this.disciplinaService.findDisciplinaByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListDisciplinaResultType)
+  async listDisciplina(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListDisciplinaInputZod)
+    dto: ListDisciplinaInputType,
+  ) {
+    return this.disciplinaService.listDisciplina(appContext, dto);
   }
 
   // END: queries

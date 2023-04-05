@@ -15,6 +15,9 @@ import {
   DeletePeriodoDiaInputZod,
   FindPeriodoDiaByIdInputType,
   FindPeriodoDiaByIdInputZod,
+  ListPeriodoDiaInputType,
+  ListPeriodoDiaInputZod,
+  ListPeriodoDiaResultType,
   UpdatePeriodoDiaInputType,
   UpdatePeriodoDiaInputZod,
 } from './dtos';
@@ -36,6 +39,17 @@ export class PeriodoDiaResolver {
     dto: FindPeriodoDiaByIdInputType,
   ) {
     return this.periodoDiaService.findPeriodoDiaByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListPeriodoDiaResultType)
+  async listPeriodoDia(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListPeriodoDiaInputZod)
+    dto: ListPeriodoDiaInputType,
+  ) {
+    return this.periodoDiaService.listPeriodoDia(appContext, dto);
   }
 
   // END: queries

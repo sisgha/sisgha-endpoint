@@ -1,4 +1,10 @@
-import { Mutation, Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
@@ -9,6 +15,9 @@ import { DisciplinaCursoType } from './disciplina-curso.type';
 import {
   AddDisciplinaToCursoInputType,
   AddDisciplinaToCursoInputZod,
+  ListDisciplinaCursoInputType,
+  ListDisciplinaCursoInputZod,
+  ListDisciplinaCursoResultType,
   RemoveDisciplinaFromCursoInputType,
   RemoveDisciplinaFromCursoInputZod,
 } from './dtos';
@@ -18,6 +27,17 @@ export class DisciplinaCursoResolver {
   constructor(private disciplinaCursoService: DisciplinaCursoService) {}
 
   // START: queries
+
+  @Query(() => ListDisciplinaCursoResultType)
+  async listDisciplinaCurso(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListDisciplinaCursoInputZod)
+    dto: ListDisciplinaCursoInputType,
+  ) {
+    return this.disciplinaCursoService.listDisciplinaCurso(appContext, dto);
+  }
 
   // END: queries
 

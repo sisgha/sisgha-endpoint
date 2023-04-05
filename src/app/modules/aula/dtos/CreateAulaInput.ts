@@ -4,10 +4,12 @@ import { z } from 'zod';
 
 export const CreateAulaInputZod = z.object({
   diarioId: IdZod,
+
   //
+
+  lugarId: IdZod.nullable(),
   semanaId: IdZod.nullable(),
   turnoAulaId: IdZod.nullable(),
-  lugarId: IdZod.nullable(),
 });
 
 export type ICreateAulaInput = z.infer<typeof CreateAulaInputZod>;

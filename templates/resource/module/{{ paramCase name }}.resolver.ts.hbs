@@ -44,14 +44,14 @@ export class {{ pascalCase name }}Resolver {
 
 
   @Query(() => List{{ pascalCase name }}ResultType)
-  async list{{ pascalCase name }}s(
+  async list{{ pascalCase name }}(
     @ResolveAppContext()
     appContext: AppContext,
 
     @ValidatedArgs('dto', List{{ pascalCase name }}InputZod)
     dto: List{{ pascalCase name }}InputType,
   ) {
-    return this.{{ camelCase name }}Service.list{{ pascalCase name }}s(appContext, dto);
+    return this.{{ camelCase name }}Service.list{{ pascalCase name }}(appContext, dto);
   }
 
   // END: queries

@@ -1,19 +1,27 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { isNil } from 'lodash';
+import MeiliSearch from 'meilisearch';
+import { AppContext } from 'src/app-context/AppContext';
+import { parralelMap } from 'src/common/utils/parralel-map';
 import { CursoDbEntity } from 'src/database/entities/curso.db.entity';
 import { DisciplinaCursoDbEntity } from 'src/database/entities/disciplina-curso.db.entity';
 import { DisciplinaDbEntity } from 'src/database/entities/disciplina.db.entity';
 import { getCursoRepository } from 'src/database/repositories/curso.repository';
 import { getDisciplinaCursoRepository } from 'src/database/repositories/disciplina-curso.repository';
 import { getDisciplinaRepository } from 'src/database/repositories/disciplina.repository';
-import { AppContext } from 'src/app-context/AppContext';
+import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
+import { INDEX_DISCIPLINA_CURSO } from 'src/meilisearch/constants/meilisearch-tokens';
 import { FindOneOptions } from 'typeorm';
 import { CursoService } from '../curso/curso.service';
 import { DisciplinaService } from '../disciplina/disciplina.service';
+import { DisciplinaCursoType } from './disciplina-curso.type';
 import {
   IAddDisciplinaToCursoInput,
   IFindDisciplinaCursoByDisciplinaIdAndCursoIdInput,
   IFindDisciplinaCursoByIdInput,
+  IListDisciplinaCursoInput,
   IRemoveDisciplinaFromCursoInput,
+  ListDisciplinaCursoResultType,
 } from './dtos';
 
 @Injectable()
@@ -21,6 +29,9 @@ export class DisciplinaCursoService {
   constructor(
     private disciplinaService: DisciplinaService,
     private cursoService: CursoService,
+
+    @Inject(MEILISEARCH_CLIENT)
+    private meilisearchClient: MeiliSearch,
   ) {}
 
   async findDisciplinaCursoById(
@@ -134,6 +145,46 @@ export class DisciplinaCursoService {
     return disciplinaCurso;
   }
 
+  async listDisciplinaCurso(
+    appContext: AppContext,
+    dto: IListDisciplinaCursoInput,
+  ): Promise<ListDisciplinaCursoResultType> {
+    const { query, limit, offset } = dto;
+
+    const meilisearchResult = await this.meilisearchClient
+      .index(INDEX_DISCIPLINA_CURSO)
+      .search<DisciplinaCursoType>(query, { limit, offset });
+
+    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+      const id = hit.id;
+
+      if (!isNil(id)) {
+        const disciplinaCurso = await this.findDisciplinaCursoById(appContext, {
+          id: hit.id,
+        });
+
+        if (disciplinaCurso) {
+          return disciplinaCurso;
+        }
+      }
+
+      return null;
+    });
+
+    const result: ListDisciplinaCursoResultType = {
+      query: meilisearchResult.query,
+
+      limit: meilisearchResult.limit,
+      offset: meilisearchResult.offset,
+
+      total: meilisearchResult.estimatedTotalHits,
+
+      items: items,
+    };
+
+    return result;
+  }
+
   async getDisciplinaCursoGenericField<K extends keyof DisciplinaCursoDbEntity>(
     appContext: AppContext,
     disciplinaCursoId: number,
@@ -169,7 +220,7 @@ export class DisciplinaCursoService {
 
         return disciplinaRepository
           .createQueryBuilder('disciplina')
-          .innerJoin('disciplina.disciplina_cursos', 'disciplina_curso')
+          .innerJoin('disciplina.disciplinaCurso', 'disciplina_curso')
           .where('disciplina_curso.id = :disciplinaCursoId', {
             disciplinaCursoId: disciplinaCurso.id,
           })
@@ -195,7 +246,7 @@ export class DisciplinaCursoService {
 
       return cursoRepository
         .createQueryBuilder('curso')
-        .innerJoin('curso.disciplina_cursos', 'disciplina_curso')
+        .innerJoin('curso.disciplinaCurso', 'disciplina_curso')
         .where('disciplina_curso.id = :disciplinaCursoId', {
           disciplinaCursoId: disciplinaCurso.id,
         })

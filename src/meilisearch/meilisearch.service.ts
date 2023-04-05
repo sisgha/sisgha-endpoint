@@ -43,9 +43,9 @@ export class MeiliSearchService {
           const records = await repository
             .createQueryBuilder('record')
             .select('record')
+            .loadAllRelationIds({ disableMixedMap: true })
             .where('record.lastSearchSync IS NULL')
             .orWhere('record.lastSearchSync < record.lastUpdate')
-            .loadAllRelationIds()
             .limit(20)
             .getMany();
 

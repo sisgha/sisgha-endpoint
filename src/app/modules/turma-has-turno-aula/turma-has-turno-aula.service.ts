@@ -1,11 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { AppContext } from 'src/app-context/AppContext';
 import { TurmaHasTurnoAulaDbEntity } from 'src/database/entities/turma-has-turno-aula.db.entity';
 import { TurmaDbEntity } from 'src/database/entities/turma.db.entity';
 import { TurnoAulaDbEntity } from 'src/database/entities/turno-aula.db.entity';
 import { getTurmaHasTurnoAulaRepository } from 'src/database/repositories/turma-has-turno-aula.repository';
 import { getTurmaRepository } from 'src/database/repositories/turma.repository';
 import { getTurnoAulaRepository } from 'src/database/repositories/turno-aula.repository';
-import { AppContext } from 'src/app-context/AppContext';
+import { INDEX_TURMA_HAS_TURNO_AULA } from 'src/meilisearch/constants/meilisearch-tokens';
 import { FindOneOptions } from 'typeorm';
 import { TurmaService } from '../turma/turma.service';
 import { TurnoAulaService } from '../turno-aula/turno-aula.service';
@@ -13,14 +14,24 @@ import {
   IAddTurnoAulaToTurmaInput,
   IFindTurmaHasTurnoAulaByIdInput,
   IFindTurmaHasTurnoAulaByTurnoAulaIdAndTurmaIdInput,
+  IListTurmaHasTurnoAulaInput,
   IRemoveTurnoAulaFromTurmaInput,
+  ListTurmaHasTurnoAulaResultType,
 } from './dtos';
+import { TurmaHasTurnoAulaType } from './turma-has-turno-aula.type';
+import { isNil } from 'lodash';
+import MeiliSearch from 'meilisearch';
+import { parralelMap } from 'src/common/utils/parralel-map';
+import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 
 @Injectable()
 export class TurmaHasTurnoAulaService {
   constructor(
     private turmaService: TurmaService,
     private turnoAulaService: TurnoAulaService,
+
+    @Inject(MEILISEARCH_CLIENT)
+    private meilisearchClient: MeiliSearch,
   ) {}
 
   async findTurmaHasTurnoAulaById(
@@ -132,6 +143,49 @@ export class TurmaHasTurnoAulaService {
     }
 
     return turmaHasTurnoAula;
+  }
+
+  async listTurmaHasTurnoAula(
+    appContext: AppContext,
+    dto: IListTurmaHasTurnoAulaInput,
+  ): Promise<ListTurmaHasTurnoAulaResultType> {
+    const { query, limit, offset } = dto;
+
+    const meilisearchResult = await this.meilisearchClient
+      .index(INDEX_TURMA_HAS_TURNO_AULA)
+      .search<TurmaHasTurnoAulaType>(query, { limit, offset });
+
+    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+      const id = hit.id;
+
+      if (!isNil(id)) {
+        const turmaHasTurnoAula = await this.findTurmaHasTurnoAulaById(
+          appContext,
+          {
+            id: hit.id,
+          },
+        );
+
+        if (turmaHasTurnoAula) {
+          return turmaHasTurnoAula;
+        }
+      }
+
+      return null;
+    });
+
+    const result: ListTurmaHasTurnoAulaResultType = {
+      query: meilisearchResult.query,
+
+      limit: meilisearchResult.limit,
+      offset: meilisearchResult.offset,
+
+      total: meilisearchResult.estimatedTotalHits,
+
+      items: items,
+    };
+
+    return result;
   }
 
   async getTurmaHasTurnoAulaGenericField<

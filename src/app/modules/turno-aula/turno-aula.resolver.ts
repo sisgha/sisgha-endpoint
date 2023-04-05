@@ -17,6 +17,9 @@ import {
   DeleteTurnoAulaInputZod,
   FindTurnoAulaByIdInputType,
   FindTurnoAulaByIdInputZod,
+  ListTurnoAulaInputType,
+  ListTurnoAulaInputZod,
+  ListTurnoAulaResultType,
   UpdateTurnoAulaInputType,
   UpdateTurnoAulaInputZod,
 } from './dtos';
@@ -38,6 +41,17 @@ export class TurnoAulaResolver {
     dto: FindTurnoAulaByIdInputType,
   ) {
     return this.turnoAulaService.findTurnoAulaByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListTurnoAulaResultType)
+  async listTurnoAula(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListTurnoAulaInputZod)
+    dto: ListTurnoAulaInputType,
+  ) {
+    return this.turnoAulaService.listTurnoAula(appContext, dto);
   }
 
   // END: queries

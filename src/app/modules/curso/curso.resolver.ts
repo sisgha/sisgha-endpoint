@@ -17,6 +17,9 @@ import {
   DeleteCursoInputZod,
   FindCursoByIdInputType,
   FindCursoByIdInputZod,
+  ListCursoInputType,
+  ListCursoInputZod,
+  ListCursoResultType,
   UpdateCursoInputType,
   UpdateCursoInputZod,
 } from './dtos';
@@ -36,6 +39,17 @@ export class CursoResolver {
     dto: FindCursoByIdInputType,
   ) {
     return this.cursoService.findCursoByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListCursoResultType)
+  async listCurso(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListCursoInputZod)
+    dto: ListCursoInputType,
+  ) {
+    return this.cursoService.listCurso(appContext, dto);
   }
 
   // END: queries

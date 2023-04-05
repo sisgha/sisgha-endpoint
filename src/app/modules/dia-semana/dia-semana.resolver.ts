@@ -17,6 +17,9 @@ import {
   DeleteDiaSemanaInputZod,
   FindDiaSemanaByIdInputType,
   FindDiaSemanaByIdInputZod,
+  ListDiaSemanaInputType,
+  ListDiaSemanaInputZod,
+  ListDiaSemanaResultType,
   UpdateDiaSemanaInputType,
   UpdateDiaSemanaInputZod,
 } from './dtos';
@@ -36,6 +39,17 @@ export class DiaSemanaResolver {
     dto: FindDiaSemanaByIdInputType,
   ) {
     return this.diaSemanaService.findDiaSemanaByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListDiaSemanaResultType)
+  async listDiaSemana(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListDiaSemanaInputZod)
+    dto: ListDiaSemanaInputType,
+  ) {
+    return this.diaSemanaService.listDiaSemana(appContext, dto);
   }
 
   // END: queries

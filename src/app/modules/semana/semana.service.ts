@@ -1,18 +1,30 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { omit } from 'lodash';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { isNil, omit } from 'lodash';
+import MeiliSearch from 'meilisearch';
+import { AppContext } from 'src/app-context/AppContext';
+import { parralelMap } from 'src/common/utils/parralel-map';
 import { SemanaDbEntity } from 'src/database/entities/semana.db.entity';
 import { getSemanaRepository } from 'src/database/repositories/semana.repository';
-import { AppContext } from 'src/app-context/AppContext';
+import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
+import { INDEX_SEMANA } from 'src/meilisearch/constants/meilisearch-tokens';
 import { FindOneOptions } from 'typeorm';
 import {
   ICreateSemanaInput,
   IDeleteSemanaInput,
   IFindSemanaByIdInput,
+  IListSemanaInput,
   IUpdateSemanaInput,
+  ListSemanaResultType,
 } from './dtos';
+import { SemanaType } from './semana.type';
 
 @Injectable()
 export class SemanaService {
+  constructor(
+    @Inject(MEILISEARCH_CLIENT)
+    private meilisearchClient: MeiliSearch,
+  ) {}
+
   async findSemanaById(
     appContext: AppContext,
     dto: IFindSemanaByIdInput,
@@ -73,6 +85,46 @@ export class SemanaService {
     });
 
     return semana as Pick<SemanaDbEntity, 'id'>;
+  }
+
+  async listSemana(
+    appContext: AppContext,
+    dto: IListSemanaInput,
+  ): Promise<ListSemanaResultType> {
+    const { query, limit, offset } = dto;
+
+    const meilisearchResult = await this.meilisearchClient
+      .index(INDEX_SEMANA)
+      .search<SemanaType>(query, { limit, offset });
+
+    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+      const id = hit.id;
+
+      if (!isNil(id)) {
+        const semana = await this.findSemanaById(appContext, {
+          id: hit.id,
+        });
+
+        if (semana) {
+          return semana;
+        }
+      }
+
+      return null;
+    });
+
+    const result: ListSemanaResultType = {
+      query: meilisearchResult.query,
+
+      limit: meilisearchResult.limit,
+      offset: meilisearchResult.offset,
+
+      total: meilisearchResult.estimatedTotalHits,
+
+      items: items,
+    };
+
+    return result;
   }
 
   async getSemanaGenericField<K extends keyof SemanaDbEntity>(

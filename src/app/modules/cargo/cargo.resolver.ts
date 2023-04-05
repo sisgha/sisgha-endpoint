@@ -17,6 +17,9 @@ import {
   DeleteCargoInputZod,
   FindCargoByIdInputType,
   FindCargoByIdInputZod,
+  ListCargoInputType,
+  ListCargoInputZod,
+  ListCargoResultType,
   UpdateCargoInputType,
   UpdateCargoInputZod,
 } from './dtos';
@@ -36,6 +39,17 @@ export class CargoResolver {
     dto: FindCargoByIdInputType,
   ) {
     return this.cargoService.findCargoByIdStrict(appContext, dto);
+  }
+
+  @Query(() => ListCargoResultType)
+  async listCargo(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', ListCargoInputZod)
+    dto: ListCargoInputType,
+  ) {
+    return this.cargoService.listCargo(appContext, dto);
   }
 
   // END: queries
