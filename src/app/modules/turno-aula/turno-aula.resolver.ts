@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { DiaSemanaType } from '../dia-semana/dia-semana.type';
 import { PeriodoDiaType } from '../periodo-dia/periodo-dia.type';
@@ -17,8 +21,6 @@ import {
   DeleteTurnoAulaInputZod,
   FindTurnoAulaByIdInputType,
   FindTurnoAulaByIdInputZod,
-  ListTurnoAulaInputType,
-  ListTurnoAulaInputZod,
   ListTurnoAulaResultType,
   UpdateTurnoAulaInputType,
   UpdateTurnoAulaInputZod,
@@ -48,8 +50,8 @@ export class TurnoAulaResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListTurnoAulaInputZod)
-    dto: ListTurnoAulaInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.turnoAulaService.listTurnoAula(appContext, dto);
   }

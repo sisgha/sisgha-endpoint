@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import {
   CreateUsuarioInputType,
@@ -18,10 +22,6 @@ import {
   UpdateUsuarioInputType,
   UpdateUsuarioInputZod,
 } from './dtos';
-import {
-  ListUsuarioInputType,
-  ListUsuarioInputZod,
-} from './dtos/ListUsuarioInput';
 import { ListUsuarioResultType } from './dtos/ListUsuarioResult';
 import { UsuarioService } from './usuario.service';
 import { UsuarioType } from './usuario.type';
@@ -48,8 +48,8 @@ export class UsuarioResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListUsuarioInputZod)
-    dto: ListUsuarioInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.usuarioService.listUsuario(appContext, dto);
   }

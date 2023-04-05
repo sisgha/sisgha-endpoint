@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AppContext } from 'src/app-context/AppContext';
 import { CargoDbEntity } from 'src/database/entities/cargo.db.entity';
 import { UsuarioHasCargoDbEntity } from 'src/database/entities/usuario-has-cargo.db.entity';
@@ -9,15 +9,14 @@ import { getUsuarioRepository } from 'src/database/repositories/usuario.reposito
 import { FindOneOptions } from 'typeorm';
 
 import { isNil } from 'lodash';
-import MeiliSearch from 'meilisearch';
 import { parralelMap } from 'src/common/utils/parralel-map';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 import { INDEX_USUARIO_HAS_CARGO } from 'src/meilisearch/constants/meilisearch-tokens';
+import { IGenericListInput } from 'src/meilisearch/dtos';
+import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import {
   IAddCargoToUsuarioInput,
   IFindUsuarioHasCargoByIdInput,
   IFindUsuarioHasCargoByUsuarioIdAndCargoIdInput,
-  IListUsuarioHasCargoInput,
   IRemoveCargoFromUsuarioInput,
   ListUsuarioHasCargoResultType,
 } from './dtos';
@@ -25,10 +24,7 @@ import { UsuarioHasCargoType } from './usuario-has-cargo.type';
 
 @Injectable()
 export class UsuarioHasCargoService {
-  constructor(
-    @Inject(MEILISEARCH_CLIENT)
-    private meilisearchClient: MeiliSearch,
-  ) {}
+  constructor(private meilisearchService: MeiliSearchService) {}
 
   async findUsuarioHasCargoById(
     appContext: AppContext,
@@ -145,42 +141,34 @@ export class UsuarioHasCargoService {
 
   async listUsuarioHasCargo(
     appContext: AppContext,
-    dto: IListUsuarioHasCargoInput,
+    dto: IGenericListInput,
   ): Promise<ListUsuarioHasCargoResultType> {
-    const { query, limit, offset } = dto;
+    const result =
+      await this.meilisearchService.listResource<UsuarioHasCargoType>(
+        INDEX_USUARIO_HAS_CARGO,
+        dto,
+      );
 
-    const meilisearchResult = await this.meilisearchClient
-      .index(INDEX_USUARIO_HAS_CARGO)
-      .search<UsuarioHasCargoType>(query, { limit, offset });
-
-    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+    const items = await parralelMap(result.items, async (hit) => {
       const id = hit.id;
 
       if (!isNil(id)) {
-        const usuarioHasCargo = await this.findUsuarioHasCargoById(appContext, {
+        const row = await this.findUsuarioHasCargoById(appContext, {
           id: hit.id,
         });
 
-        if (usuarioHasCargo) {
-          return usuarioHasCargo;
+        if (row) {
+          return row;
         }
       }
 
       return null;
     });
 
-    const result: ListUsuarioHasCargoResultType = {
-      query: meilisearchResult.query,
-
-      limit: meilisearchResult.limit,
-      offset: meilisearchResult.offset,
-
-      total: meilisearchResult.estimatedTotalHits,
-
-      items: items,
+    return {
+      ...result,
+      items,
     };
-
-    return result;
   }
 
   async getUsuarioHasCargoStrictGenericField<

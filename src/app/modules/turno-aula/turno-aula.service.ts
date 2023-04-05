@@ -1,12 +1,16 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { isNil, isNumber, omit } from 'lodash';
 import { AppContext } from 'src/app-context/AppContext';
+import { parralelMap } from 'src/common/utils/parralel-map';
 import { DiaSemanaDbEntity } from 'src/database/entities/dia-semana.db.entity';
 import { PeriodoDiaDbEntity } from 'src/database/entities/periodo-dia.db.entity';
 import { TurnoAulaDbEntity } from 'src/database/entities/turno-aula.db.entity';
 import { getDiaSemanaRepository } from 'src/database/repositories/dia-semana.repository';
 import { getPeriodoDiaRepository } from 'src/database/repositories/periodo-dia.repository';
 import { getTurnoAulaRepository } from 'src/database/repositories/turno-aula.repository';
+import { INDEX_TURNO_AULA } from 'src/meilisearch/constants/meilisearch-tokens';
+import { IGenericListInput } from 'src/meilisearch/dtos';
+import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import { DiaSemanaService } from '../dia-semana/dia-semana.service';
 import { PeriodoDiaService } from '../periodo-dia/periodo-dia.service';
@@ -14,15 +18,10 @@ import {
   ICreateTurnoAulaInput,
   IDeleteTurnoAulaInput,
   IFindTurnoAulaByIdInput,
-  IListTurnoAulaInput,
   IUpdateTurnoAulaInput,
   ListTurnoAulaResultType,
 } from './dtos';
 import { TurnoAulaType } from './turno-aula.type';
-import MeiliSearch from 'meilisearch';
-import { parralelMap } from 'src/common/utils/parralel-map';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
-import { INDEX_TURNO_AULA } from 'src/meilisearch/constants/meilisearch-tokens';
 
 @Injectable()
 export class TurnoAulaService {
@@ -30,8 +29,7 @@ export class TurnoAulaService {
     private diaSemanaService: DiaSemanaService,
     private periodoDiaService: PeriodoDiaService,
 
-    @Inject(MEILISEARCH_CLIENT)
-    private meilisearchClient: MeiliSearch,
+    private meilisearchService: MeiliSearchService,
   ) {}
 
   async findTurnoAulaById(
@@ -98,42 +96,33 @@ export class TurnoAulaService {
 
   async listTurnoAula(
     appContext: AppContext,
-    dto: IListTurnoAulaInput,
+    dto: IGenericListInput,
   ): Promise<ListTurnoAulaResultType> {
-    const { query, limit, offset } = dto;
+    const result = await this.meilisearchService.listResource<TurnoAulaType>(
+      INDEX_TURNO_AULA,
+      dto,
+    );
 
-    const meilisearchResult = await this.meilisearchClient
-      .index(INDEX_TURNO_AULA)
-      .search<TurnoAulaType>(query, { limit, offset });
-
-    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+    const items = await parralelMap(result.items, async (hit) => {
       const id = hit.id;
 
       if (!isNil(id)) {
-        const turnoAula = await this.findTurnoAulaById(appContext, {
+        const row = await this.findTurnoAulaById(appContext, {
           id: hit.id,
         });
 
-        if (turnoAula) {
-          return turnoAula;
+        if (row) {
+          return row;
         }
       }
 
       return null;
     });
 
-    const result: ListTurnoAulaResultType = {
-      query: meilisearchResult.query,
-
-      limit: meilisearchResult.limit,
-      offset: meilisearchResult.offset,
-
-      total: meilisearchResult.estimatedTotalHits,
-
-      items: items,
+    return {
+      ...result,
+      items,
     };
-
-    return result;
   }
 
   async getTurnoAulaGenericField<K extends keyof TurnoAulaDbEntity>(

@@ -10,6 +10,7 @@ import { DataSource } from 'typeorm';
 import { DeletedRowsLogDbEntity } from '../database/entities/deleted-rows-log.db';
 import { getDeletedRowsLogRepository } from '../database/repositories/deleted-rows-log.repository';
 import { MeilisearchIndexDefinitions } from './config/MeiliSearchIndexDefinitions';
+import { IGenericListInput, IGenericSearchResult } from './dtos';
 import { IMeiliSearchIndexDefinition } from './interfaces/MeiliSearchIndexDefinition';
 
 @Injectable()
@@ -114,6 +115,30 @@ export class MeiliSearchService {
     };
 
     return findIndexDefinitionsDeletedRowLogsGenerator.call(this);
+  }
+
+  async listResource<T extends { id: unknown }>(
+    indexUid: string,
+    dto: IGenericListInput,
+  ): Promise<IGenericSearchResult<T>> {
+    const { query, limit, offset, filter, sort } = dto;
+
+    const meilisearchResult = await this.client
+      .index(indexUid)
+      .search<T>(query, { limit, offset, filter, sort });
+
+    const result = {
+      query: meilisearchResult.query,
+
+      limit: meilisearchResult.limit,
+      offset: meilisearchResult.offset,
+
+      total: meilisearchResult.estimatedTotalHits,
+
+      items: meilisearchResult.hits,
+    };
+
+    return result;
   }
 
   private async syncUpdatedRecords() {

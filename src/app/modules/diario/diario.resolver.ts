@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { DisciplinaType } from '../disciplina/disciplina.type';
 import { TurmaType } from '../turma/turma.type';
@@ -19,8 +23,6 @@ import {
   DeleteDiarioInputZod,
   FindDiarioByIdInputType,
   FindDiarioByIdInputZod,
-  ListDiarioInputType,
-  ListDiarioInputZod,
   ListDiarioResultType,
   UpdateDiarioInputType,
   UpdateDiarioInputZod,
@@ -48,8 +50,8 @@ export class DiarioResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListDiarioInputZod)
-    dto: ListDiarioInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.diarioService.listDiario(appContext, dto);
   }

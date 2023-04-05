@@ -1,29 +1,25 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
-import MeiliSearch from 'meilisearch';
 import { AppContext } from 'src/app-context/AppContext';
+import { parralelMap } from 'src/common/utils/parralel-map';
 import { LugarDbEntity } from 'src/database/entities/lugar.db.entity';
 import { getLugarRepository } from 'src/database/repositories/lugar.repository';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
+import { INDEX_LUGAR } from 'src/meilisearch/constants/meilisearch-tokens';
+import { IGenericListInput } from 'src/meilisearch/dtos';
+import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import {
   ICreateLugarInput,
   IDeleteLugarInput,
   IFindLugarByIdInput,
-  IListLugarInput,
   IUpdateLugarInput,
   ListLugarResultType,
 } from './dtos';
-import { parralelMap } from 'src/common/utils/parralel-map';
-import { INDEX_LUGAR } from 'src/meilisearch/constants/meilisearch-tokens';
 import { LugarType } from './lugar.type';
 
 @Injectable()
 export class LugarService {
-  constructor(
-    @Inject(MEILISEARCH_CLIENT)
-    private meilisearchClient: MeiliSearch,
-  ) {}
+  constructor(private meilisearchService: MeiliSearchService) {}
 
   async findLugarById(
     appContext: AppContext,
@@ -89,42 +85,33 @@ export class LugarService {
 
   async listLugar(
     appContext: AppContext,
-    dto: IListLugarInput,
+    dto: IGenericListInput,
   ): Promise<ListLugarResultType> {
-    const { query, limit, offset } = dto;
+    const result = await this.meilisearchService.listResource<LugarType>(
+      INDEX_LUGAR,
+      dto,
+    );
 
-    const meilisearchResult = await this.meilisearchClient
-      .index(INDEX_LUGAR)
-      .search<LugarType>(query, { limit, offset });
-
-    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+    const items = await parralelMap(result.items, async (hit) => {
       const id = hit.id;
 
       if (!isNil(id)) {
-        const lugar = await this.findLugarById(appContext, {
+        const row = await this.findLugarById(appContext, {
           id: hit.id,
         });
 
-        if (lugar) {
-          return lugar;
+        if (row) {
+          return row;
         }
       }
 
       return null;
     });
 
-    const result: ListLugarResultType = {
-      query: meilisearchResult.query,
-
-      limit: meilisearchResult.limit,
-      offset: meilisearchResult.offset,
-
-      total: meilisearchResult.estimatedTotalHits,
-
-      items: items,
+    return {
+      ...result,
+      items,
     };
-
-    return result;
   }
 
   async getLugarGenericField<K extends keyof LugarDbEntity>(

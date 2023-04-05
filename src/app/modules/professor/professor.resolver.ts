@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import {
   CreateProfessorInputType,
@@ -15,8 +19,6 @@ import {
   DeleteProfessorInputZod,
   FindProfessorByIdInputType,
   FindProfessorByIdInputZod,
-  ListProfessorInputType,
-  ListProfessorInputZod,
   ListProfessorResultType,
   UpdateProfessorInputType,
   UpdateProfessorInputZod,
@@ -46,8 +48,8 @@ export class ProfessorResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListProfessorInputZod)
-    dto: ListProfessorInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.professorService.listProfessor(appContext, dto);
   }

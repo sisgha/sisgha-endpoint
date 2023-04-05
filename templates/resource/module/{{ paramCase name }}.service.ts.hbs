@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { has, isNil, isUndefined, omit } from 'lodash';
 import MeiliSearch from 'meilisearch';
 import { AppContext } from 'src/app-context/AppContext';
@@ -6,14 +6,14 @@ import { parralelMap } from 'src/common/utils/parralel-map';
 import { {{ pascalCase name }}DbEntity } from 'src/database/entities/{{ paramCase name }}.db.entity';
 import { get{{ pascalCase name }}Repository } from 'src/database/repositories/{{ paramCase name }}.repository';
 import { INDEX_{{ constantCase name }} } from 'src/meilisearch/constants/meilisearch-tokens';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
+import { IGenericListInput } from 'src/meilisearch/dtos';
+import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import { {{ pascalCase name }}Type } from './{{ paramCase name }}.type';
 import {
   ICreate{{ pascalCase name }}Input,
   IDelete{{ pascalCase name }}Input,
   IFind{{ pascalCase name }}ByIdInput,
-  IList{{ pascalCase name }}Input,
   IUpdate{{ pascalCase name }}Input,
   List{{ pascalCase name }}ResultType,
 } from './dtos';
@@ -21,8 +21,7 @@ import {
 @Injectable()
 export class {{ pascalCase name }}Service {
   constructor(
-    @Inject(MEILISEARCH_CLIENT)
-    private meilisearchClient: MeiliSearch,
+    private meilisearchService: MeiliSearchService,
   ) {}
 
   async find{{ pascalCase name }}ById(
@@ -89,42 +88,33 @@ export class {{ pascalCase name }}Service {
 
   async list{{ pascalCase name }}(
     appContext: AppContext,
-    dto: IList{{ pascalCase name }}Input,
+    dto: IGenericListInput,
   ): Promise<List{{ pascalCase name }}ResultType> {
-    const { query, limit, offset } = dto;
+    const result = await this.meilisearchService.listResource<{{ pascalCase name }}Type>(
+      INDEX_{{ constantCase name }},
+      dto,
+    );
 
-    const meilisearchResult = await this.meilisearchClient
-      .index(INDEX_{{ constantCase name }})
-      .search<{{ pascalCase name }}Type>(query, { limit, offset });
-
-    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+    const items = await parralelMap(result.items, async (hit) => {
       const id = hit.id;
 
       if (!isNil(id)) {
-        const {{ camelCase name }} = await this.find{{ pascalCase name }}ById(appContext, {
+        const row = await this.find{{ pascalCase name }}ById(appContext, {
           id: hit.id,
         });
 
-        if ({{ camelCase name }}) {
-          return {{ camelCase name }};
+        if (row) {
+          return row;
         }
       }
 
       return null;
     });
 
-    const result: List{{ pascalCase name }}ResultType = {
-      query: meilisearchResult.query,
-
-      limit: meilisearchResult.limit,
-      offset: meilisearchResult.offset,
-
-      total: meilisearchResult.estimatedTotalHits,
-
-      items: items,
+    return {
+      ...result,
+      items,
     };
-
-    return result;
   }
 
   async get{{ pascalCase name }}GenericField<K extends keyof {{ pascalCase name }}DbEntity>(

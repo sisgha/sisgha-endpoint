@@ -1,6 +1,5 @@
 export * from './AddTurnoAulaToTurmaInput';
 export * from './FindTurmaHasTurnoAulaByIdInput';
 export * from './FindTurmaHasTurnoAulaByTurnoAulaIdAndTurmaIdInput';
-export * from './ListTurmaHasTurnoAulaInput';
 export * from './ListTurmaHasTurnoAulaResult';
 export * from './RemoveTurnoAulaFromTurmaInput';

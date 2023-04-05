@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { CursoType } from '../curso/curso.type';
 import { LugarType } from '../lugar/lugar.type';
@@ -17,8 +21,6 @@ import {
   DeleteTurmaInputZod,
   FindTurmaByIdInputType,
   FindTurmaByIdInputZod,
-  ListTurmaInputType,
-  ListTurmaInputZod,
   ListTurmaResultType,
   UpdateTurmaInputType,
   UpdateTurmaInputZod,
@@ -48,8 +50,8 @@ export class TurmaResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListTurmaInputZod)
-    dto: ListTurmaInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.turmaService.listTurma(appContext, dto);
   }

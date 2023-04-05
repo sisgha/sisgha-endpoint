@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { DiarioType } from '../diario/diario.type';
 import { LugarType } from '../lugar/lugar.type';
@@ -21,8 +25,6 @@ import {
   DeleteAulaInputZod,
   FindAulaByIdInputType,
   FindAulaByIdInputZod,
-  ListAulaInputType,
-  ListAulaInputZod,
   ListAulaResultType,
   UpdateAulaInputType,
   UpdateAulaInputZod,
@@ -50,8 +52,8 @@ export class AulaResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListAulaInputZod)
-    dto: ListAulaInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.aulaService.listAula(appContext, dto);
   }

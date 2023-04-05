@@ -1,34 +1,29 @@
 import {
   ConflictException,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { has, isNil, omit } from 'lodash';
-import MeiliSearch from 'meilisearch';
 import { AppContext } from 'src/app-context/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { DiaSemanaDbEntity } from 'src/database/entities/dia-semana.db.entity';
 import { getDiaSemanaRepository } from 'src/database/repositories/dia-semana.repository';
 import { INDEX_DIA_SEMANA } from 'src/meilisearch/constants/meilisearch-tokens';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
+import { IGenericListInput, IGenericListInput } from 'src/meilisearch/dtos';
+import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import { DiaSemanaType } from './dia-semana.type';
 import {
   ICreateDiaSemanaInput,
   IDeleteDiaSemanaInput,
   IFindDiaSemanaByIdInput,
-  IListDiaSemanaInput,
   IUpdateDiaSemanaInput,
   ListDiaSemanaResultType,
 } from './dtos';
 
 @Injectable()
 export class DiaSemanaService {
-  constructor(
-    @Inject(MEILISEARCH_CLIENT)
-    private meilisearchClient: MeiliSearch,
-  ) {}
+  constructor(private meilisearchService: MeiliSearchService) {}
 
   async findDiaSemanaById(
     appContext: AppContext,
@@ -112,42 +107,33 @@ export class DiaSemanaService {
 
   async listDiaSemana(
     appContext: AppContext,
-    dto: IListDiaSemanaInput,
+    dto: IGenericListInput,
   ): Promise<ListDiaSemanaResultType> {
-    const { query, limit, offset } = dto;
+    const result = await this.meilisearchService.listResource<DiaSemanaType>(
+      INDEX_DIA_SEMANA,
+      dto,
+    );
 
-    const meilisearchResult = await this.meilisearchClient
-      .index(INDEX_DIA_SEMANA)
-      .search<DiaSemanaType>(query, { limit, offset });
-
-    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+    const items = await parralelMap(result.items, async (hit) => {
       const id = hit.id;
 
       if (!isNil(id)) {
-        const diaSemana = await this.findDiaSemanaById(appContext, {
+        const row = await this.findDiaSemanaById(appContext, {
           id: hit.id,
         });
 
-        if (diaSemana) {
-          return diaSemana;
+        if (row) {
+          return row;
         }
       }
 
       return null;
     });
 
-    const result: ListDiaSemanaResultType = {
-      query: meilisearchResult.query,
-
-      limit: meilisearchResult.limit,
-      offset: meilisearchResult.offset,
-
-      total: meilisearchResult.estimatedTotalHits,
-
-      items: items,
+    return {
+      ...result,
+      items,
     };
-
-    return result;
   }
 
   async getDiaSemanaGenericField<K extends keyof DiaSemanaDbEntity>(

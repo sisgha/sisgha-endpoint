@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import {
   CreateLugarInputType,
@@ -15,8 +19,6 @@ import {
   DeleteLugarInputZod,
   FindLugarByIdInputType,
   FindLugarByIdInputZod,
-  ListLugarInputType,
-  ListLugarInputZod,
   ListLugarResultType,
   UpdateLugarInputType,
   UpdateLugarInputZod,
@@ -45,8 +47,8 @@ export class LugarResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListLugarInputZod)
-    dto: ListLugarInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.lugarService.listLugar(appContext, dto);
   }

@@ -1,18 +1,17 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
-import MeiliSearch from 'meilisearch';
 import { AppContext } from 'src/app-context/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { SemanaDbEntity } from 'src/database/entities/semana.db.entity';
 import { getSemanaRepository } from 'src/database/repositories/semana.repository';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 import { INDEX_SEMANA } from 'src/meilisearch/constants/meilisearch-tokens';
+import { IGenericListInput } from 'src/meilisearch/dtos';
+import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import {
   ICreateSemanaInput,
   IDeleteSemanaInput,
   IFindSemanaByIdInput,
-  IListSemanaInput,
   IUpdateSemanaInput,
   ListSemanaResultType,
 } from './dtos';
@@ -20,10 +19,7 @@ import { SemanaType } from './semana.type';
 
 @Injectable()
 export class SemanaService {
-  constructor(
-    @Inject(MEILISEARCH_CLIENT)
-    private meilisearchClient: MeiliSearch,
-  ) {}
+  constructor(private meilisearchService: MeiliSearchService) {}
 
   async findSemanaById(
     appContext: AppContext,
@@ -89,42 +85,33 @@ export class SemanaService {
 
   async listSemana(
     appContext: AppContext,
-    dto: IListSemanaInput,
+    dto: IGenericListInput,
   ): Promise<ListSemanaResultType> {
-    const { query, limit, offset } = dto;
+    const result = await this.meilisearchService.listResource<SemanaType>(
+      INDEX_SEMANA,
+      dto,
+    );
 
-    const meilisearchResult = await this.meilisearchClient
-      .index(INDEX_SEMANA)
-      .search<SemanaType>(query, { limit, offset });
-
-    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+    const items = await parralelMap(result.items, async (hit) => {
       const id = hit.id;
 
       if (!isNil(id)) {
-        const semana = await this.findSemanaById(appContext, {
+        const row = await this.findSemanaById(appContext, {
           id: hit.id,
         });
 
-        if (semana) {
-          return semana;
+        if (row) {
+          return row;
         }
       }
 
       return null;
     });
 
-    const result: ListSemanaResultType = {
-      query: meilisearchResult.query,
-
-      limit: meilisearchResult.limit,
-      offset: meilisearchResult.offset,
-
-      total: meilisearchResult.estimatedTotalHits,
-
-      items: items,
+    return {
+      ...result,
+      items,
     };
-
-    return result;
   }
 
   async getSemanaGenericField<K extends keyof SemanaDbEntity>(

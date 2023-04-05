@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import {
   CreateSemanaInputType,
@@ -15,8 +19,6 @@ import {
   DeleteSemanaInputZod,
   FindSemanaByIdInputType,
   FindSemanaByIdInputZod,
-  ListSemanaInputType,
-  ListSemanaInputZod,
   ListSemanaResultType,
   UpdateSemanaInputType,
   UpdateSemanaInputZod,
@@ -46,8 +48,8 @@ export class SemanaResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListSemanaInputZod)
-    dto: ListSemanaInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.semanaService.listSemana(appContext, dto);
   }

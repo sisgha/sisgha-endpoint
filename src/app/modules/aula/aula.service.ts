@@ -1,6 +1,5 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { has, isNil, isUndefined, omit } from 'lodash';
-import MeiliSearch from 'meilisearch';
 import { AppContext } from 'src/app-context/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { AulaDbEntity } from 'src/database/entities/aula.db.entity';
@@ -14,7 +13,8 @@ import { getLugarRepository } from 'src/database/repositories/lugar.repository';
 import { getSemanaRepository } from 'src/database/repositories/semana.repository';
 import { getTurnoAulaRepository } from 'src/database/repositories/turno-aula.repository';
 import { INDEX_AULA } from 'src/meilisearch/constants/meilisearch-tokens';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
+import { IGenericListInput } from 'src/meilisearch/dtos';
+import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import { DiarioService } from '../diario/diario.service';
 import { LugarService } from '../lugar/lugar.service';
@@ -25,7 +25,6 @@ import {
   ICreateAulaInput,
   IDeleteAulaInput,
   IFindAulaByIdInput,
-  IListAulaInput,
   IUpdateAulaInput,
   ListAulaResultType,
 } from './dtos';
@@ -37,9 +36,7 @@ export class AulaService {
     private semanaService: SemanaService,
     private turnoAulaService: TurnoAulaService,
     private lugarService: LugarService,
-
-    @Inject(MEILISEARCH_CLIENT)
-    private meilisearchClient: MeiliSearch,
+    private meilisearchService: MeiliSearchService,
   ) {}
 
   async findAulaById(
@@ -106,42 +103,33 @@ export class AulaService {
 
   async listAula(
     appContext: AppContext,
-    dto: IListAulaInput,
+    dto: IGenericListInput,
   ): Promise<ListAulaResultType> {
-    const { query, limit, offset } = dto;
+    const result = await this.meilisearchService.listResource<AulaType>(
+      INDEX_AULA,
+      dto,
+    );
 
-    const meilisearchResult = await this.meilisearchClient
-      .index(INDEX_AULA)
-      .search<AulaType>(query, { limit, offset });
-
-    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+    const items = await parralelMap(result.items, async (hit) => {
       const id = hit.id;
 
       if (!isNil(id)) {
-        const aula = await this.findAulaById(appContext, {
+        const row = await this.findAulaById(appContext, {
           id: hit.id,
         });
 
-        if (aula) {
-          return aula;
+        if (row) {
+          return row;
         }
       }
 
       return null;
     });
 
-    const result: ListAulaResultType = {
-      query: meilisearchResult.query,
-
-      limit: meilisearchResult.limit,
-      offset: meilisearchResult.offset,
-
-      total: meilisearchResult.estimatedTotalHits,
-
-      items: items,
+    return {
+      ...result,
+      items,
     };
-
-    return result;
   }
 
   async getAulaGenericField<K extends keyof AulaDbEntity>(

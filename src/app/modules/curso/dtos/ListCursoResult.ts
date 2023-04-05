@@ -1,23 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { IGenericSearchResult } from '../../../../common/zod/GenericSearchInputZod';
 import { CursoType } from '../curso.type';
+import { GenericSearchResultType } from 'src/meilisearch/dtos';
 
 @ObjectType('ListCursoResult')
-export class ListCursoResultType
-  implements IGenericSearchResult<CursoType | null>
-{
-  @Field(() => String)
-  query!: string;
-
-  @Field(() => Number)
-  limit!: number;
-
-  @Field(() => Number)
-  offset!: number;
-
-  @Field(() => Number)
-  total!: number;
-
+export class ListCursoResultType extends GenericSearchResultType<CursoType | null> {
   @Field(() => [CursoType], { nullable: 'items' })
   items!: (CursoType | null)[];
 }

@@ -1,23 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { IGenericSearchResult } from '../../../../common/zod/GenericSearchInputZod';
 import { DiarioType } from '../diario.type';
+import { GenericSearchResultType } from 'src/meilisearch/dtos';
 
 @ObjectType('ListDiarioResult')
-export class ListDiarioResultType
-  implements IGenericSearchResult<DiarioType | null>
-{
-  @Field(() => String)
-  query!: string;
-
-  @Field(() => Number)
-  limit!: number;
-
-  @Field(() => Number)
-  offset!: number;
-
-  @Field(() => Number)
-  total!: number;
-
+export class ListDiarioResultType extends GenericSearchResultType<DiarioType | null> {
   @Field(() => [DiarioType], { nullable: 'items' })
   items!: (DiarioType | null)[];
 }

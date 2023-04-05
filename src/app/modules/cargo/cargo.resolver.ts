@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { CargoService } from './cargo.service';
 import { CargoType } from './cargo.type';
@@ -17,8 +21,6 @@ import {
   DeleteCargoInputZod,
   FindCargoByIdInputType,
   FindCargoByIdInputZod,
-  ListCargoInputType,
-  ListCargoInputZod,
   ListCargoResultType,
   UpdateCargoInputType,
   UpdateCargoInputZod,
@@ -46,8 +48,8 @@ export class CargoResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListCargoInputZod)
-    dto: ListCargoInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.cargoService.listCargo(appContext, dto);
   }

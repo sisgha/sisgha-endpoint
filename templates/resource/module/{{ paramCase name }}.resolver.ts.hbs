@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from 'src/graphql/ValidatedArgs.decorator';
 import { {{ pascalCase name }}Service } from './{{ paramCase name }}.service';
 import { {{ pascalCase name }}Type } from './{{ paramCase name }}.type';
@@ -17,8 +21,6 @@ import {
   Delete{{ pascalCase name }}InputZod,
   Find{{ pascalCase name }}ByIdInputType,
   Find{{ pascalCase name }}ByIdInputZod,
-  List{{ pascalCase name }}InputType,
-  List{{ pascalCase name }}InputZod,
   List{{ pascalCase name }}ResultType,
   Update{{ pascalCase name }}InputType,
   Update{{ pascalCase name }}InputZod,
@@ -48,8 +50,8 @@ export class {{ pascalCase name }}Resolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', List{{ pascalCase name }}InputZod)
-    dto: List{{ pascalCase name }}InputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.{{ camelCase name }}Service.list{{ pascalCase name }}(appContext, dto);
   }

@@ -1,29 +1,25 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
-import MeiliSearch from 'meilisearch';
 import { AppContext } from 'src/app-context/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { CursoDbEntity } from 'src/database/entities/curso.db.entity';
 import { getCursoRepository } from 'src/database/repositories/curso.repository';
-import { INDEX_AULA } from 'src/meilisearch/constants/meilisearch-tokens';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
+import { INDEX_CURSO } from 'src/meilisearch/constants/meilisearch-tokens';
+import { IGenericListInput } from 'src/meilisearch/dtos';
+import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
-import { AulaType } from '../aula/aula.type';
+import { CursoType } from './curso.type';
 import {
   ICreateCursoInput,
   IDeleteCursoInput,
   IFindCursoByIdInput,
-  IListCursoInput,
   IUpdateCursoInput,
   ListCursoResultType,
 } from './dtos';
 
 @Injectable()
 export class CursoService {
-  constructor(
-    @Inject(MEILISEARCH_CLIENT)
-    private meilisearchClient: MeiliSearch,
-  ) {}
+  constructor(private meilisearchService: MeiliSearchService) {}
 
   async findCursoById(
     appContext: AppContext,
@@ -89,42 +85,33 @@ export class CursoService {
 
   async listCurso(
     appContext: AppContext,
-    dto: IListCursoInput,
+    dto: IGenericListInput,
   ): Promise<ListCursoResultType> {
-    const { query, limit, offset } = dto;
+    const result = await this.meilisearchService.listResource<CursoType>(
+      INDEX_CURSO,
+      dto,
+    );
 
-    const meilisearchResult = await this.meilisearchClient
-      .index(INDEX_AULA)
-      .search<AulaType>(query, { limit, offset });
-
-    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+    const items = await parralelMap(result.items, async (hit) => {
       const id = hit.id;
 
       if (!isNil(id)) {
-        const curso = await this.findCursoById(appContext, {
+        const row = await this.findCursoById(appContext, {
           id: hit.id,
         });
 
-        if (curso) {
-          return curso;
+        if (row) {
+          return row;
         }
       }
 
       return null;
     });
 
-    const result: ListCursoResultType = {
-      query: meilisearchResult.query,
-
-      limit: meilisearchResult.limit,
-      offset: meilisearchResult.offset,
-
-      total: meilisearchResult.estimatedTotalHits,
-
-      items: items,
+    return {
+      ...result,
+      items,
     };
-
-    return result;
   }
 
   async getCursoGenericField<K extends keyof CursoDbEntity>(

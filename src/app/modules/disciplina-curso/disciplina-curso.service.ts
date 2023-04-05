@@ -1,6 +1,5 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { isNil } from 'lodash';
-import MeiliSearch from 'meilisearch';
 import { AppContext } from 'src/app-context/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { CursoDbEntity } from 'src/database/entities/curso.db.entity';
@@ -9,8 +8,9 @@ import { DisciplinaDbEntity } from 'src/database/entities/disciplina.db.entity';
 import { getCursoRepository } from 'src/database/repositories/curso.repository';
 import { getDisciplinaCursoRepository } from 'src/database/repositories/disciplina-curso.repository';
 import { getDisciplinaRepository } from 'src/database/repositories/disciplina.repository';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 import { INDEX_DISCIPLINA_CURSO } from 'src/meilisearch/constants/meilisearch-tokens';
+import { IGenericListInput } from 'src/meilisearch/dtos';
+import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import { CursoService } from '../curso/curso.service';
 import { DisciplinaService } from '../disciplina/disciplina.service';
@@ -19,7 +19,6 @@ import {
   IAddDisciplinaToCursoInput,
   IFindDisciplinaCursoByDisciplinaIdAndCursoIdInput,
   IFindDisciplinaCursoByIdInput,
-  IListDisciplinaCursoInput,
   IRemoveDisciplinaFromCursoInput,
   ListDisciplinaCursoResultType,
 } from './dtos';
@@ -30,8 +29,7 @@ export class DisciplinaCursoService {
     private disciplinaService: DisciplinaService,
     private cursoService: CursoService,
 
-    @Inject(MEILISEARCH_CLIENT)
-    private meilisearchClient: MeiliSearch,
+    private meilisearchService: MeiliSearchService,
   ) {}
 
   async findDisciplinaCursoById(
@@ -147,42 +145,34 @@ export class DisciplinaCursoService {
 
   async listDisciplinaCurso(
     appContext: AppContext,
-    dto: IListDisciplinaCursoInput,
+    dto: IGenericListInput,
   ): Promise<ListDisciplinaCursoResultType> {
-    const { query, limit, offset } = dto;
+    const result =
+      await this.meilisearchService.listResource<DisciplinaCursoType>(
+        INDEX_DISCIPLINA_CURSO,
+        dto,
+      );
 
-    const meilisearchResult = await this.meilisearchClient
-      .index(INDEX_DISCIPLINA_CURSO)
-      .search<DisciplinaCursoType>(query, { limit, offset });
-
-    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+    const items = await parralelMap(result.items, async (hit) => {
       const id = hit.id;
 
       if (!isNil(id)) {
-        const disciplinaCurso = await this.findDisciplinaCursoById(appContext, {
+        const row = await this.findDisciplinaCursoById(appContext, {
           id: hit.id,
         });
 
-        if (disciplinaCurso) {
-          return disciplinaCurso;
+        if (row) {
+          return row;
         }
       }
 
       return null;
     });
 
-    const result: ListDisciplinaCursoResultType = {
-      query: meilisearchResult.query,
-
-      limit: meilisearchResult.limit,
-      offset: meilisearchResult.offset,
-
-      total: meilisearchResult.estimatedTotalHits,
-
-      items: items,
+    return {
+      ...result,
+      items,
     };
-
-    return result;
   }
 
   async getDisciplinaCursoGenericField<K extends keyof DisciplinaCursoDbEntity>(

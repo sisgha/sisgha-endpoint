@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { DiaSemanaService } from './dia-semana.service';
 import { DiaSemanaType } from './dia-semana.type';
@@ -17,8 +21,6 @@ import {
   DeleteDiaSemanaInputZod,
   FindDiaSemanaByIdInputType,
   FindDiaSemanaByIdInputZod,
-  ListDiaSemanaInputType,
-  ListDiaSemanaInputZod,
   ListDiaSemanaResultType,
   UpdateDiaSemanaInputType,
   UpdateDiaSemanaInputZod,
@@ -46,8 +48,8 @@ export class DiaSemanaResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListDiaSemanaInputZod)
-    dto: ListDiaSemanaInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.diaSemanaService.listDiaSemana(appContext, dto);
   }

@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { LugarType } from '../lugar/lugar.type';
 import { DisciplinaService } from './disciplina.service';
@@ -18,8 +22,6 @@ import {
   DeleteDisciplinaInputZod,
   FindDisciplinaByIdInputType,
   FindDisciplinaByIdInputZod,
-  ListDisciplinaInputType,
-  ListDisciplinaInputZod,
   ListDisciplinaResultType,
   UpdateDisciplinaInputType,
   UpdateDisciplinaInputZod,
@@ -46,8 +48,8 @@ export class DisciplinaResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListDisciplinaInputZod)
-    dto: ListDisciplinaInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.disciplinaService.listDisciplina(appContext, dto);
   }

@@ -1,12 +1,16 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { has, isNil, isNumber, isUndefined, omit } from 'lodash';
 import { AppContext } from 'src/app-context/AppContext';
+import { parralelMap } from 'src/common/utils/parralel-map';
 import { CursoDbEntity } from 'src/database/entities/curso.db.entity';
 import { LugarDbEntity } from 'src/database/entities/lugar.db.entity';
 import { TurmaDbEntity } from 'src/database/entities/turma.db.entity';
 import { getCursoRepository } from 'src/database/repositories/curso.repository';
 import { getLugarRepository } from 'src/database/repositories/lugar.repository';
 import { getTurmaRepository } from 'src/database/repositories/turma.repository';
+import { INDEX_TURMA } from 'src/meilisearch/constants/meilisearch-tokens';
+import { IGenericListInput } from 'src/meilisearch/dtos';
+import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import { CursoService } from '../curso/curso.service';
 import { LugarService } from '../lugar/lugar.service';
@@ -14,15 +18,10 @@ import {
   ICreateTurmaInput,
   IDeleteTurmaInput,
   IFindTurmaByIdInput,
-  IListTurmaInput,
   IUpdateTurmaInput,
   ListTurmaResultType,
 } from './dtos';
 import { TurmaType } from './turma.type';
-import MeiliSearch from 'meilisearch';
-import { parralelMap } from 'src/common/utils/parralel-map';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
-import { INDEX_TURMA } from 'src/meilisearch/constants/meilisearch-tokens';
 
 @Injectable()
 export class TurmaService {
@@ -30,8 +29,7 @@ export class TurmaService {
     private cursoService: CursoService,
     private lugarService: LugarService,
 
-    @Inject(MEILISEARCH_CLIENT)
-    private meilisearchClient: MeiliSearch,
+    private meilisearchService: MeiliSearchService,
   ) {}
 
   async findTurmaById(
@@ -87,42 +85,33 @@ export class TurmaService {
 
   async listTurma(
     appContext: AppContext,
-    dto: IListTurmaInput,
+    dto: IGenericListInput,
   ): Promise<ListTurmaResultType> {
-    const { query, limit, offset } = dto;
+    const result = await this.meilisearchService.listResource<TurmaType>(
+      INDEX_TURMA,
+      dto,
+    );
 
-    const meilisearchResult = await this.meilisearchClient
-      .index(INDEX_TURMA)
-      .search<TurmaType>(query, { limit, offset });
-
-    const items = await parralelMap(meilisearchResult.hits, async (hit) => {
+    const items = await parralelMap(result.items, async (hit) => {
       const id = hit.id;
 
       if (!isNil(id)) {
-        const turma = await this.findTurmaById(appContext, {
+        const row = await this.findTurmaById(appContext, {
           id: hit.id,
         });
 
-        if (turma) {
-          return turma;
+        if (row) {
+          return row;
         }
       }
 
       return null;
     });
 
-    const result: ListTurmaResultType = {
-      query: meilisearchResult.query,
-
-      limit: meilisearchResult.limit,
-      offset: meilisearchResult.offset,
-
-      total: meilisearchResult.estimatedTotalHits,
-
-      items: items,
+    return {
+      ...result,
+      items,
     };
-
-    return result;
   }
 
   async findTurmaByIdStrictSimple(

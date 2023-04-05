@@ -1,23 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { IGenericSearchResult } from '../../../../common/zod/GenericSearchInputZod';
 import { SemanaType } from '../semana.type';
+import { GenericSearchResultType } from 'src/meilisearch/dtos';
 
 @ObjectType('ListSemanaResult')
-export class ListSemanaResultType
-  implements IGenericSearchResult<SemanaType | null>
-{
-  @Field(() => String)
-  query!: string;
-
-  @Field(() => Number)
-  limit!: number;
-
-  @Field(() => Number)
-  offset!: number;
-
-  @Field(() => Number)
-  total!: number;
-
+export class ListSemanaResultType extends GenericSearchResultType<SemanaType | null> {
   @Field(() => [SemanaType], { nullable: 'items' })
   items!: (SemanaType | null)[];
 }

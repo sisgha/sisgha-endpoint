@@ -1,23 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { IGenericSearchResult } from '../../../../common/zod/GenericSearchInputZod';
 import { LugarType } from '../lugar.type';
+import { GenericSearchResultType } from 'src/meilisearch/dtos';
 
 @ObjectType('ListLugarResult')
-export class ListLugarResultType
-  implements IGenericSearchResult<LugarType | null>
-{
-  @Field(() => String)
-  query!: string;
-
-  @Field(() => Number)
-  limit!: number;
-
-  @Field(() => Number)
-  offset!: number;
-
-  @Field(() => Number)
-  total!: number;
-
+export class ListLugarResultType extends GenericSearchResultType<LugarType | null> {
   @Field(() => [LugarType], { nullable: 'items' })
   items!: (LugarType | null)[];
 }

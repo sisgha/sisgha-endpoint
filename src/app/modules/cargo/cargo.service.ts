@@ -1,10 +1,10 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
-import MeiliSearch from 'meilisearch';
 import { AppContext } from 'src/app-context/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { INDEX_CARGO } from 'src/meilisearch/constants/meilisearch-tokens';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
+import { IGenericListInput } from 'src/meilisearch/dtos';
+import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import { CargoDbEntity } from '../../../database/entities/cargo.db.entity';
 import { getCargoRepository } from '../../../database/repositories/cargo.repository';
@@ -15,15 +15,11 @@ import {
   IFindCargoByIdInput,
   IUpdateCargoInput,
 } from './dtos';
-import { IListCargoInput } from './dtos/ListCargoInput';
 import { ListCargoResultType } from './dtos/ListCargoResult';
 
 @Injectable()
 export class CargoService {
-  constructor(
-    @Inject(MEILISEARCH_CLIENT)
-    private meilisearchClient: MeiliSearch,
-  ) {}
+  constructor(private meilisearchService: MeiliSearchService) {}
 
   async findCargoById(
     appContext: AppContext,
@@ -76,42 +72,33 @@ export class CargoService {
 
   async listCargo(
     appContext: AppContext,
-    dto: IListCargoInput,
+    dto: IGenericListInput,
   ): Promise<ListCargoResultType> {
-    const { query, limit, offset } = dto;
+    const result = await this.meilisearchService.listResource<CargoType>(
+      INDEX_CARGO,
+      dto,
+    );
 
-    const result = await this.meilisearchClient
-      .index(INDEX_CARGO)
-      .search<CargoType>(query, { limit, offset });
-
-    const items = await parralelMap(result.hits, async (hit) => {
+    const items = await parralelMap(result.items, async (hit) => {
       const id = hit.id;
 
       if (!isNil(id)) {
-        const cargo = await this.findCargoById(appContext, {
+        const row = await this.findCargoById(appContext, {
           id: hit.id,
         });
 
-        if (cargo) {
-          return cargo;
+        if (row) {
+          return row;
         }
       }
 
       return null;
     });
 
-    const listCargoResult: ListCargoResultType = {
-      query: result.query,
-
-      limit: result.limit,
-      offset: result.offset,
-
-      total: result.estimatedTotalHits,
-
-      items: items,
+    return {
+      ...result,
+      items,
     };
-
-    return listCargoResult;
   }
 
   async findCargoByIdStrictSimple<T = Pick<CargoDbEntity, 'id'>>(

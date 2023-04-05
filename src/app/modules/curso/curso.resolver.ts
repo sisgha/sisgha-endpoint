@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { CursoService } from './curso.service';
 import { CursoType } from './curso.type';
@@ -17,8 +21,6 @@ import {
   DeleteCursoInputZod,
   FindCursoByIdInputType,
   FindCursoByIdInputZod,
-  ListCursoInputType,
-  ListCursoInputZod,
   ListCursoResultType,
   UpdateCursoInputType,
   UpdateCursoInputZod,
@@ -46,8 +48,8 @@ export class CursoResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListCursoInputZod)
-    dto: ListCursoInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.cursoService.listCurso(appContext, dto);
   }

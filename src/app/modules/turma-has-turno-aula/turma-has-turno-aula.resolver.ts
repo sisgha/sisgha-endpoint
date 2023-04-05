@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { TurmaType } from '../turma/turma.type';
 import { TurnoAulaType } from '../turno-aula/turno-aula.type';
@@ -15,8 +19,6 @@ import {
   AddTurnoAulaToTurmaInputZod,
   FindTurmaHasTurnoAulaByIdInputType,
   FindTurmaHasTurnoAulaByIdInputZod,
-  ListTurmaHasTurnoAulaInputType,
-  ListTurmaHasTurnoAulaInputZod,
   ListTurmaHasTurnoAulaResultType,
   RemoveTurnoAulaFromTurmaInputType,
   RemoveTurnoAulaFromTurmaInputZod,
@@ -48,8 +50,8 @@ export class TurmaHasTurnoAulaResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListTurmaHasTurnoAulaInputZod)
-    dto: ListTurmaHasTurnoAulaInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.turmaHasTurnoAulaService.listTurmaHasTurnoAula(appContext, dto);
   }

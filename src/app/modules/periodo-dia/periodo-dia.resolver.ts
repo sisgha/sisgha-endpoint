@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import {
   CreatePeriodoDiaInputType,
@@ -15,8 +19,6 @@ import {
   DeletePeriodoDiaInputZod,
   FindPeriodoDiaByIdInputType,
   FindPeriodoDiaByIdInputZod,
-  ListPeriodoDiaInputType,
-  ListPeriodoDiaInputZod,
   ListPeriodoDiaResultType,
   UpdatePeriodoDiaInputType,
   UpdatePeriodoDiaInputZod,
@@ -46,8 +48,8 @@ export class PeriodoDiaResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListPeriodoDiaInputZod)
-    dto: ListPeriodoDiaInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.periodoDiaService.listPeriodoDia(appContext, dto);
   }

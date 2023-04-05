@@ -7,6 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AppContext } from 'src/app-context/AppContext';
 import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { DiarioType } from '../diario/diario.type';
 import { ProfessorType } from '../professor/professor.type';
@@ -17,8 +21,6 @@ import {
   AddProfessorToDiarioInputZod,
   FindDiarioProfessorByIdInputType,
   FindDiarioProfessorByIdInputZod,
-  ListDiarioProfessorInputType,
-  ListDiarioProfessorInputZod,
   ListDiarioProfessorResultType,
   RemoveProfessorFromDiarioInputType,
   RemoveProfessorFromDiarioInputZod,
@@ -48,8 +50,8 @@ export class DiarioProfessorResolver {
     @ResolveAppContext()
     appContext: AppContext,
 
-    @ValidatedArgs('dto', ListDiarioProfessorInputZod)
-    dto: ListDiarioProfessorInputType,
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
   ) {
     return this.diarioProfessorService.listDiarioProfessor(appContext, dto);
   }
