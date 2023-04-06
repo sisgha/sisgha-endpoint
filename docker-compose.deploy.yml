@@ -38,7 +38,7 @@ services:
     env_file:
       - .meilisearch.env
     volumes:
-      - 'sisgha-endpoint-meilisearch-data:/data.ms'
+      - 'sisgha-endpoint-meilisearch-data:/meili_data'
     networks:
       - sisgha-net
 
