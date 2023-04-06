@@ -1,4 +1,4 @@
-import { Field } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 
 export type IGenericSearchResult<T> = {
   query: string;
@@ -11,6 +11,7 @@ export type IGenericSearchResult<T> = {
   items: T[];
 };
 
+@ObjectType('GenericSearchResult', { isAbstract: true })
 export class GenericSearchResultType<T> implements IGenericSearchResult<T> {
   @Field(() => String)
   query!: string;
