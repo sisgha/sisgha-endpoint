@@ -9,6 +9,7 @@ import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT
 import { DataSource } from 'typeorm';
 import { DeletedRowsLogDbEntity } from '../database/entities/deleted-rows-log.db';
 import { getDeletedRowsLogRepository } from '../database/repositories/deleted-rows-log.repository';
+import { MEILISEARCH_SYNC_RECORDS_INTERVAL } from './constants/MEILISEARCH_SYNC_RECORDS_INTERVAL';
 import { MeilisearchIndexDefinitions } from './config/MeiliSearchIndexDefinitions';
 import { IGenericListInput, IGenericSearchResult } from './dtos';
 import { IMeiliSearchIndexDefinition } from './interfaces/MeiliSearchIndexDefinition';
@@ -228,7 +229,7 @@ export class MeiliSearchService {
     this.syncInProgress = false;
   }
 
-  @Interval(1 * 1000)
+  @Interval(MEILISEARCH_SYNC_RECORDS_INTERVAL)
   async handleSyncRecordsInterval() {
     await this.syncRecords();
   }
