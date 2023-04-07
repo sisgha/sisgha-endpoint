@@ -12,6 +12,7 @@ import {
   GenericListInputZod,
 } from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
+import { CargoType } from '../cargo/cargo.type';
 import {
   CreateUsuarioInputType,
   CreateUsuarioInputZod,
@@ -120,6 +121,15 @@ export class UsuarioResolver {
     @Parent() parent: UsuarioType,
   ) {
     return this.usuarioService.getUsuarioMatriculaSiape(appContext, parent.id);
+  }
+
+  @ResolveField('cargos', () => [CargoType])
+  async cargos(
+    @ResolveAppContext()
+    appContext: AppContext,
+    @Parent() parent: UsuarioType,
+  ) {
+    return this.usuarioService.getUsuarioCargos(appContext, parent.id);
   }
 
   // END: fields resolvers

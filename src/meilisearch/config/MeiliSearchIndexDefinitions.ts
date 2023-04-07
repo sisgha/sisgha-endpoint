@@ -299,7 +299,7 @@ export const MeilisearchIndexDefinitions: IMeiliSearchIndexDefinition[] = [
     primaryKey: 'id',
 
     searchable: ['id'],
-    filterable: ['id'],
+    filterable: ['id', 'usuario.id', 'cargo.id'],
     sortable: ['usuario.id', 'cargo.id'],
 
     getSearchableDataView: () => ['id', 'usuario.id', 'cargo.id'],

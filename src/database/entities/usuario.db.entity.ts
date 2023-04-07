@@ -1,4 +1,11 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { CargoType } from 'src/app/modules/cargo/cargo.type';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { UsuarioHasCargoDbEntity } from './usuario-has-cargo.db.entity';
 
 @Entity('usuario')
@@ -30,4 +37,8 @@ export class UsuarioDbEntity {
     (usuarioHasCargo) => usuarioHasCargo.usuario,
   )
   usuarioHasCargo!: UsuarioHasCargoDbEntity[];
+
+  //
+
+  cargos!: CargoType[];
 }

@@ -204,6 +204,22 @@ export class UsuarioService {
     );
   }
 
+  async getUsuarioCargos(appContext: AppContext, usuarioId: number) {
+    const cargos = await appContext.databaseRun(async ({ entityManager }) => {
+      const cargoRepository = getCargoRepository(entityManager);
+
+      return cargoRepository
+        .createQueryBuilder('cargo')
+        .innerJoin('cargo.usuarioHasCargo', 'usuarioHasCargo')
+        .innerJoin('usuarioHasCargo.usuario', 'usuario')
+        .where('usuario.id = :usuarioId', { usuarioId })
+        .select(['cargo.id'])
+        .getMany();
+    });
+
+    return cargos;
+  }
+
   async createUsuario(appContext: AppContext, dto: ICreateUsuarioInput) {
     const fieldsData = pick(dto, ['email']);
 

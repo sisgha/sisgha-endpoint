@@ -1,4 +1,5 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { CargoType } from '../cargo/cargo.type';
 
 @ObjectType('Usuario')
 export class UsuarioType {
@@ -13,4 +14,9 @@ export class UsuarioType {
 
   @Field(() => String, { nullable: true })
   matriculaSiape!: string | null;
+
+  //
+
+  @Field(() => [CargoType])
+  cargos!: CargoType[];
 }
