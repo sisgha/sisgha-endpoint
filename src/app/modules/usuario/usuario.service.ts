@@ -143,9 +143,8 @@ export class UsuarioService {
       const newUser = usuarioRepository.create();
       newUser.keycloakId = keycloakId;
 
-      const hasUsers = await usuarioRepository.findOne({
-        select: ['id'],
-      });
+      const usersCount = await usuarioRepository.count();
+      const hasUsers = usersCount > 0;
 
       await usuarioRepository.save(newUser);
 
