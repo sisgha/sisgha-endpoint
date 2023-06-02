@@ -1,6 +1,6 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { getSharedDataSourceOptions } from '../config/getSharedDataSourceOptions';
-import { getPathMigrations } from "../config/getPaths";
+import { getPathMigrations } from '../config/getPaths';
 
 export const getMigrationDataSource = () => {
   const options = {

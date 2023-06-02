@@ -1,6 +1,6 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { getSharedDataSourceOptions } from '../config/getSharedDataSourceOptions';
-import { getPathEntities, getPathSubscribers} from "../config/getPaths";
+import { getPathEntities, getPathSubscribers } from '../config/getPaths';
 
 export const getAppDataSource = () => {
   const options = {

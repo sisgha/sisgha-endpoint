@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { isNil, omit, pick } from 'lodash';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { getCargoRepository } from 'src/database/repositories/cargo.repository';
 import { getUsuarioHasCargoRepository } from 'src/database/repositories/usuario-has-cargo.repository';

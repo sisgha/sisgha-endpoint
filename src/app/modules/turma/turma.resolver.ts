@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -38,7 +38,6 @@ export class TurmaResolver {
   async findTurmaById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindTurmaByIdInputZod)
     dto: FindTurmaByIdInputType,
   ) {
@@ -49,7 +48,6 @@ export class TurmaResolver {
   async listTurma(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -64,7 +62,6 @@ export class TurmaResolver {
   async createTurma(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', CreateTurmaInputZod)
     dto: CreateTurmaInputType,
   ) {
@@ -75,7 +72,6 @@ export class TurmaResolver {
   async updateTurma(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdateTurmaInputZod)
     dto: UpdateTurmaInputType,
   ) {
@@ -86,7 +82,6 @@ export class TurmaResolver {
   async deleteTurma(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeleteTurmaInputZod)
     dto: DeleteTurmaInputType,
   ) {
@@ -114,7 +109,6 @@ export class TurmaResolver {
   async periodo(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: TurmaType,
   ) {
@@ -125,7 +119,6 @@ export class TurmaResolver {
   async turno(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: TurmaType,
   ) {
@@ -136,7 +129,6 @@ export class TurmaResolver {
   async curso(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: TurmaType,
   ) {
@@ -147,7 +139,6 @@ export class TurmaResolver {
   async lugarPadrao(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: TurmaType,
   ) {

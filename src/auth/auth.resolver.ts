@@ -1,7 +1,7 @@
 import { Query, Resolver } from '@nestjs/graphql';
 import { UsuarioType } from '../app/modules/usuario/usuario.type';
-import { AppContext } from '../app-context/AppContext';
-import { ResolveAppContext } from '../app-context/ResolveAppContext';
+import { AppContext } from '../app/AppContext/AppContext';
+import { ResolveAppContext } from '../app/AppContext/ResolveAppContext';
 import { AuthService } from './auth.service';
 
 @Resolver()

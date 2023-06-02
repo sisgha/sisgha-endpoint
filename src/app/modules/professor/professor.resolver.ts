@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -36,7 +36,6 @@ export class ProfessorResolver {
   async findProfessorById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindProfessorByIdInputZod)
     dto: FindProfessorByIdInputType,
   ) {
@@ -47,7 +46,6 @@ export class ProfessorResolver {
   async listProfessor(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -62,7 +60,6 @@ export class ProfessorResolver {
   async createProfessor(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', CreateProfessorInputZod)
     dto: CreateProfessorInputType,
   ) {
@@ -73,7 +70,6 @@ export class ProfessorResolver {
   async updateProfessor(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdateProfessorInputZod)
     dto: UpdateProfessorInputType,
   ) {
@@ -84,7 +80,6 @@ export class ProfessorResolver {
   async deleteProfessor(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeleteProfessorInputZod)
     dto: DeleteProfessorInputType,
   ) {
@@ -112,7 +107,6 @@ export class ProfessorResolver {
   async nome(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: ProfessorType,
   ) {

@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -37,7 +37,6 @@ export class UsuarioResolver {
   async findUsuarioById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindUsuarioByIdInputZod)
     dto: FindUsuarioByIdInputType,
   ) {
@@ -48,7 +47,6 @@ export class UsuarioResolver {
   async listUsuario(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -63,7 +61,6 @@ export class UsuarioResolver {
   async createUsuario(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', CreateUsuarioInputZod)
     dto: CreateUsuarioInputType,
   ) {
@@ -74,7 +71,6 @@ export class UsuarioResolver {
   async updateUsuario(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdateUsuarioInputZod)
     dto: UpdateUsuarioInputType,
   ) {
@@ -85,7 +81,6 @@ export class UsuarioResolver {
   async deleteUsuario(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeleteUsuarioInputZod)
     dto: DeleteUsuarioInputType,
   ) {

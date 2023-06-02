@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -38,7 +38,6 @@ export class DiarioResolver {
   async findDiarioById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindDiarioByIdInputZod)
     dto: FindDiarioByIdInputType,
   ) {
@@ -49,7 +48,6 @@ export class DiarioResolver {
   async listDiario(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -64,7 +62,6 @@ export class DiarioResolver {
   async createDiario(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', CreateDiarioInputZod)
     dto: CreateDiarioInputType,
   ) {
@@ -75,7 +72,6 @@ export class DiarioResolver {
   async updateDiario(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdateDiarioInputZod)
     dto: UpdateDiarioInputType,
   ) {
@@ -86,7 +82,6 @@ export class DiarioResolver {
   async deleteDiario(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeleteDiarioInputZod)
     dto: DeleteDiarioInputType,
   ) {
@@ -114,7 +109,6 @@ export class DiarioResolver {
   async turma(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: DiarioType,
   ) {
@@ -125,7 +119,6 @@ export class DiarioResolver {
   async disciplina(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: DiarioType,
   ) {

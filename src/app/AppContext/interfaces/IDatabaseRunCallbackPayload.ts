@@ -1,4 +1,4 @@
-import {EntityManager, QueryRunner} from 'typeorm';
+import { EntityManager, QueryRunner } from 'typeorm';
 
 export type IDatabaseRunCallbackPayload = {
   queryRunner: QueryRunner;

@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -47,7 +47,6 @@ export class DisciplinaResolver {
   async listDisciplina(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {

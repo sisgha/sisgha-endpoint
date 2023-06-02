@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -34,7 +34,6 @@ export class DisciplinaCursoResolver {
   async listDisciplinaCurso(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -49,7 +48,6 @@ export class DisciplinaCursoResolver {
   async addDisciplinaToCurso(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', AddDisciplinaToCursoInputZod)
     dto: AddDisciplinaToCursoInputType,
   ) {
@@ -60,7 +58,6 @@ export class DisciplinaCursoResolver {
   async removeDisciplinaFromCurso(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', RemoveDisciplinaFromCursoInputZod)
     dto: RemoveDisciplinaFromCursoInputType,
   ) {
@@ -91,7 +88,6 @@ export class DisciplinaCursoResolver {
   async disciplina(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: DisciplinaCursoType,
   ) {
@@ -105,7 +101,6 @@ export class DisciplinaCursoResolver {
   async curso(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: DisciplinaCursoType,
   ) {

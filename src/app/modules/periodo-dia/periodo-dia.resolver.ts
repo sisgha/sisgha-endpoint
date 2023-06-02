@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -36,7 +36,6 @@ export class PeriodoDiaResolver {
   async findPeriodoDiaById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindPeriodoDiaByIdInputZod)
     dto: FindPeriodoDiaByIdInputType,
   ) {
@@ -47,7 +46,6 @@ export class PeriodoDiaResolver {
   async listPeriodoDia(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -62,7 +60,6 @@ export class PeriodoDiaResolver {
   async createPeriodoDia(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', CreatePeriodoDiaInputZod)
     dto: CreatePeriodoDiaInputType,
   ) {
@@ -73,7 +70,6 @@ export class PeriodoDiaResolver {
   async updatePeriodoDia(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdatePeriodoDiaInputZod)
     dto: UpdatePeriodoDiaInputType,
   ) {
@@ -84,7 +80,6 @@ export class PeriodoDiaResolver {
   async deletePeriodoDia(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeletePeriodoDiaInputZod)
     dto: DeletePeriodoDiaInputType,
   ) {
@@ -99,7 +94,6 @@ export class PeriodoDiaResolver {
   async horaInicio(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: PeriodoDiaType,
   ) {
@@ -113,7 +107,6 @@ export class PeriodoDiaResolver {
   async horaFim(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: PeriodoDiaType,
   ) {

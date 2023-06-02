@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { Client } from 'openid-client';
 import { DataSource } from 'typeorm';
 import { UsuarioService } from '../app/modules/usuario/usuario.service';
-import { AppContext } from '../app-context/AppContext';
+import { AppContext } from '../app/AppContext/AppContext';
 import { IS_PRODUCTION_MODE } from '../common/constants/IS_PRODUCTION_MODE.const';
 import { OPENID_CLIENT } from './constants/OPENID_CLIENT.const';
 import { DATA_SOURCE } from '../database/constants/DATA_SOURCE';
@@ -12,10 +12,8 @@ import { ResourceActionRequest } from './interfaces/ResourceActionRequest';
 export class AuthService {
   constructor(
     private usuarioService: UsuarioService,
-
     @Inject(OPENID_CLIENT)
     private openIDClient: Client,
-
     @Inject(DATA_SOURCE)
     private dataSource: DataSource,
   ) {}

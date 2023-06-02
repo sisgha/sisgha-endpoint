@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { isNil, isNumber, omit } from 'lodash';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { DiaSemanaDbEntity } from 'src/database/entities/dia-semana.db.entity';
 import { PeriodoDiaDbEntity } from 'src/database/entities/periodo-dia.db.entity';
@@ -28,7 +28,6 @@ export class TurnoAulaService {
   constructor(
     private diaSemanaService: DiaSemanaService,
     private periodoDiaService: PeriodoDiaService,
-
     private meilisearchService: MeiliSearchService,
   ) {}
 

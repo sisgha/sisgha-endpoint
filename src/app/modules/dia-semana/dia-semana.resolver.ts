@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -36,7 +36,6 @@ export class DiaSemanaResolver {
   async findDiaSemanaById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindDiaSemanaByIdInputZod)
     dto: FindDiaSemanaByIdInputType,
   ) {
@@ -47,7 +46,6 @@ export class DiaSemanaResolver {
   async listDiaSemana(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -62,7 +60,6 @@ export class DiaSemanaResolver {
   async createDiaSemana(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', CreateDiaSemanaInputZod)
     dto: CreateDiaSemanaInputType,
   ) {
@@ -73,7 +70,6 @@ export class DiaSemanaResolver {
   async updateDiaSemana(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdateDiaSemanaInputZod)
     dto: UpdateDiaSemanaInputType,
   ) {
@@ -84,7 +80,6 @@ export class DiaSemanaResolver {
   async deleteDiaSemana(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeleteDiaSemanaInputZod)
     dto: DeleteDiaSemanaInputType,
   ) {
@@ -99,7 +94,6 @@ export class DiaSemanaResolver {
   async ordem(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: DiaSemanaType,
   ) {

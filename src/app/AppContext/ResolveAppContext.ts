@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { DataSource } from 'typeorm';
-import { ResourceActionRequest } from '../auth/interfaces/ResourceActionRequest';
-import { DATA_SOURCE } from '../database/constants/DATA_SOURCE';
+import { ResourceActionRequest } from '../../auth/interfaces/ResourceActionRequest';
+import { DATA_SOURCE } from '../../database/constants/DATA_SOURCE';
 import { AppContext } from './AppContext';
 
 @Injectable()

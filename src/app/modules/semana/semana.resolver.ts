@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -36,7 +36,6 @@ export class SemanaResolver {
   async findSemanaById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindSemanaByIdInputZod)
     dto: FindSemanaByIdInputType,
   ) {
@@ -47,7 +46,6 @@ export class SemanaResolver {
   async listSemana(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -62,7 +60,6 @@ export class SemanaResolver {
   async createSemana(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', CreateSemanaInputZod)
     dto: CreateSemanaInputType,
   ) {
@@ -73,7 +70,6 @@ export class SemanaResolver {
   async updateSemana(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdateSemanaInputZod)
     dto: UpdateSemanaInputType,
   ) {
@@ -84,7 +80,6 @@ export class SemanaResolver {
   async deleteSemana(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeleteSemanaInputZod)
     dto: DeleteSemanaInputType,
   ) {
@@ -99,7 +94,6 @@ export class SemanaResolver {
   async dataInicio(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: SemanaType,
   ) {
@@ -110,7 +104,6 @@ export class SemanaResolver {
   async dataFim(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: SemanaType,
   ) {
@@ -121,7 +114,6 @@ export class SemanaResolver {
   async status(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: SemanaType,
   ) {

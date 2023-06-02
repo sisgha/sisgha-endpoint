@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { has, isNil, omit } from 'lodash';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { DisciplinaDbEntity } from 'src/database/entities/disciplina.db.entity';
 import { LugarDbEntity } from 'src/database/entities/lugar.db.entity';
@@ -24,7 +24,6 @@ import {
 export class DisciplinaService {
   constructor(
     private lugarService: LugarService,
-
     private meilisearchService: MeiliSearchService,
   ) {}
 

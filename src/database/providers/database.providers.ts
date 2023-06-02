@@ -2,7 +2,7 @@ import { Provider } from '@nestjs/common';
 import { getAppDataSource } from '../data-sources/app.data-source';
 import { DATA_SOURCE } from '../constants/DATA_SOURCE';
 import { DataSource } from 'typeorm';
-import {wait} from "../../common/utils/wait";
+import { wait } from '../../common/utils/wait';
 
 const RETRY_INTERVAL = 5 * 1000;
 

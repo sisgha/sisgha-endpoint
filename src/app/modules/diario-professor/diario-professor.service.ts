@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { isNil } from 'lodash';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { DiarioProfessorDbEntity } from 'src/database/entities/diario-professor.db.entity';
 import { DiarioDbEntity } from 'src/database/entities/diario.db.entity';
@@ -28,7 +28,6 @@ export class DiarioProfessorService {
   constructor(
     private professorService: ProfessorService,
     private diarioService: DiarioService,
-
     private meilisearchService: MeiliSearchService,
   ) {}
 

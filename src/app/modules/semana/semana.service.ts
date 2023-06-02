@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { SemanaDbEntity } from 'src/database/entities/semana.db.entity';
 import { getSemanaRepository } from 'src/database/repositories/semana.repository';

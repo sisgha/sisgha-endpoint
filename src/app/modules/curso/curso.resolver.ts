@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -36,7 +36,6 @@ export class CursoResolver {
   async findCursoById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindCursoByIdInputZod)
     dto: FindCursoByIdInputType,
   ) {
@@ -47,7 +46,6 @@ export class CursoResolver {
   async listCurso(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -62,7 +60,6 @@ export class CursoResolver {
   async createCurso(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', CreateCursoInputZod)
     dto: CreateCursoInputType,
   ) {
@@ -73,7 +70,6 @@ export class CursoResolver {
   async updateCurso(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdateCursoInputZod)
     dto: UpdateCursoInputType,
   ) {
@@ -84,7 +80,6 @@ export class CursoResolver {
   async deleteCurso(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeleteCursoInputZod)
     dto: DeleteCursoInputType,
   ) {
@@ -99,7 +94,6 @@ export class CursoResolver {
   async nome(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: CursoType,
   ) {
@@ -110,7 +104,6 @@ export class CursoResolver {
   async tipo(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: CursoType,
   ) {

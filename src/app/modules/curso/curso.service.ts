@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { CursoDbEntity } from 'src/database/entities/curso.db.entity';
 import { getCursoRepository } from 'src/database/repositories/curso.repository';

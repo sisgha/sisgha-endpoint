@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { has, isNil, omit } from 'lodash';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { DiaSemanaDbEntity } from 'src/database/entities/dia-semana.db.entity';
 import { getDiaSemanaRepository } from 'src/database/repositories/dia-semana.repository';

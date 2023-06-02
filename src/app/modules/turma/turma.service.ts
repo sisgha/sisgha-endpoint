@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { has, isNil, isNumber, isUndefined, omit } from 'lodash';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { CursoDbEntity } from 'src/database/entities/curso.db.entity';
 import { LugarDbEntity } from 'src/database/entities/lugar.db.entity';
@@ -28,7 +28,6 @@ export class TurmaService {
   constructor(
     private cursoService: CursoService,
     private lugarService: LugarService,
-
     private meilisearchService: MeiliSearchService,
   ) {}
 

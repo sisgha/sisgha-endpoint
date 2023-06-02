@@ -1,7 +1,7 @@
 import { ForbiddenException } from '@nestjs/common';
 import { DataSource, QueryFailedError } from 'typeorm';
-import { ResourceActionRequest } from '../auth/interfaces/ResourceActionRequest';
-import { ResourceActionRequestRole } from '../auth/interfaces/ResourceActionRequestRole';
+import { ResourceActionRequest } from '../../auth/interfaces/ResourceActionRequest';
+import { ResourceActionRequestRole } from '../../auth/interfaces/ResourceActionRequestRole';
 import { IDatabaseRunCallback } from './interfaces/IDatabaseRunCallback';
 
 export class AppContext {

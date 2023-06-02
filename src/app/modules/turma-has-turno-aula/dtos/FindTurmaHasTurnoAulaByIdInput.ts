@@ -6,10 +6,14 @@ export const FindTurmaHasTurnoAulaByIdInputZod = z.object({
   id: IdZod,
 });
 
-export type IFindTurmaHasTurnoAulaByIdInput = z.infer<typeof FindTurmaHasTurnoAulaByIdInputZod>;
+export type IFindTurmaHasTurnoAulaByIdInput = z.infer<
+  typeof FindTurmaHasTurnoAulaByIdInputZod
+>;
 
 @InputType('FindTurmaHasTurnoAulaByIdInput')
-export class FindTurmaHasTurnoAulaByIdInputType implements IFindTurmaHasTurnoAulaByIdInput {
+export class FindTurmaHasTurnoAulaByIdInputType
+  implements IFindTurmaHasTurnoAulaByIdInput
+{
   @Field(() => Int)
   id!: number;
 }

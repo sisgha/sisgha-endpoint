@@ -2,15 +2,22 @@ import { ForbiddenException } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
 import { DiarioProfessorDbEntity } from '../entities/diario-professor.db.entity';
 
-export type IDiarioProfessorRepository = ReturnType<typeof getDiarioProfessorRepository>;
+export type IDiarioProfessorRepository = ReturnType<
+  typeof getDiarioProfessorRepository
+>;
 
 export const getDiarioProfessorRepository = (
   dataSource: DataSource | EntityManager,
 ) =>
   dataSource.getRepository(DiarioProfessorDbEntity).extend({
-    async updateDiarioProfessor(payload: Partial<DiarioProfessorDbEntity>, id: number) {
+    async updateDiarioProfessor(
+      payload: Partial<DiarioProfessorDbEntity>,
+      id: number,
+    ) {
       const updatedData = await this.createQueryBuilder('diario_professor')
-        .update<DiarioProfessorDbEntity>( DiarioProfessorDbEntity, { ...payload })
+        .update<DiarioProfessorDbEntity>(DiarioProfessorDbEntity, {
+          ...payload,
+        })
         .where('diario_professor.id = :id', { id: id })
         .returning('*')
         .updateEntity(true)

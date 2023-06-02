@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -38,7 +38,6 @@ export class TurnoAulaResolver {
   async findTurnoAulaById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindTurnoAulaByIdInputZod)
     dto: FindTurnoAulaByIdInputType,
   ) {
@@ -49,7 +48,6 @@ export class TurnoAulaResolver {
   async listTurnoAula(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -64,7 +62,6 @@ export class TurnoAulaResolver {
   async createTurnoAula(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', CreateTurnoAulaInputZod)
     dto: CreateTurnoAulaInputType,
   ) {
@@ -75,7 +72,6 @@ export class TurnoAulaResolver {
   async updateTurnoAula(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdateTurnoAulaInputZod)
     dto: UpdateTurnoAulaInputType,
   ) {
@@ -86,7 +82,6 @@ export class TurnoAulaResolver {
   async deleteTurnoAula(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeleteTurnoAulaInputZod)
     dto: DeleteTurnoAulaInputType,
   ) {
@@ -101,7 +96,6 @@ export class TurnoAulaResolver {
   async diaSemana(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: TurnoAulaType,
   ) {
@@ -112,7 +106,6 @@ export class TurnoAulaResolver {
   async periodoDia(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: TurnoAulaType,
   ) {

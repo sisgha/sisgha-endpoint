@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
 import { CargoDbEntity } from 'src/database/entities/cargo.db.entity';
 import { UsuarioHasCargoDbEntity } from 'src/database/entities/usuario-has-cargo.db.entity';
 import { UsuarioDbEntity } from 'src/database/entities/usuario.db.entity';

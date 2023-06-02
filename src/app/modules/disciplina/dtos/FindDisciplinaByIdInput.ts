@@ -6,7 +6,9 @@ export const FindDisciplinaByIdInputZod = z.object({
   id: IdZod,
 });
 
-export type IFindDisciplinaByIdInput = z.infer<typeof FindDisciplinaByIdInputZod>;
+export type IFindDisciplinaByIdInput = z.infer<
+  typeof FindDisciplinaByIdInputZod
+>;
 
 @InputType('FindDisciplinaByIdInput')
 export class FindDisciplinaByIdInputType implements IFindDisciplinaByIdInput {

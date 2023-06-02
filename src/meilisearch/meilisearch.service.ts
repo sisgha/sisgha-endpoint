@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { pick } from 'lodash';
 import MeiliSearch from 'meilisearch';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
 import { ResourceActionRequest } from 'src/auth/interfaces/ResourceActionRequest';
 import { DATA_SOURCE } from 'src/database/constants/DATA_SOURCE';
 import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';

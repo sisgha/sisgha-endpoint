@@ -10,7 +10,7 @@ export const getProfessorRepository = (
   dataSource.getRepository(ProfessorDbEntity).extend({
     async updateProfessor(payload: Partial<ProfessorDbEntity>, id: number) {
       const updatedData = await this.createQueryBuilder('professor')
-        .update<ProfessorDbEntity>( ProfessorDbEntity, { ...payload })
+        .update<ProfessorDbEntity>(ProfessorDbEntity, { ...payload })
         .where('professor.id = :id', { id: id })
         .returning('*')
         .updateEntity(true)

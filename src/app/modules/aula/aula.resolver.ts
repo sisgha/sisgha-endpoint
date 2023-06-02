@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -40,7 +40,6 @@ export class AulaResolver {
   async findAulaById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindAulaByIdInputZod)
     dto: FindAulaByIdInputType,
   ) {
@@ -51,7 +50,6 @@ export class AulaResolver {
   async listAula(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -66,7 +64,6 @@ export class AulaResolver {
   async createAula(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', CreateAulaInputZod)
     dto: CreateAulaInputType,
   ) {
@@ -77,7 +74,6 @@ export class AulaResolver {
   async updateAula(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdateAulaInputZod)
     dto: UpdateAulaInputType,
   ) {
@@ -88,7 +84,6 @@ export class AulaResolver {
   async deleteAula(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeleteAulaInputZod)
     dto: DeleteAulaInputType,
   ) {
@@ -116,7 +111,6 @@ export class AulaResolver {
   async diario(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: AulaType,
   ) {
@@ -127,7 +121,6 @@ export class AulaResolver {
   async semana(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: AulaType,
   ) {
@@ -138,7 +131,6 @@ export class AulaResolver {
   async turnoAula(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: AulaType,
   ) {
@@ -149,7 +141,6 @@ export class AulaResolver {
   async lugar(
     @ResolveAppContext()
     appContext: AppContext,
-
     @Parent()
     parent: AulaType,
   ) {

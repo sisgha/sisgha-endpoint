@@ -6,10 +6,14 @@ export const FindDisciplinaCursoByIdInputZod = z.object({
   id: IdZod,
 });
 
-export type IFindDisciplinaCursoByIdInput = z.infer<typeof FindDisciplinaCursoByIdInputZod>;
+export type IFindDisciplinaCursoByIdInput = z.infer<
+  typeof FindDisciplinaCursoByIdInputZod
+>;
 
 @InputType('FindDisciplinaCursoByIdInput')
-export class FindDisciplinaCursoByIdInputType implements IFindDisciplinaCursoByIdInput {
+export class FindDisciplinaCursoByIdInputType
+  implements IFindDisciplinaCursoByIdInput
+{
   @Field(() => Int)
   id!: number;
 }

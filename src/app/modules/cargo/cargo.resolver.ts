@@ -5,8 +5,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
+import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
@@ -36,7 +36,6 @@ export class CargoResolver {
   async findCargoById(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', FindCargoByIdInputZod)
     dto: FindCargoByIdInputType,
   ) {
@@ -47,7 +46,6 @@ export class CargoResolver {
   async listCargo(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -72,7 +70,6 @@ export class CargoResolver {
   async updateCargo(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', UpdateCargoInputZod)
     dto: UpdateCargoInputType,
   ) {
@@ -83,7 +80,6 @@ export class CargoResolver {
   async deleteCargo(
     @ResolveAppContext()
     appContext: AppContext,
-
     @ValidatedArgs('dto', DeleteCargoInputZod)
     dto: DeleteCargoInputType,
   ) {

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { has, isNil, isUndefined, omit } from 'lodash';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { AulaDbEntity } from 'src/database/entities/aula.db.entity';
 import { DiarioDbEntity } from 'src/database/entities/diario.db.entity';

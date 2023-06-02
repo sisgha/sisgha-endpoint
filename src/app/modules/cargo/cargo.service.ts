@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/AppContext/AppContext';
 import { parralelMap } from 'src/common/utils/parralel-map';
 import { INDEX_CARGO } from 'src/meilisearch/constants/meilisearch-tokens';
 import { IGenericListInput } from 'src/meilisearch/dtos';
