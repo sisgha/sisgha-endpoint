@@ -10,10 +10,12 @@ export class UsuarioType {
   email!: string | null;
 
   @Field(() => String, { nullable: true })
-  keycloakId!: string | null;
+  matriculaSiape!: string | null;
+
+  //
 
   @Field(() => String, { nullable: true })
-  matriculaSiape!: string | null;
+  keycloakId!: string | null;
 
   //
 

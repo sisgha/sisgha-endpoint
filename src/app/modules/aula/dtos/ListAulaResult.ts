@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { GenericSearchResultType } from 'src/meilisearch/dtos/IGenericSearchResult';
+import { GenericSearchResultType } from 'src/meilisearch/dtos/GenericSearchResult';
 import { AulaType } from '../aula.type';
 
 @ObjectType('ListAulaResult')

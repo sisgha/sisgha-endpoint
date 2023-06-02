@@ -1,2 +1,2 @@
 export * from './GenericListInput';
-export * from './IGenericSearchResult';
+export * from './GenericSearchResult';

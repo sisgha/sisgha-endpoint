@@ -9,27 +9,25 @@ import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT
 import { DataSource } from 'typeorm';
 import { DeletedRowsLogDbEntity } from '../database/entities/deleted-rows-log.db';
 import { getDeletedRowsLogRepository } from '../database/repositories/deleted-rows-log.repository';
-import { MEILISEARCH_SYNC_RECORDS_INTERVAL } from './constants/MEILISEARCH_SYNC_RECORDS_INTERVAL';
 import { MeilisearchIndexDefinitions } from './config/MeiliSearchIndexDefinitions';
-import { IGenericListInput, IGenericSearchResult } from './dtos';
+import { MEILISEARCH_SYNC_RECORDS_INTERVAL } from './constants/MEILISEARCH_SYNC_RECORDS_INTERVAL';
+import { GenericSearchResult, IGenericListInput } from './dtos';
 import { IMeiliSearchIndexDefinition } from './interfaces/MeiliSearchIndexDefinition';
 
 @Injectable()
 export class MeiliSearchService {
-  constructor(
-    @Inject(DATA_SOURCE)
-    private dataSource: DataSource,
-
-    @Inject(MEILISEARCH_CLIENT)
-    private client: MeiliSearch,
-  ) {}
-
   private syncInProgress = false;
-
   private appContext = new AppContext(
     this.dataSource,
     ResourceActionRequest.forSystemInternalActions(),
   );
+
+  constructor(
+    @Inject(DATA_SOURCE)
+    private dataSource: DataSource,
+    @Inject(MEILISEARCH_CLIENT)
+    private meilisearchClient: MeiliSearch,
+  ) {}
 
   async findUpdatedRecords() {
     const findUpdatedRecordsGenerator = async function* (
@@ -121,10 +119,10 @@ export class MeiliSearchService {
   async listResource<T extends { id: unknown }>(
     indexUid: string,
     dto: IGenericListInput,
-  ): Promise<IGenericSearchResult<T>> {
+  ): Promise<GenericSearchResult<T>> {
     const { query, limit, offset, filter, sort } = dto;
 
-    const meilisearchResult = await this.client
+    const meilisearchResult = await this.meilisearchClient
       .index(indexUid)
       .search<T>(query, { limit, offset, filter, sort });
 
@@ -140,6 +138,29 @@ export class MeiliSearchService {
     };
 
     return result;
+  }
+
+  async syncRecords() {
+    if (this.syncInProgress) {
+      return;
+    }
+
+    this.syncInProgress = true;
+
+    await this.syncDeletedRecords();
+    await this.syncUpdatedRecords();
+
+    this.syncInProgress = false;
+  }
+
+  @Interval(MEILISEARCH_SYNC_RECORDS_INTERVAL)
+  async handleSyncRecordsInterval() {
+    await this.syncRecords();
+  }
+
+  async deleteDocument(index: string, id: string) {
+    const task = await this.meilisearchClient.index(index).deleteDocument(id);
+    await this.meilisearchClient.index(index).waitForTask(task.taskUid);
   }
 
   private async syncUpdatedRecords() {
@@ -159,13 +180,15 @@ export class MeiliSearchService {
         return data;
       });
 
-      const task = await this.client
+      const task = await this.meilisearchClient
         .index(indexDefinition.index)
         .updateDocuments([...documents], {
           primaryKey: indexDefinition.primaryKey,
         });
 
-      await this.client.index(indexDefinition.index).waitForTask(task.taskUid);
+      await this.meilisearchClient
+        .index(indexDefinition.index)
+        .waitForTask(task.taskUid);
 
       await this.appContext.databaseRun(async ({ entityManager }) => {
         const entity = indexDefinition.getTypeormEntity();
@@ -190,11 +213,13 @@ export class MeiliSearchService {
 
       const deletedDataIds = records.map((record) => record.deletedRowData.id);
 
-      const task = await this.client
+      const task = await this.meilisearchClient
         .index(indexDefinition.index)
         .deleteDocuments([...deletedDataIds]);
 
-      await this.client.index(indexDefinition.index).waitForTask(task.taskUid);
+      await this.meilisearchClient
+        .index(indexDefinition.index)
+        .waitForTask(task.taskUid);
 
       await this.appContext.databaseRun(async ({ entityManager }) => {
         const deletedRowsRepository =
@@ -214,28 +239,5 @@ export class MeiliSearchService {
           .execute();
       });
     }
-  }
-
-  async syncRecords() {
-    if (this.syncInProgress) {
-      return;
-    }
-
-    this.syncInProgress = true;
-
-    await this.syncDeletedRecords();
-    await this.syncUpdatedRecords();
-
-    this.syncInProgress = false;
-  }
-
-  @Interval(MEILISEARCH_SYNC_RECORDS_INTERVAL)
-  async handleSyncRecordsInterval() {
-    await this.syncRecords();
-  }
-
-  async deleteDocument(index: string, id: string) {
-    const task = await this.client.index(index).deleteDocument(id);
-    await this.client.index(index).waitForTask(task.taskUid);
   }
 }
