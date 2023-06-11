@@ -26,12 +26,8 @@ export class AppPoliciesTurnoAula1679180212870 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `DROP POLICY "Everyone can read turno_aula" ON turno_aula;`,
-    );
+    await queryRunner.query('DROP POLICY "Everyone can read turno_aula" ON turno_aula;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can manage turno_aula" ON turno_aula;`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user with cargo \'dape\' can manage turno_aula" ON turno_aula;');
   }
 }

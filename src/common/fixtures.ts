@@ -6,8 +6,7 @@ import type pMap from 'p-map';
 
 type IPMap = typeof pMap;
 
-export const getPMap = (): Promise<IPMap> =>
-  inclusion('p-map').then((mod) => mod.default);
+export const getPMap = (): Promise<IPMap> => inclusion('p-map').then((mod) => mod.default);
 
 // END p-map module
 
@@ -15,7 +14,6 @@ export const getPMap = (): Promise<IPMap> =>
 
 type IHelmet = typeof Helmet;
 
-export const getHelmet = (): Promise<IHelmet> =>
-  inclusion('helmet').then((mod) => mod.default);
+export const getHelmet = (): Promise<IHelmet> => inclusion('helmet').then((mod) => mod.default);
 
 // END helmet module

@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AppPoliciesDisciplinaCurso1679180212886
-  implements MigrationInterface
-{
+export class AppPoliciesDisciplinaCurso1679180212886 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
       `CREATE POLICY "Everyone can read disciplina_curso"
@@ -28,12 +26,8 @@ export class AppPoliciesDisciplinaCurso1679180212886
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `DROP POLICY "Everyone can read disciplina_curso" ON disciplina_curso;`,
-    );
+    await queryRunner.query('DROP POLICY "Everyone can read disciplina_curso" ON disciplina_curso;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can manage disciplina_curso" ON disciplina_curso;`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user with cargo \'dape\' can manage disciplina_curso" ON disciplina_curso;');
   }
 }

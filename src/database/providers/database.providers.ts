@@ -17,9 +17,7 @@ export const dataSourceProvider: Provider = {
       dataSource = getAppDataSource();
 
       if (dataSource === null) {
-        console.log(
-          "[INFO] can't connect to the database. trying again in some instants...",
-        );
+        console.log("[INFO] can't connect to the database. trying again in some instants...");
         await wait(RETRY_INTERVAL);
       }
     } while (dataSource === null);

@@ -2,25 +2,20 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { pick } from 'lodash';
 import MeiliSearch from 'meilisearch';
-import { AppContext } from 'src/app/AppContext/AppContext';
-import { ResourceActionRequest } from 'src/auth/interfaces/ResourceActionRequest';
+import { Actor } from 'src/actor-context/Actor';
+import { ActorContext } from 'src/actor-context/ActorContext';
+import { IAppResource } from 'src/actor-context/interfaces';
+import { APP_RESOURCES } from 'src/actor-context/providers';
 import { DATA_SOURCE } from 'src/database/constants/DATA_SOURCE';
 import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 import { DataSource } from 'typeorm';
-import { DeletedRowsLogDbEntity } from '../database/entities/deleted-rows-log.db';
-import { getDeletedRowsLogRepository } from '../database/repositories/deleted-rows-log.repository';
-import { MeilisearchIndexDefinitions } from './config/MeiliSearchIndexDefinitions';
 import { MEILISEARCH_SYNC_RECORDS_INTERVAL } from './constants/MEILISEARCH_SYNC_RECORDS_INTERVAL';
 import { GenericSearchResult, IGenericListInput } from './dtos';
-import { IMeiliSearchIndexDefinition } from './interfaces/MeiliSearchIndexDefinition';
 
 @Injectable()
 export class MeiliSearchService {
   private syncInProgress = false;
-  private appContext = new AppContext(
-    this.dataSource,
-    ResourceActionRequest.forSystemInternalActions(),
-  );
+  private appContext = new ActorContext(this.dataSource, Actor.forSystemInternalActions());
 
   constructor(
     @Inject(DATA_SOURCE)
@@ -30,14 +25,10 @@ export class MeiliSearchService {
   ) {}
 
   async findUpdatedRecords() {
-    const findUpdatedRecordsGenerator = async function* (
-      this: MeiliSearchService,
-    ) {
-      const getUpdatedRecordsForIndexDefinition = async (
-        indexDefinition: IMeiliSearchIndexDefinition,
-      ) => {
+    const findUpdatedRecordsGenerator = async function* (this: MeiliSearchService) {
+      const getUpdatedRecordsForAppResource = async (appResource: IAppResource) => {
         return await this.appContext.databaseRun(async ({ entityManager }) => {
-          const getRepository = indexDefinition.getTypeormRepositoryFactory();
+          const getRepository = appResource.getTypeormRepositoryFactory();
           const repository = getRepository(entityManager);
 
           const records = await repository
@@ -53,14 +44,14 @@ export class MeiliSearchService {
         });
       };
 
-      for (const indexDefinition of MeilisearchIndexDefinitions) {
+      for (const appResource of APP_RESOURCES) {
         let records: any[] = [];
 
         do {
-          records = await getUpdatedRecordsForIndexDefinition(indexDefinition);
+          records = await getUpdatedRecordsForAppResource(appResource);
 
           if (records.length > 0) {
-            yield { indexDefinition, records };
+            yield { indexDefinition: appResource, records };
           }
         } while (records.length > 0);
       }
@@ -70,19 +61,14 @@ export class MeiliSearchService {
   }
 
   async findIndexDefinitionsDeletedRowLogs() {
-    const findIndexDefinitionsDeletedRowLogsGenerator = async function* (
-      this: MeiliSearchService,
-    ) {
-      const getDeletedRowLogsForIndexDefinition = async (
-        indexDefinition: IMeiliSearchIndexDefinition,
-      ) => {
+    const findIndexDefinitionsDeletedRowLogsGenerator = async function* (this: MeiliSearchService) {
+      const getDeletedRowLogsForIndexDefinition = async (indexDefinition: IMeiliSearchIndexDefinition) => {
         return await this.appContext.databaseRun(async ({ entityManager }) => {
           const getRepository = indexDefinition.getTypeormRepositoryFactory();
           const repository = getRepository(entityManager);
           const tableTame = repository.metadata.tableName;
 
-          const deletedRowsLogRepository =
-            getDeletedRowsLogRepository(entityManager);
+          const deletedRowsLogRepository = getDeletedRowsLogRepository(entityManager);
 
           const records = await deletedRowsLogRepository
             .createQueryBuilder('deleted_rows_log')
@@ -119,12 +105,17 @@ export class MeiliSearchService {
   async listResource<T extends { id: unknown }>(
     indexUid: string,
     dto: IGenericListInput,
+    allowedIds: any[] | null = null,
   ): Promise<GenericSearchResult<T>> {
-    const { query, limit, offset, filter, sort } = dto;
+    const { query, limit, offset, sort } = dto;
 
-    const meilisearchResult = await this.meilisearchClient
-      .index(indexUid)
-      .search<T>(query, { limit, offset, filter, sort });
+    const filter = [
+      // ...
+      `id IN ${JSON.stringify(allowedIds)}`,
+      ...(dto.filter ? [dto.filter] : []),
+    ];
+
+    const meilisearchResult = await this.meilisearchClient.index(indexUid).search<T>(query, { limit, offset, filter, sort });
 
     const result = {
       query: meilisearchResult.query,
@@ -170,25 +161,18 @@ export class MeiliSearchService {
       const { indexDefinition, records } = updatedRecord;
 
       const documents = records.map((record) => {
-        const searchableDataView =
-          indexDefinition.getSearchableDataView(record);
+        const searchableDataView = indexDefinition.getSearchableDataView(record);
 
-        const data = Array.isArray(searchableDataView)
-          ? pick(record, searchableDataView)
-          : searchableDataView;
+        const data = Array.isArray(searchableDataView) ? pick(record, searchableDataView) : searchableDataView;
 
         return data;
       });
 
-      const task = await this.meilisearchClient
-        .index(indexDefinition.index)
-        .updateDocuments([...documents], {
-          primaryKey: indexDefinition.primaryKey,
-        });
+      const task = await this.meilisearchClient.index(indexDefinition.index).updateDocuments([...documents], {
+        primaryKey: indexDefinition.primaryKey,
+      });
 
-      await this.meilisearchClient
-        .index(indexDefinition.index)
-        .waitForTask(task.taskUid);
+      await this.meilisearchClient.index(indexDefinition.index).waitForTask(task.taskUid);
 
       await this.appContext.databaseRun(async ({ entityManager }) => {
         const entity = indexDefinition.getTypeormEntity();
@@ -213,17 +197,12 @@ export class MeiliSearchService {
 
       const deletedDataIds = records.map((record) => record.deletedRowData.id);
 
-      const task = await this.meilisearchClient
-        .index(indexDefinition.index)
-        .deleteDocuments([...deletedDataIds]);
+      const task = await this.meilisearchClient.index(indexDefinition.index).deleteDocuments([...deletedDataIds]);
 
-      await this.meilisearchClient
-        .index(indexDefinition.index)
-        .waitForTask(task.taskUid);
+      await this.meilisearchClient.index(indexDefinition.index).waitForTask(task.taskUid);
 
       await this.appContext.databaseRun(async ({ entityManager }) => {
-        const deletedRowsRepository =
-          getDeletedRowsLogRepository(entityManager);
+        const deletedRowsRepository = getDeletedRowsLogRepository(entityManager);
 
         // await deletedRowsRepository
         //   .createQueryBuilder()

@@ -26,10 +26,8 @@ export class AppPoliciesAula1679180212910 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP POLICY "Everyone can read aula" ON aula;`);
+    await queryRunner.query('DROP POLICY "Everyone can read aula" ON aula;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can manage aula" ON aula;`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user with cargo \'dape\' can manage aula" ON aula;');
   }
 }

@@ -2,17 +2,11 @@ import { CustomScalar, Scalar } from '@nestjs/graphql';
 import { Kind, ValueNode } from 'graphql';
 
 @Scalar('Date', (type) => Date)
-export class DateScalar
-  implements CustomScalar<number | string | Date, Date | null>
-{
+export class DateScalar implements CustomScalar<number | string | Date, Date | null> {
   description = 'Date custom scalar type';
 
   parseValue(value: unknown): Date | null {
-    if (
-      typeof value === 'string' ||
-      typeof value === 'number' ||
-      value instanceof Date
-    ) {
+    if (typeof value === 'string' || typeof value === 'number' || value instanceof Date) {
       return new Date(value);
     }
 

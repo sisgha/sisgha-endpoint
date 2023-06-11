@@ -26,12 +26,8 @@ export class AppPoliciesPeriodoDia1679180212866 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `DROP POLICY "Everyone can read periodo_dia" ON periodo_dia;`,
-    );
+    await queryRunner.query('DROP POLICY "Everyone can read periodo_dia" ON periodo_dia;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can manage periodo_dia" ON periodo_dia;`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user with cargo \'dape\' can manage periodo_dia" ON periodo_dia;');
   }
 }

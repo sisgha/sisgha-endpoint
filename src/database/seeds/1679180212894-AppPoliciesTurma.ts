@@ -26,10 +26,8 @@ export class AppPoliciesTurma1679180212894 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP POLICY "Everyone can read turma" ON turma;`);
+    await queryRunner.query('DROP POLICY "Everyone can read turma" ON turma;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can manage turma" ON turma;`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user with cargo \'dape\' can manage turma" ON turma;');
   }
 }

@@ -15,9 +15,7 @@ async function bootstrap() {
 
   const helmet = await getHelmet();
 
-  app.use(
-    helmet({ contentSecurityPolicy: IS_PRODUCTION_MODE ? undefined : false }),
-  );
+  app.use(helmet({ contentSecurityPolicy: IS_PRODUCTION_MODE ? undefined : false }));
 
   app.use(compression());
 

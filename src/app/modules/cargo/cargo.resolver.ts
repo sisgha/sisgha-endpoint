@@ -1,16 +1,7 @@
-import {
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
-import { AppContext } from 'src/app/AppContext/AppContext';
-import { ResolveAppContext } from 'src/app/AppContext/ResolveAppContext';
-import {
-  GenericListInputType,
-  GenericListInputZod,
-} from 'src/meilisearch/dtos';
+import { Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { ActorContext } from 'src/actor-context/ActorContext';
+import { ResolveActorContext } from 'src/actor-context/resolvers/ResolveActorContext';
+import { GenericListInputType, GenericListInputZod } from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { CargoService } from './cargo.service';
 import { CargoType } from './cargo.type';
@@ -34,22 +25,22 @@ export class CargoResolver {
 
   @Query(() => CargoType)
   async findCargoById(
-    @ResolveAppContext()
-    appContext: AppContext,
+    @ResolveActorContext()
+    actorContext: ActorContext,
     @ValidatedArgs('dto', FindCargoByIdInputZod)
     dto: FindCargoByIdInputType,
   ) {
-    return this.cargoService.findCargoByIdStrict(appContext, dto);
+    return this.cargoService.findCargoByIdStrict(actorContext, dto);
   }
 
   @Query(() => ListCargoResultType)
   async listCargo(
-    @ResolveAppContext()
-    appContext: AppContext,
+    @ResolveActorContext()
+    actorContext: ActorContext,
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
-    return this.cargoService.listCargo(appContext, dto);
+    return this.cargoService.listCargo(actorContext, dto);
   }
 
   // END: queries
@@ -58,32 +49,32 @@ export class CargoResolver {
 
   @Mutation(() => CargoType)
   async createCargo(
-    @ResolveAppContext()
-    appContext: AppContext,
+    @ResolveActorContext()
+    actorContext: ActorContext,
     @ValidatedArgs('dto', CreateCargoInputZod)
     dto: CreateCargoInputType,
   ) {
-    return this.cargoService.createCargo(appContext, dto);
+    return this.cargoService.createCargo(actorContext, dto);
   }
 
   @Mutation(() => CargoType)
   async updateCargo(
-    @ResolveAppContext()
-    appContext: AppContext,
+    @ResolveActorContext()
+    actorContext: ActorContext,
     @ValidatedArgs('dto', UpdateCargoInputZod)
     dto: UpdateCargoInputType,
   ) {
-    return this.cargoService.updateCargo(appContext, dto);
+    return this.cargoService.updateCargo(actorContext, dto);
   }
 
   @Mutation(() => Boolean)
   async deleteCargo(
-    @ResolveAppContext()
-    appContext: AppContext,
+    @ResolveActorContext()
+    actorContext: ActorContext,
     @ValidatedArgs('dto', DeleteCargoInputZod)
     dto: DeleteCargoInputType,
   ) {
-    return this.cargoService.deleteCargo(appContext, dto);
+    return this.cargoService.deleteCargo(actorContext, dto);
   }
 
   // END: mutations
@@ -92,11 +83,11 @@ export class CargoResolver {
 
   @ResolveField('slug', () => String)
   async slug(
-    @ResolveAppContext()
-    appContext: AppContext,
+    @ResolveActorContext()
+    actorContext: ActorContext,
     @Parent() parent: CargoType,
   ) {
-    return this.cargoService.getCargoSlug(appContext, parent.id);
+    return this.cargoService.getCargoSlug(actorContext, parent.id);
   }
 
   // END: fields resolvers

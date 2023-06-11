@@ -27,12 +27,8 @@ export class AppPoliciesSemana1679180212874 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `DROP POLICY "Everyone can read semana that have status of publico" ON semana;`,
-    );
+    await queryRunner.query('DROP POLICY "Everyone can read semana that have status of publico" ON semana;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can manage semana" ON semana;`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user with cargo \'dape\' can manage semana" ON semana;');
   }
 }

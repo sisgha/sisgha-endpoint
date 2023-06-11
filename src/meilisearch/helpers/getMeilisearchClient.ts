@@ -1,5 +1,5 @@
 import { MeiliSearch } from 'meilisearch';
-import { MeilisearchIndexDefinitions } from '../config/MeiliSearchIndexDefinitions';
+import { MeilisearchIndexDefinitions } from '../../actor-context/providers/MeiliSearchIndexDefinitions';
 import { getMeiliSearchConfig } from './getMeiliSearchConfig';
 import { setupIndex } from './setupIndex';
 

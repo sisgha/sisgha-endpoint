@@ -26,10 +26,8 @@ export class AppPoliciesLugar1679180212858 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP POLICY "Everyone can read lugar" ON lugar;`);
+    await queryRunner.query('DROP POLICY "Everyone can read lugar" ON lugar;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can manage lugar" ON lugar;`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user with cargo \'dape\' can manage lugar" ON lugar;');
   }
 }

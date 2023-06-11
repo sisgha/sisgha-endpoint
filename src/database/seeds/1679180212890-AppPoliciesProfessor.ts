@@ -26,12 +26,8 @@ export class AppPoliciesProfessor1679180212890 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `DROP POLICY "Everyone can read professor" ON professor;`,
-    );
+    await queryRunner.query('DROP POLICY "Everyone can read professor" ON professor;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can manage professor" ON professor;`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user with cargo \'dape\' can manage professor" ON professor;');
   }
 }

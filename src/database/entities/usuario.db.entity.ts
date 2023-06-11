@@ -1,44 +1,48 @@
-import { CargoType } from 'src/app/modules/cargo/cargo.type';
-import {
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-import { UsuarioHasCargoDbEntity } from './usuario-has-cargo.db.entity';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { UsuarioCargoDbEntity } from './usuario_cargo.db.entity';
 
 @Entity('usuario')
 export class UsuarioDbEntity {
   @PrimaryGeneratedColumn({ name: 'id' })
   id!: number;
 
-  @Column({ name: 'email', nullable: true, type: 'varchar' })
+  // ...
+
+  @Column({ name: 'email', nullable: true, type: 'text' })
   email!: string | null;
 
-  @Column({ name: 'keycloak_id', nullable: true, type: 'varchar' })
-  keycloakId!: string | null;
-
-  @Column({ name: 'matricula_siape', nullable: true, type: 'varchar' })
+  @Column({ name: 'matricula_siape', nullable: true, type: 'text' })
   matriculaSiape!: string | null;
-
-  @UpdateDateColumn({
-    name: 'last_update',
-    type: 'timestamptz',
-    nullable: true,
-  })
-  lastUpdate!: Date | null;
-
-  @Column({ name: 'last_search_sync', type: 'timestamptz', nullable: true })
-  lastSearchSync!: Date | null;
-
-  @OneToMany(
-    () => UsuarioHasCargoDbEntity,
-    (usuarioHasCargo) => usuarioHasCargo.usuario,
-  )
-  usuarioHasCargo!: UsuarioHasCargoDbEntity[];
 
   //
 
-  cargos!: CargoType[];
+  @Column({ name: 'keycloak_id', nullable: true, type: 'text' })
+  keycloakId!: string | null;
+
+  // ...
+
+  @CreateDateColumn({
+    name: 'created_at',
+    type: 'timestamptz',
+    nullable: false,
+  })
+  createdAt!: Date;
+
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamptz',
+    nullable: false,
+  })
+  updatedAt!: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz', nullable: true })
+  deletedAt!: Date | null;
+
+  @Column({ name: 'search_sync_at', type: 'timestamptz', nullable: true })
+  searchSyncAt!: Date | null;
+
+  // ...
+
+  @OneToMany(() => UsuarioCargoDbEntity, (entity) => entity.usuario)
+  usuarioCargo!: UsuarioCargoDbEntity[];
 }

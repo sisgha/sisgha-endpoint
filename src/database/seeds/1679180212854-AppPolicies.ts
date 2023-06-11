@@ -68,26 +68,16 @@ export class AppPolicies1679180212854 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP POLICY "Everyone can read cargo" ON cargo;`);
+    await queryRunner.query('DROP POLICY "Everyone can read cargo" ON cargo;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can manage cargo" ON cargo;`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user with cargo \'dape\' can manage cargo" ON cargo;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user can read itself" ON usuario;`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user can read itself" ON usuario;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can manage usuario" ON usuario;`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user with cargo \'dape\' can manage usuario" ON usuario;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user can read own usuario_has_cargo" ON usuario_has_cargo;`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user can read own usuario_has_cargo" ON usuario_has_cargo;');
 
-    await queryRunner.query(
-      `DROP POLICY "Authed user with cargo 'dape' can manage usuario_has_cargo" ON usuario_has_cargo`,
-    );
+    await queryRunner.query('DROP POLICY "Authed user with cargo \'dape\' can manage usuario_has_cargo" ON usuario_has_cargo');
   }
 }
