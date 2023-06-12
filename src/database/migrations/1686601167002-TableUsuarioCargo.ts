@@ -1,10 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class TableAtorCargo1679180212866 implements MigrationInterface {
+export class TableUsuarioCargo1686601167002 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'ator_cargo',
+        name: 'usuario_cargo',
 
         columns: [
           {
@@ -18,7 +18,7 @@ export class TableAtorCargo1679180212866 implements MigrationInterface {
           // ...
 
           {
-            name: 'id_ator_fk',
+            name: 'id_usuario_fk',
             type: 'int',
             isNullable: false,
           },
@@ -32,15 +32,15 @@ export class TableAtorCargo1679180212866 implements MigrationInterface {
 
         foreignKeys: [
           {
-            name: 'FK_AtorCargo_Ator',
-            referencedTableName: 'ator',
+            name: 'FK_UsuarioCargo_Usuario',
+            referencedTableName: 'usuario',
             referencedColumnNames: ['id'],
-            columnNames: ['id_ator_fk'],
+            columnNames: ['id_usuario_fk'],
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
           },
           {
-            name: 'FK_AtorCargo_Cargo',
+            name: 'FK_UsuarioCargo_Cargo',
             referencedTableName: 'cargo',
             referencedColumnNames: ['id'],
             columnNames: ['id_cargo_fk'],
@@ -53,6 +53,6 @@ export class TableAtorCargo1679180212866 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('ator_cargo', true);
+    await queryRunner.dropTable('usuario_cargo', true);
   }
 }

@@ -1,10 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class TableUsuario1679180212848 implements MigrationInterface {
+export class TablePermissao1686601130444 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'usuario',
+        name: 'permissao',
 
         columns: [
           {
@@ -18,24 +18,28 @@ export class TableUsuario1679180212848 implements MigrationInterface {
           // ...
 
           {
-            name: 'email',
+            name: 'descricao',
             type: 'text',
-            isNullable: true,
+            isNullable: false,
+            isUnique: true,
           },
 
           {
-            name: 'matricula_siape',
+            name: 'acao',
             type: 'text',
-            isNullable: true,
+            isNullable: false,
           },
 
-          //
+          {
+            name: 'recurso',
+            type: 'text',
+            isNullable: false,
+          },
 
           {
-            name: 'keycloak_id',
-            type: 'char',
-            length: '36',
-            isNullable: true,
+            name: 'constraint',
+            type: 'json',
+            isNullable: false,
           },
 
           // ...
@@ -63,7 +67,6 @@ export class TableUsuario1679180212848 implements MigrationInterface {
           {
             name: 'search_sync_at',
             type: 'timestamptz',
-            default: 'now()',
             isNullable: true,
           },
         ],
@@ -72,6 +75,6 @@ export class TableUsuario1679180212848 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('usuario', true);
+    await queryRunner.dropTable('permissao', true);
   }
 }

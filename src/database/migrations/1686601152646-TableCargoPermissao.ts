@@ -1,10 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class TableUsuarioCargo1679180212854 implements MigrationInterface {
+export class TableCargoPermissao1686601152646 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'usuario_cargo',
+        name: 'cargo_permissao',
 
         columns: [
           {
@@ -18,13 +18,13 @@ export class TableUsuarioCargo1679180212854 implements MigrationInterface {
           // ...
 
           {
-            name: 'id_usuario_fk',
+            name: 'id_cargo_fk',
             type: 'int',
             isNullable: false,
           },
 
           {
-            name: 'id_cargo_fk',
+            name: 'id_permissao_fk',
             type: 'int',
             isNullable: false,
           },
@@ -32,18 +32,19 @@ export class TableUsuarioCargo1679180212854 implements MigrationInterface {
 
         foreignKeys: [
           {
-            name: 'FK_UsuarioCargo_Usuario',
-            referencedTableName: 'usuario',
-            referencedColumnNames: ['id'],
-            columnNames: ['id_usuario_fk'],
-            onDelete: 'CASCADE',
-            onUpdate: 'CASCADE',
-          },
-          {
-            name: 'FK_UsuarioCargo_Cargo',
+            name: 'FK_CargoPermissao_Cargo',
             referencedTableName: 'cargo',
             referencedColumnNames: ['id'],
             columnNames: ['id_cargo_fk'],
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+          },
+
+          {
+            name: 'FK_CargoPermissao_Permissao',
+            referencedTableName: 'permissao',
+            referencedColumnNames: ['id'],
+            columnNames: ['id_permissao_fk'],
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
           },
@@ -53,6 +54,6 @@ export class TableUsuarioCargo1679180212854 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('usuario_cargo', true);
+    await queryRunner.dropTable('cargo_permissao', true);
   }
 }

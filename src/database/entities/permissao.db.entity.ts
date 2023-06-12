@@ -7,10 +7,12 @@ export class PermissaoDbEntity {
   @PrimaryGeneratedColumn({ name: 'id' })
   id!: number;
 
-  //
+  // ...
 
-  @Column({ name: 'descricao', type: 'text', nullable: true })
-  descricao!: string | null;
+  @Column({ name: 'descricao', type: 'text', nullable: false, unique: true })
+  descricao!: string;
+
+  //
 
   @Column({ name: 'acao', type: 'text', nullable: false })
   acao!: string;
@@ -18,12 +20,12 @@ export class PermissaoDbEntity {
   @Column({ name: 'recurso', type: 'text', nullable: false })
   recurso!: string;
 
-  // ...
+  //
 
   @Column({ name: 'constraint', type: 'json', nullable: false })
   constraint!: IRawConstraint;
 
-  //
+  // ...
 
   @CreateDateColumn({
     name: 'created_at',
@@ -45,7 +47,7 @@ export class PermissaoDbEntity {
   @Column({ name: 'search_sync_at', type: 'timestamptz', nullable: true })
   searchSyncAt!: Date | null;
 
-  //
+  // ...
 
   @OneToMany(() => CargoPermissaoDbEntity, (entity) => entity.permissao)
   cargoPermissao!: CargoPermissaoDbEntity[];

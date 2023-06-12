@@ -4,6 +4,7 @@ import { pg } from '@ucast/sql';
 import { get, has, intersection } from 'lodash';
 import { ConstraintInterpreter } from 'src/authorization/ConstraintInterpreter';
 import { ConstraintJoinMode, ContextAction, IRawConstraint } from 'src/authorization/interfaces';
+import { DatabaseActorRole } from 'src/database/constants/DatabaseActorRole';
 import { Brackets, DataSource, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { PermissaoDbEntity } from '../database/entities/permissao.db.entity';
 import { getPermissaoRepository } from '../database/repositories/permissao.repository';
@@ -36,8 +37,8 @@ export class ActorContext {
             const user = (<ActorUser>actor).user;
 
             if (user) {
-              await queryRunner.query('set local role authenticated;');
-              await queryRunner.query('set local "request.auth.role" to \'authenticated\';');
+              await queryRunner.query(`set local role ${DatabaseActorRole.USER};`);
+              // await queryRunner.query('set local "request.auth.role" to \'authenticated\';');
               await queryRunner.query(`set local "request.auth.user.id" to ${user.id};`);
               break;
             }
@@ -49,8 +50,7 @@ export class ActorContext {
 
           case ActorType.ANON:
           default: {
-            await queryRunner.manager.query('set local role anon;');
-            await queryRunner.manager.query('set local "request.auth.role" to \'anon\';');
+            // await queryRunner.manager.query(`set local role ${DatabaseActorRole.ANON};`);
             break;
           }
         }
@@ -95,7 +95,7 @@ export class ActorContext {
     qb.andWhere(
       new Brackets((qb) => {
         qb.where('permissao.recurso = :resource', { resource });
-        qb.orWhere('permissao.resource = :recursoQualquer', { recursoQualquer: RECURSO_QUALQUER });
+        qb.orWhere('permissao.recurso = :recursoQualquer', { recursoQualquer: RECURSO_QUALQUER });
       }),
     );
     return qb;
@@ -118,6 +118,7 @@ export class ActorContext {
   }
 
   async getQueryAllowedResourcesForConstraint(
+    resource: string,
     dataSource: DataSource | EntityManager,
     constraint: IRawConstraint,
     targetEntityId: unknown | null = null,
@@ -126,13 +127,19 @@ export class ActorContext {
       return constraint;
     }
 
-    const appResource = getAppResource(constraint.resource);
+    // const appResource = getAppResource(constraint.resource);
+    const appResource = getAppResource(resource);
 
     if (!appResource) {
       return false;
     }
 
-    const constraintInterpreter = new ConstraintInterpreter({ dbDialect: pg });
+    const constraintInterpreter = new ConstraintInterpreter({
+      dbDialect: {
+        ...pg,
+        paramPlaceholder: (index: number) => `:${index}`,
+      },
+    });
 
     const interpretedConstraint = constraintInterpreter.interpret(constraint);
 
@@ -140,7 +147,7 @@ export class ActorContext {
     const resourceRepository = getResourceRepository(dataSource);
     const qb = resourceRepository.createQueryBuilder(interpretedConstraint.alias);
 
-    qb.select(`${interpretedConstraint.alias}.id`, 'id');
+    qb.select([`${interpretedConstraint.alias}.id`]);
 
     for (const join of interpretedConstraint.joins) {
       const joinResource = getAppResource(join.resource);
@@ -163,6 +170,8 @@ export class ActorContext {
     if (targetEntityId !== null) {
       qb.andWhere('id = :id', { id: targetEntityId });
     }
+
+    qb.setParameters(interpretedConstraint.params);
 
     return qb;
   }
@@ -188,22 +197,28 @@ export class ActorContext {
   // ...
 
   async getAllowedResourcesForPermissions<Id = unknown>(
+    resource: string,
     permissions: PermissaoDbEntity[],
     targetEntityId: unknown | null = null,
   ): Promise<Id[] | boolean> {
     let allowedResourcesForPermissions: Id[] | boolean | null = null;
 
     for (const permission of permissions) {
-      const { recurso, constraint } = permission;
-
-      const appResource = getAppResource(recurso);
+      const appResource = getAppResource(resource);
 
       if (!appResource) {
         continue;
       }
 
+      const { constraint } = permission;
+
       const allowedForConstraint = await this.databaseRun(async ({ entityManager }) => {
-        const qbAllowedForConstraint = await this.getQueryAllowedResourcesForConstraint(entityManager, constraint, targetEntityId);
+        const qbAllowedForConstraint = await this.getQueryAllowedResourcesForConstraint(
+          resource,
+          entityManager,
+          constraint,
+          targetEntityId,
+        );
 
         if (typeof qbAllowedForConstraint === 'boolean') {
           return qbAllowedForConstraint;
@@ -219,6 +234,12 @@ export class ActorContext {
       if (allowedForConstraint === false) {
         allowedResourcesForPermissions = false;
         break;
+      }
+
+      if (allowedForConstraint === true) {
+        if (!Array.isArray(allowedResourcesForPermissions)) {
+          allowedResourcesForPermissions = true;
+        }
       }
 
       if (Array.isArray(allowedForConstraint)) {
@@ -239,7 +260,8 @@ export class ActorContext {
 
   async getAllowedResourcesForResourceAction(resource: string, action: string, targetEntityId: unknown | null = null) {
     const permissions = await this.getPermissionsForResourceAction(resource, action);
-    return this.getAllowedResourcesForPermissions(permissions, targetEntityId);
+
+    return this.getAllowedResourcesForPermissions(resource, permissions, targetEntityId);
   }
 
   async getAllowedResourcesIdsForResourceAction(resource: string, action: string, targetEntityId: unknown | null = null) {
@@ -263,7 +285,7 @@ export class ActorContext {
       const getResourceRepository = appResource.getTypeormRepositoryFactory();
       const resourceRepository = getResourceRepository(this.dataSource);
 
-      const qb = resourceRepository.createQueryBuilder('resource').select('resource.id', 'id');
+      const qb = resourceRepository.createQueryBuilder('resource').select(['resource.id']);
 
       const results = await qb.getMany();
 
@@ -277,25 +299,25 @@ export class ActorContext {
 
   //
 
-  async getAbilityForPermissions(permissions: PermissaoDbEntity[], targetEntityId: unknown | null = null) {
+  async getAbilityForPermissions(resource: string, permissions: PermissaoDbEntity[], targetEntityId: unknown | null = null) {
     const { can: allow, cannot: forbid, build } = new AbilityBuilder(createMongoAbility);
 
     for (const permission of permissions) {
-      const { recurso, acao } = permission;
+      const { acao } = permission;
 
-      const allowedResources = await this.getAllowedResourcesForResourceAction(recurso, acao, targetEntityId);
+      const allowedResources = await this.getAllowedResourcesForResourceAction(resource, acao, targetEntityId);
 
       if (Array.isArray(allowedResources)) {
-        allow(acao, recurso, {
+        allow(acao, resource, {
           id: {
             $in: [...allowedResources],
           },
         });
       } else if (typeof allowedResources === 'boolean') {
         if (allowedResources) {
-          allow(acao, recurso);
+          allow(acao, resource);
         } else {
-          forbid(acao, recurso);
+          forbid(acao, resource);
         }
       }
     }
@@ -307,7 +329,7 @@ export class ActorContext {
 
   async getAbilityForResourceAction(resource: string, action: string, targetEntityId: unknown | null = null) {
     const permissions = await this.getPermissionsForResourceAction(resource, action);
-    return this.getAbilityForPermissions(permissions, targetEntityId);
+    return this.getAbilityForPermissions(resource, permissions, targetEntityId);
   }
 
   // ...

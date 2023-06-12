@@ -1,5 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { Client } from 'openid-client';
+import { ActorUser } from 'src/actor-context/ActorUser';
 import { DataSource } from 'typeorm';
 import { Actor } from '../actor-context/Actor';
 import { ActorContext } from '../actor-context/ActorContext';
@@ -23,13 +24,12 @@ export class AuthenticationService {
   async getAuthedUser(appContext: ActorContext) {
     const { actor } = appContext;
 
-    const { user } = actor;
-
-    if (!user) {
-      throw new BadRequestException("You're not logged in");
+    if (actor instanceof ActorUser) {
+      const { user } = actor;
+      return this.usuarioService.findUsuarioByIdStrictSimple(appContext, user.id);
     }
 
-    return this.usuarioService.findUsuarioByIdStrictSimple(appContext, user.id);
+    throw new BadRequestException("You're not logged in");
   }
 
   async validateAccessToken(accessToken?: string | any) {
@@ -55,6 +55,6 @@ export class AuthenticationService {
   }
 
   async getUsuarioResourceActionRequest(userId: number) {
-    return Actor.forUser(userId);
+    return ActorUser.forUser(userId);
   }
 }

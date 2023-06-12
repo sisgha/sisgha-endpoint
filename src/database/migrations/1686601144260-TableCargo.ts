@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class TableCargo1679180212836 implements MigrationInterface {
+export class TableCargo1686601144260 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -48,7 +48,6 @@ export class TableCargo1679180212836 implements MigrationInterface {
           {
             name: 'search_sync_at',
             type: 'timestamptz',
-            default: 'now()',
             isNullable: true,
           },
         ],

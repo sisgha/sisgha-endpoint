@@ -28,12 +28,12 @@ export const getPermissaoRepository = (dataSource: DataSource | EntityManager) =
         .select(['permissao'])
         .innerJoin('permissao.cargoPermissao', 'cargo_permissao')
         .innerJoin('cargo_permissao.cargo', 'cargo')
-        .innerJoin('cargo.atorSimplesCargo', 'ator_simples_cargo')
-        .innerJoin('ator_simples_cargo.atorSimples', 'ator_simples');
+        .innerJoin('cargo.usuarioInternoCargo', 'usuario_interno_cargo')
+        .innerJoin('usuario_interno_cargo.usuarioInterno', 'usuario_interno');
 
-      qb.where('ator_simples.tipo = :tipo', { tipo: actorType });
+      qb.where('usuario_interno.tipoAtor = :tipoAtor', { tipoAtor: actorType });
 
-      qb.andWhere('ator_simples.deletedAt IS NULL');
+      qb.andWhere('usuario_interno.deletedAt IS NULL');
       qb.andWhere('permissao.deletedAt IS NULL');
       qb.andWhere('cargo.deletedAt IS NULL');
 

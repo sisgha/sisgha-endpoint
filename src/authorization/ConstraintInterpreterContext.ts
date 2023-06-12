@@ -45,6 +45,10 @@ export class ConstraintInterpreterContext {
   joinRelation = (entity: string) => {
     const constraint = this.constraint;
 
+    if (typeof constraint === 'boolean') {
+      return false;
+    }
+
     const rootAlias = constraint.alias;
     const rootJoins = constraint.joins ?? [];
 

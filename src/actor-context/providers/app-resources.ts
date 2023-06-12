@@ -1,3 +1,7 @@
+import { UsuarioInternoDbEntity } from 'src/database/entities/usuario_interno.db.entity';
+import { UsuarioInternoCargoDbEntity } from 'src/database/entities/usuario_interno_cargo.db.entity';
+import { getUsuarioInternoRepository } from 'src/database/repositories/usuario_interno.repository';
+import { getUsuarioInternoCargoRepository } from 'src/database/repositories/usuario_interno_cargo.repository';
 import { CargoDbEntity } from '../../database/entities/cargo.db.entity';
 import { CargoPermissaoDbEntity } from '../../database/entities/cargo_permissao.db.entity';
 import { PermissaoDbEntity } from '../../database/entities/permissao.db.entity';
@@ -11,79 +15,128 @@ import { getUsuarioCargoRepository } from '../../database/repositories/usuario_c
 import { IAppResource } from '../interfaces';
 
 export const APP_RESOURCE_PERMISSAO = 'permissao';
-
 export const APP_RESOURCE_CARGO = 'cargo';
-
 export const APP_RESOURCE_CARGO_PERMISSAO = 'cargo_permissao';
-
 export const APP_RESOURCE_USUARIO = 'usuario';
-
 export const APP_RESOURCE_USUARIO_CARGO = 'usuario_cargo';
+export const APP_RESOURCE_USUARIO_INTERNO = 'usuario_interno';
+export const APP_RESOURCE_USUARIO_INTERNO_CARGO = 'usuario_interno_cargo';
 
 export const APP_RESOURCES: IAppResource[] = [
   {
     resource: APP_RESOURCE_PERMISSAO,
 
-    searchable: ['id', 'descricao', 'acao', 'recurso'],
-
-    filterable: ['id', 'acao', 'recurso'],
-    sortable: ['id', 'acao', 'recurso'],
+    search: {
+      meilisearchIndex: 'permissao',
+      searchable: ['id', 'descricao', 'acao', 'recurso'],
+      filterable: ['id', 'acao', 'recurso'],
+      sortable: ['id', 'acao', 'recurso'],
+      getSearchableDataView: () => ['id', 'descricao', 'acao', 'recurso'],
+    },
 
     getTypeormEntity: () => PermissaoDbEntity,
-    getSearchableDataView: () => ['id', 'descricao', 'acao', 'recurso'],
+
     getTypeormRepositoryFactory: () => getPermissaoRepository,
   },
 
   {
     resource: APP_RESOURCE_CARGO,
 
-    searchable: ['id', 'slug'],
-
-    filterable: ['id', 'slug'],
-    sortable: ['id', 'slug'],
+    search: {
+      meilisearchIndex: 'cargo',
+      searchable: ['id', 'slug'],
+      filterable: ['id', 'slug'],
+      sortable: ['id', 'slug'],
+      getSearchableDataView: () => ['id', 'slug'],
+    },
 
     getTypeormEntity: () => CargoDbEntity,
-    getSearchableDataView: () => ['id', 'slug'],
+
     getTypeormRepositoryFactory: () => getCargoRepository,
   },
 
   {
     resource: APP_RESOURCE_CARGO_PERMISSAO,
 
-    searchable: ['id', 'cargo.id', 'permissao.id'],
+    search: null,
 
-    filterable: ['id', 'cargo.id', 'permissao.id'],
-    sortable: ['id', 'cargo.id', 'permissao.id'],
+    // search: {
+    //   meilisearchIndex: 'cargo_permissao',
+    //   searchable: ['id', 'cargo.id', 'permissao.id'],
+    //   filterable: ['id', 'cargo.id', 'permissao.id'],
+    //   sortable: ['id', 'cargo.id', 'permissao.id'],
+    //   getSearchableDataView: () => ['id', 'cargo.id', 'permissao.id'],
+    // },
 
     getTypeormEntity: () => CargoPermissaoDbEntity,
-    getSearchableDataView: () => ['id', 'cargo.id', 'permissao.id'],
+
     getTypeormRepositoryFactory: () => getCargoPermissaoRepository,
   },
 
   {
     resource: APP_RESOURCE_USUARIO,
 
-    searchable: ['id', 'email', 'matriculaSiape'],
-
-    filterable: ['id', 'email', 'matriculaSiape'],
-    sortable: ['id', 'email', 'matriculaSiape'],
+    search: {
+      meilisearchIndex: 'usuario',
+      searchable: ['id', 'email', 'matriculaSiape'],
+      filterable: ['id', 'email', 'matriculaSiape'],
+      sortable: ['id', 'email', 'matriculaSiape'],
+      getSearchableDataView: () => ['id', 'email', 'matriculaSiape'],
+    },
 
     getTypeormEntity: () => UsuarioDbEntity,
-    getSearchableDataView: () => ['id', 'email', 'matriculaSiape'],
+
     getTypeormRepositoryFactory: () => getUsuarioRepository,
   },
 
   {
     resource: APP_RESOURCE_USUARIO_CARGO,
 
-    searchable: ['id', 'usuario.id', 'cargo.id'],
+    search: null,
 
-    filterable: ['id', 'usuario.id', 'cargo.id'],
-    sortable: ['id', 'usuario.id', 'cargo.id'],
+    // search: {
+    //   meilisearchIndex: 'usuario_cargo',
+    //   searchable: ['id', 'usuario.id', 'cargo.id'],
+    //   filterable: ['id', 'usuario.id', 'cargo.id'],
+    //   sortable: ['id', 'usuario.id', 'cargo.id'],
+    //   getSearchableDataView: () => ['id', 'usuario.id', 'cargo.id'],
+    // },
 
     getTypeormEntity: () => UsuarioCargoDbEntity,
-    getSearchableDataView: () => ['id', 'usuario.id', 'cargo.id'],
+
     getTypeormRepositoryFactory: () => getUsuarioCargoRepository,
+  },
+
+  {
+    resource: APP_RESOURCE_USUARIO_INTERNO,
+
+    search: {
+      meilisearchIndex: 'usuario_interno',
+      searchable: ['id', 'tipoAtor'],
+      filterable: ['id', 'tipoAtor'],
+      sortable: ['id', 'tipoAtor'],
+      getSearchableDataView: () => ['id', 'tipoAtor'],
+    },
+
+    getTypeormEntity: () => UsuarioInternoDbEntity,
+    getTypeormRepositoryFactory: () => getUsuarioInternoRepository,
+  },
+
+  {
+    resource: APP_RESOURCE_USUARIO_INTERNO_CARGO,
+
+    search: null,
+
+    // search: {
+    //   meilisearchIndex: 'usuario_cargo',
+    //   searchable: ['id', 'usuario.id', 'cargo.id'],
+    //   filterable: ['id', 'usuario.id', 'cargo.id'],
+    //   sortable: ['id', 'usuario.id', 'cargo.id'],
+    //   getSearchableDataView: () => ['id', 'usuario.id', 'cargo.id'],
+    // },
+
+    getTypeormEntity: () => UsuarioInternoCargoDbEntity,
+    getTypeormRepositoryFactory: () => getUsuarioInternoCargoRepository,
   },
 ];
 

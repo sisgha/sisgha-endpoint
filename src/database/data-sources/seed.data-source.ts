@@ -1,11 +1,12 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { getPathEntities, getPathSeeds } from '../config/getPaths';
 import { getSharedDataSourceOptions } from '../config/getSharedDataSourceOptions';
-import { getPathSeeds } from '../config/getPaths';
 
 const getSeedDataSource = () => {
   const options = {
     ...getSharedDataSourceOptions(),
 
+    entities: [`${getPathEntities()}/**/*{.ts,.js}`],
     migrations: [`${getPathSeeds()}/**/*{.ts,.js}`],
 
     migrationsTableName: 'app_migration_seed',

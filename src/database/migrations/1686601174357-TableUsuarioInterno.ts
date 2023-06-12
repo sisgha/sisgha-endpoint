@@ -1,10 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class TablePermissao1679180212830 implements MigrationInterface {
+export class TableUsuarioInterno1686601174357 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'permissao',
+        name: 'usuario_interno',
 
         columns: [
           {
@@ -18,26 +18,8 @@ export class TablePermissao1679180212830 implements MigrationInterface {
           // ...
 
           {
-            name: 'descricao',
+            name: 'tipo_ator',
             type: 'text',
-            isNullable: true,
-          },
-
-          {
-            name: 'acao',
-            type: 'text',
-            isNullable: false,
-          },
-
-          {
-            name: 'recurso',
-            type: 'text',
-            isNullable: false,
-          },
-
-          {
-            name: 'constraint',
-            type: 'json',
             isNullable: false,
           },
 
@@ -66,7 +48,6 @@ export class TablePermissao1679180212830 implements MigrationInterface {
           {
             name: 'search_sync_at',
             type: 'timestamptz',
-            default: 'now()',
             isNullable: true,
           },
         ],
@@ -75,6 +56,6 @@ export class TablePermissao1679180212830 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('permissao', true);
+    await queryRunner.dropTable('usuario_interno', true);
   }
 }

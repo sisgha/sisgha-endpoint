@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { AtorSimplesCargoDbEntity } from './ator_simples_cargo.db.entity';
 import { CargoPermissaoDbEntity } from './cargo_permissao.db.entity';
 import { UsuarioCargoDbEntity } from './usuario_cargo.db.entity';
+import { UsuarioInternoCargoDbEntity } from './usuario_interno_cargo.db.entity';
 
 @Entity('cargo')
 export class CargoDbEntity {
@@ -43,6 +43,6 @@ export class CargoDbEntity {
   @OneToMany(() => UsuarioCargoDbEntity, (entity) => entity.cargo)
   usuarioCargo!: UsuarioCargoDbEntity[];
 
-  @OneToMany(() => AtorSimplesCargoDbEntity, (entity) => entity.cargo)
-  atorSimplesCargo!: AtorSimplesCargoDbEntity[];
+  @OneToMany(() => UsuarioInternoCargoDbEntity, (entity) => entity.cargo)
+  usuarioInternoCargo!: UsuarioInternoCargoDbEntity[];
 }

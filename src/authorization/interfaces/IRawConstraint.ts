@@ -4,7 +4,7 @@ import { IRawConstraintJoin } from './IRawConstraintJoin';
 export type IRawConstraint =
   | boolean
   | {
-      resource: string;
+      // resource: string;
       alias: string;
       condition: IRawConstraintCondition;
       joins: IRawConstraintJoin[];

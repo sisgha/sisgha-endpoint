@@ -37,6 +37,7 @@ export class CargoResolver {
   async listCargo(
     @ResolveActorContext()
     actorContext: ActorContext,
+
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {

@@ -1,15 +1,15 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { AtorSimplesCargoDbEntity } from './ator_simples_cargo.db.entity';
+import { UsuarioInternoCargoDbEntity } from './usuario_interno_cargo.db.entity';
 
-@Entity('ator_simples')
-export class AtorSimplesDbEntity {
+@Entity('usuario_interno')
+export class UsuarioInternoDbEntity {
   @PrimaryGeneratedColumn({ name: 'id' })
   id!: number;
 
   // ...
 
-  @Column({ name: 'tipo', type: 'text' })
-  tipo!: string;
+  @Column({ name: 'tipo_ator', type: 'text' })
+  tipoAtor!: string;
 
   //
 
@@ -35,6 +35,6 @@ export class AtorSimplesDbEntity {
 
   //
 
-  @OneToMany(() => AtorSimplesCargoDbEntity, (entity) => entity.atorSimples)
-  atorSimplesCargo!: AtorSimplesCargoDbEntity[];
+  @OneToMany(() => UsuarioInternoCargoDbEntity, (entity) => entity.usuarioInterno)
+  usuarioInternoCargo!: UsuarioInternoCargoDbEntity[];
 }

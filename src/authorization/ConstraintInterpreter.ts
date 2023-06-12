@@ -12,6 +12,10 @@ export class ConstraintInterpreter {
   constructor(readonly constraintInterpreterContextOptions: IConstraintInterpreterContextOptions = {}) {}
 
   interpret(constraint: IRawConstraint) {
+    if (typeof constraint === 'boolean') {
+      throw new Error('Invalid constraint');
+    }
+
     const rootAlias = constraint.alias;
     const rootJoins = constraint.joins ?? [];
     const rootCondition = parser.parse(constraint.condition);
@@ -46,7 +50,7 @@ export class ConstraintInterpreter {
     const params = Object.fromEntries(Object.entries(context.getParams()));
 
     return {
-      resource: constraint.resource,
+      // resource: constraint.resource,
       alias: rootAlias,
       condition: interpretedRootSql,
       joins: joins,

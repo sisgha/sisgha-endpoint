@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash';
 import { ErrorStatusCode, MeiliSearch } from 'meilisearch';
-import { IMeiliSearchIndexDefinition } from '../../actor-context/interfaces/MeiliSearchIndexDefinition';
+import { IAppResource } from 'src/actor-context/interfaces';
 
 const ensureIndexExists = async (client: MeiliSearch, index: string): Promise<void> => {
   console.info(`[INFO] MeilisearchClient: ${index} -> ensuring that it exists...`);
@@ -61,11 +61,15 @@ export const ensureSortable = async (client: MeiliSearch, index: string, sortabl
   }
 };
 
-export const setupIndex = async (client: MeiliSearch, setupIndex: IMeiliSearchIndexDefinition) => {
-  const { filterable, index, searchable, sortable } = setupIndex;
+export const setupIndex = async (client: MeiliSearch, appResource: IAppResource) => {
+  const appResourceSearchOptions = appResource.search;
 
-  await ensureIndexExists(client, index);
-  await ensureSearchable(client, index, searchable);
-  await ensureFilterable(client, index, filterable);
-  await ensureSortable(client, index, sortable);
+  if (appResourceSearchOptions) {
+    const { filterable, meilisearchIndex: index, searchable, sortable } = appResourceSearchOptions;
+
+    await ensureIndexExists(client, index);
+    await ensureSearchable(client, index, searchable);
+    await ensureFilterable(client, index, filterable);
+    await ensureSortable(client, index, sortable);
+  }
 };

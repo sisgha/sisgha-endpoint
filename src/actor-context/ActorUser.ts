@@ -9,4 +9,12 @@ export class ActorUser extends Actor {
     super(ActorType.USER);
     this.user = user;
   }
+
+  static forUser(userId: number) {
+    const actorUserRef: IActorUserRef = {
+      id: userId,
+    };
+
+    return new ActorUser(actorUserRef);
+  }
 }
