@@ -19,6 +19,7 @@ import { PermissaoModule } from './modules/permissao/permissao.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { UsuarioCargoModule } from './modules/usuario_cargo/usuario_cargo.module';
 import { UsuarioInternoModule } from './modules/usuario_interno/usuario_interno.module';
+import { UsuarioInternoCargoModule } from './modules/usuario_interno_cargo/usuario_interno_cargo.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { UsuarioInternoModule } from './modules/usuario_interno/usuario_interno.
     UsuarioModule,
     UsuarioCargoModule,
     UsuarioInternoModule,
+    UsuarioInternoCargoModule,
   ],
 
   controllers: [AppController],
