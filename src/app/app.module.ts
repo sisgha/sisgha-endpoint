@@ -13,6 +13,8 @@ import { HttpExceptionFilter } from '../graphql/HttpExceptionFilter';
 import { AppController } from './app.controller';
 import { AppResolver } from './app.resolver';
 import { CargoModule } from './modules/cargo/cargo.module';
+import { CargoPermissaoModule } from './modules/cargo_permissao/cargo_permissao.module';
+import { PermissaoModule } from './modules/permissao/permissao.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import GraphQLJSON from 'graphql-type-json';
 
@@ -56,8 +58,10 @@ import GraphQLJSON from 'graphql-type-json';
 
     //
 
-    UsuarioModule,
+    PermissaoModule,
     CargoModule,
+    CargoPermissaoModule,
+    UsuarioModule,
   ],
 
   controllers: [AppController],

@@ -1,4 +1,4 @@
-import { AbilityBuilder, subject as castSubject, createMongoAbility } from '@casl/ability';
+import { AbilityBuilder, createMongoAbility, subject as castSubject } from '@casl/ability';
 import { ForbiddenException } from '@nestjs/common';
 import { pg } from '@ucast/sql';
 import { get, has, intersection } from 'lodash';
@@ -13,6 +13,7 @@ import { ActorUser } from './ActorUser';
 import { IDatabaseRunCallback } from './interfaces';
 import { ActorType } from './interfaces/ActorType';
 import { getAppResource } from './providers';
+import { pickIds } from '../common/pickIds';
 
 const RECURSO_QUALQUER = 'all';
 
@@ -289,7 +290,7 @@ export class ActorContext {
 
       const results = await qb.getMany();
 
-      const ids = results.map((result) => get(result, 'id'));
+      const ids = pickIds(results);
 
       return ids;
     }

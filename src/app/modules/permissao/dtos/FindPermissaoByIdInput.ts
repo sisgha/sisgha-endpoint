@@ -2,11 +2,11 @@ import { Field, InputType, Int } from '@nestjs/graphql';
 import { IdZod } from 'src/common/zod/IdZod';
 import { z } from 'zod';
 
-export const FindPermissaoById = z.object({
+export const FindPermissaoByIdInputZod = z.object({
   id: IdZod,
 });
 
-export type IFindPermissaoByIdInput = z.infer<typeof FindPermissaoById>;
+export type IFindPermissaoByIdInput = z.infer<typeof FindPermissaoByIdInputZod>;
 
 @InputType('FindPermissaoByIdInput')
 export class FindPermissaoByIdInputType implements IFindPermissaoByIdInput {

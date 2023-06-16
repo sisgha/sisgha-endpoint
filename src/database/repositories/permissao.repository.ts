@@ -1,6 +1,7 @@
 import { ActorType } from 'src/actor-context/interfaces';
 import { DataSource, EntityManager } from 'typeorm';
 import { PermissaoDbEntity } from '../entities/permissao.db.entity';
+import { CargoDbEntity } from '../entities/cargo.db.entity';
 
 export type IPermissaoRepository = ReturnType<typeof getPermissaoRepository>;
 
@@ -20,6 +21,8 @@ export const getPermissaoRepository = (dataSource: DataSource | EntityManager) =
       qb.andWhere('permissao.deletedAt IS NULL');
       qb.andWhere('cargo.deletedAt IS NULL');
 
+      qb.cache(1000);
+
       return qb;
     },
 
@@ -36,6 +39,21 @@ export const getPermissaoRepository = (dataSource: DataSource | EntityManager) =
       qb.andWhere('usuario_interno.deletedAt IS NULL');
       qb.andWhere('permissao.deletedAt IS NULL');
       qb.andWhere('cargo.deletedAt IS NULL');
+
+      qb.cache(1000);
+
+      return qb;
+    },
+
+    async createQueryBuilderForCargoId(cargoId: CargoDbEntity['id']) {
+      const qb = this.createQueryBuilder('permissao')
+        .select(['permissao'])
+        .innerJoin('permissao.cargoPermissao', 'cargo_permissao')
+        .innerJoin('cargo_permissao.cargo', 'cargo');
+
+      qb.where('cargo.id = :cargoId', { cargoId: cargoId });
+
+      qb.cache(1000);
 
       return qb;
     },

@@ -1,24 +1,31 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import GraphQLJSON from 'graphql-type-json';
+import { IRawConstraint } from '../../../authorization/interfaces';
 
 @ObjectType('Permissao')
 export class PermissaoType {
   @Field(() => Int)
   id!: number;
 
-  @Field(() => String, { nullable: true })
-  descricao!: string | null;
+  // ...
+
+  @Field(() => String, { nullable: false })
+  descricao!: string;
+
+  //
 
   @Field(() => String, { nullable: false })
   acao!: string;
 
   @Field(() => String, { nullable: false })
-  entidade!: string;
+  recurso!: string;
 
-  @Field(() => String, { nullable: true })
-  condicaoSql!: string | null;
+  //
 
-  @Field(() => String, { nullable: true })
-  condicaoCaslReceita!: string | null;
+  @Field(() => GraphQLJSON, { nullable: false })
+  constraint!: IRawConstraint;
+
+  // ...
 
   @Field(() => Date, { nullable: false })
   createdAt!: Date;
@@ -28,4 +35,7 @@ export class PermissaoType {
 
   @Field(() => Date, { nullable: true })
   deletedAt!: Date | null;
+
+  @Field(() => Date, { nullable: true })
+  searchSyncAt!: Date | null;
 }

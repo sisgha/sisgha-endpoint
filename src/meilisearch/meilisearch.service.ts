@@ -21,27 +21,31 @@ export class MeiliSearchService {
   constructor(
     @Inject(DATA_SOURCE)
     private dataSource: DataSource,
-
     @Inject(MEILISEARCH_CLIENT)
     private meilisearchClient: MeiliSearch,
   ) {
     this.systemActorContext = new ActorContext(this.dataSource, Actor.forSystemInternalActions());
   }
 
-  async listResource<T extends { id: unknown }>(
+  async listResource<T extends { id: K }, K = unknown>(
     indexUid: string,
     dto: IGenericListInput,
-    allowedIds: any[] | null = null,
+    targetIds: K[] | null = null,
   ): Promise<GenericSearchResult<T>> {
     const { query, limit, offset, sort } = dto;
 
     const filter = [
       // ...
-      `id IN ${JSON.stringify(allowedIds)}`,
+      `id IN ${JSON.stringify(targetIds)}`,
       ...(dto.filter ? [dto.filter] : []),
     ];
 
-    const meilisearchResult = await this.meilisearchClient.index(indexUid).search<T>(query, { limit, offset, filter, sort });
+    const meilisearchResult = await this.meilisearchClient.index(indexUid).search<T>(query, {
+      limit,
+      offset,
+      filter,
+      sort,
+    });
 
     const result = {
       query: meilisearchResult.query,
@@ -72,60 +76,6 @@ export class MeiliSearchService {
   @Interval(MEILISEARCH_SYNC_RECORDS_INTERVAL)
   async handleSyncRecordsInterval() {
     await this.handleSyncRecords();
-  }
-
-  private async findUnsynchedRecords() {
-    const findUnsynchedRecordsGenerator = async function* (this: MeiliSearchService) {
-      const getUnsynchedRecordsForAppResource = async (appResource: IAppResource) => {
-        if (!appResource.search) {
-          return [];
-        }
-
-        return await this.systemActorContext.databaseRun(async ({ entityManager }) => {
-          const getRepository = appResource.getTypeormRepositoryFactory();
-          const repository = getRepository(entityManager);
-
-          try {
-            const records = await repository
-              .createQueryBuilder('record')
-              .withDeleted()
-              .select('record')
-              .loadAllRelationIds({ disableMixedMap: true })
-              .where('record.searchSyncAt IS NULL')
-              .orWhere('record.searchSyncAt < record.deletedAt')
-              .orWhere(
-                new Brackets((qb) => {
-                  qb.where('record.searchSyncAt < record.updatedAt');
-                  qb.andWhere('record.deletedAt IS NULL');
-                }),
-              )
-              .limit(10)
-              .getMany();
-
-            return records;
-          } catch (e) {
-            return [];
-          }
-        });
-      };
-
-      for (const appResource of APP_RESOURCES) {
-        let unsynchedRecords: any[] = [];
-
-        do {
-          unsynchedRecords = await getUnsynchedRecordsForAppResource(appResource);
-
-          if (unsynchedRecords.length > 0) {
-            yield {
-              appResource,
-              records: unsynchedRecords,
-            };
-          }
-        } while (unsynchedRecords.length > 0);
-      }
-    };
-
-    return findUnsynchedRecordsGenerator.call(this);
   }
 
   async handleDeletedRecords(appResource: IAppResource, deletedRecords: any[]) {
@@ -183,6 +133,60 @@ export class MeiliSearchService {
         .whereInIds(records.map((r) => r.id))
         .execute();
     });
+  }
+
+  private async findUnsynchedRecords() {
+    const findUnsynchedRecordsGenerator = async function* (this: MeiliSearchService) {
+      const getUnsynchedRecordsForAppResource = async (appResource: IAppResource) => {
+        if (!appResource.search) {
+          return [];
+        }
+
+        return await this.systemActorContext.databaseRun(async ({ entityManager }) => {
+          const getRepository = appResource.getTypeormRepositoryFactory();
+          const repository = getRepository(entityManager);
+
+          try {
+            const records = await repository
+              .createQueryBuilder('record')
+              .withDeleted()
+              .select('record')
+              .loadAllRelationIds({ disableMixedMap: true })
+              .where('record.searchSyncAt IS NULL')
+              .orWhere('record.searchSyncAt < record.deletedAt')
+              .orWhere(
+                new Brackets((qb) => {
+                  qb.where('record.searchSyncAt < record.updatedAt');
+                  qb.andWhere('record.deletedAt IS NULL');
+                }),
+              )
+              .limit(10)
+              .getMany();
+
+            return records;
+          } catch (e) {
+            return [];
+          }
+        });
+      };
+
+      for (const appResource of APP_RESOURCES) {
+        let unsynchedRecords: any[] = [];
+
+        do {
+          unsynchedRecords = await getUnsynchedRecordsForAppResource(appResource);
+
+          if (unsynchedRecords.length > 0) {
+            yield {
+              appResource,
+              records: unsynchedRecords,
+            };
+          }
+        } while (unsynchedRecords.length > 0);
+      }
+    };
+
+    return findUnsynchedRecordsGenerator.call(this);
   }
 
   private async syncRecords() {

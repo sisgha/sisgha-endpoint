@@ -9,22 +9,20 @@ import { FindOneOptions } from 'typeorm';
 import { CargoDbEntity } from '../../../database/entities/cargo.db.entity';
 import { getCargoRepository } from '../../../database/repositories/cargo.repository';
 import { CargoType } from './cargo.type';
-import { ICreateCargoInput, IDeleteCargoInput, IFindCargoByIdInput, IUpdateCargoInput } from './dtos';
-import { ListCargoResultType } from './dtos/ListCargoResult';
+import { ICreateCargoInput, IDeleteCargoInput, IFindCargoByIdInput, IUpdateCargoInput, ListCargoResultType } from './dtos';
 
 @Injectable()
 export class CargoService {
   constructor(private meilisearchService: MeiliSearchService) {}
 
   async findCargoById(actorContext: ActorContext, dto: IFindCargoByIdInput, options: FindOneOptions<CargoDbEntity> | null = null) {
-    const { id } = dto;
-
     const targetCargo = await actorContext.databaseRun(async ({ entityManager }) => {
       const cargoRepository = getCargoRepository(entityManager);
 
       return cargoRepository.findOne({
-        where: { id },
+        where: { id: dto.id },
         select: ['id'],
+        cache: 20,
       });
     });
 
@@ -55,6 +53,11 @@ export class CargoService {
     return cargo;
   }
 
+  async findCargoByIdStrictSimple<T = Pick<CargoDbEntity, 'id'>>(actorContext: ActorContext, cargoId: number): Promise<T> {
+    const cargo = await this.findCargoByIdStrict(actorContext, { id: cargoId });
+    return <T>cargo;
+  }
+
   async listCargo(actorContext: ActorContext, dto: IGenericListInput): Promise<ListCargoResultType> {
     const allowedIds = await actorContext.getAllowedResourcesIdsForResourceAction(APP_RESOURCE_CARGO, ContextAction.READ);
 
@@ -65,23 +68,33 @@ export class CargoService {
     };
   }
 
-  async findCargoByIdStrictSimple<T = Pick<CargoDbEntity, 'id'>>(actorContext: ActorContext, cargoId: number): Promise<T> {
-    const cargo = await this.findCargoByIdStrict(actorContext, { id: cargoId });
-    return <T>cargo;
-  }
-
   async getCargoStrictGenericField<K extends keyof CargoDbEntity>(
     actorContext: ActorContext,
     cargoId: number,
     field: K,
   ): Promise<CargoDbEntity[K]> {
     const cargo = await this.findCargoByIdStrict(actorContext, { id: cargoId }, { select: ['id', field] });
-
     return <CargoDbEntity[K]>cargo[field];
   }
 
   async getCargoSlug(actorContext: ActorContext, cargoId: number) {
     return this.getCargoStrictGenericField(actorContext, cargoId, 'slug');
+  }
+
+  async getCargoCreatedAt(actorContext: ActorContext, cargoId: number) {
+    return this.getCargoStrictGenericField(actorContext, cargoId, 'createdAt');
+  }
+
+  async getCargoUpdatedAt(actorContext: ActorContext, cargoId: number) {
+    return this.getCargoStrictGenericField(actorContext, cargoId, 'updatedAt');
+  }
+
+  async getCargoDeletedAt(actorContext: ActorContext, cargoId: number) {
+    return this.getCargoStrictGenericField(actorContext, cargoId, 'deletedAt');
+  }
+
+  async getCargoSearchSyncAt(actorContext: ActorContext, cargoId: number) {
+    return this.getCargoStrictGenericField(actorContext, cargoId, 'searchSyncAt');
   }
 
   async createCargo(actorContext: ActorContext, dto: ICreateCargoInput) {
@@ -131,12 +144,13 @@ export class CargoService {
     return actorContext.databaseRun(async ({ entityManager }) => {
       const cargoRepository = getCargoRepository(entityManager);
 
-      try {
-        await cargoRepository.delete(cargo.id);
-        return true;
-      } catch (error) {
-        return false;
-      }
+      await cargoRepository
+        .createQueryBuilder('cargo')
+        .update()
+        .set({
+          deletedAt: new Date(),
+        })
+        .where('id = :id', { id: cargo.id });
     });
   }
 }

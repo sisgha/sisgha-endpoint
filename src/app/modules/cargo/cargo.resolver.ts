@@ -37,7 +37,6 @@ export class CargoResolver {
   async listCargo(
     @ResolveActorContext()
     actorContext: ActorContext,
-
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
@@ -89,6 +88,42 @@ export class CargoResolver {
     @Parent() parent: CargoType,
   ) {
     return this.cargoService.getCargoSlug(actorContext, parent.id);
+  }
+
+  @ResolveField('createdAt', () => Date)
+  async createdAt(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: CargoType,
+  ) {
+    return this.cargoService.getCargoCreatedAt(actorContext, parent.id);
+  }
+
+  @ResolveField('updatedAt', () => Date)
+  async updatedAt(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: CargoType,
+  ) {
+    return this.cargoService.getCargoUpdatedAt(actorContext, parent.id);
+  }
+
+  @ResolveField('deletedAt', () => Date, { nullable: true })
+  async deletedAt(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: CargoType,
+  ) {
+    return this.cargoService.getCargoDeletedAt(actorContext, parent.id);
+  }
+
+  @ResolveField('searchSyncAt', () => Date, { nullable: true })
+  async searchSyncAt(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: CargoType,
+  ) {
+    return this.cargoService.getCargoSearchSyncAt(actorContext, parent.id);
   }
 
   // END: fields resolvers

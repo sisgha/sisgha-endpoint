@@ -3,7 +3,7 @@ import { GenericSearchResultType } from 'src/meilisearch/dtos';
 import { PermissaoType } from '../permissao.type';
 
 @ObjectType('ListPermissaoResult')
-export class ListPermissaoResultType extends GenericSearchResultType<PermissaoType | null> {
-  @Field(() => [PermissaoType], { nullable: 'items' })
+export class ListPermissaoResultType extends GenericSearchResultType<PermissaoType> {
+  @Field(() => [PermissaoType])
   items!: PermissaoType[];
 }
