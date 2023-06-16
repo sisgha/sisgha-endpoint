@@ -7,7 +7,10 @@ export const UpdateUsuarioInputZod = z
   .object({})
   .merge(FindUsuarioByIdInputZod)
   .merge(
-    CreateUsuarioInputZod.pick({ email: true, matriculaSiape: true }).partial(),
+    CreateUsuarioInputZod.pick({
+      email: true,
+      matriculaSiape: true,
+    }).partial(),
   );
 
 export type IUpdateUsuarioInput = z.infer<typeof UpdateUsuarioInputZod>;

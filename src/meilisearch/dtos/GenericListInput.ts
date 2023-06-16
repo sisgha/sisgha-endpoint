@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const GenericListInputZod = z.object({
   query: z.string().default(''),
 
-  limit: z.number().int().positive().min(1).max(100).optional(),
+  limit: z.number().int().positive().min(1).max(100).default(10),
   offset: z.number().int().positive().min(0).optional(),
 
   filter: z.string().optional(),
@@ -19,7 +19,7 @@ export class GenericListInputType implements IGenericListInput {
   query!: string;
 
   @Field(() => Int, { nullable: true })
-  limit?: number;
+  limit!: number;
 
   @Field(() => Int, { nullable: true })
   offset?: number;

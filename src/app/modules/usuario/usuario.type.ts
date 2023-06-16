@@ -1,10 +1,12 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { CargoType } from '../cargo/cargo.type';
+import { PermissaoType } from '../permissao/permissao.type';
 
 @ObjectType('Usuario')
 export class UsuarioType {
   @Field(() => Int)
   id!: number;
+
+  // ...
 
   @Field(() => String, { nullable: true })
   email!: string | null;
@@ -17,8 +19,22 @@ export class UsuarioType {
   @Field(() => String, { nullable: true })
   keycloakId!: string | null;
 
-  //
+  // ...
 
-  @Field(() => [CargoType])
-  cargos!: CargoType[];
+  @Field(() => Date)
+  createdAt!: Date;
+
+  @Field(() => Date)
+  updatedAt!: Date;
+
+  @Field(() => Date, { nullable: true })
+  deletedAt!: Date | null;
+
+  @Field(() => Date, { nullable: true })
+  searchSyncAt!: Date | null;
+
+  // ...
+
+  @Field(() => [PermissaoType])
+  permissoes!: PermissaoType[];
 }

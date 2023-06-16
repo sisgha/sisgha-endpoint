@@ -1,49 +1,41 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { isNil, omit } from 'lodash';
-import { AppContext } from 'src/app/AppContext/AppContext';
-import { parralelMap } from 'src/common/utils/parralel-map';
-import { INDEX_CARGO } from 'src/meilisearch/constants/meilisearch-tokens';
+import { omit } from 'lodash';
+import { ActorContext } from 'src/actor-context/ActorContext';
+import { APP_RESOURCE_CARGO } from 'src/actor-context/providers';
+import { ContextAction } from 'src/authorization/interfaces';
 import { IGenericListInput } from 'src/meilisearch/dtos';
 import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import { CargoDbEntity } from '../../../database/entities/cargo.db.entity';
 import { getCargoRepository } from '../../../database/repositories/cargo.repository';
 import { CargoType } from './cargo.type';
-import {
-  ICreateCargoInput,
-  IDeleteCargoInput,
-  IFindCargoByIdInput,
-  IUpdateCargoInput,
-} from './dtos';
-import { ListCargoResultType } from './dtos/ListCargoResult';
+import { ICreateCargoInput, IDeleteCargoInput, IFindCargoByIdInput, IUpdateCargoInput, ListCargoResultType } from './dtos';
 
 @Injectable()
 export class CargoService {
-  constructor(private meilisearchService: MeiliSearchService) {}
+  constructor(
+    // ...
+    private meilisearchService: MeiliSearchService,
+  ) {}
 
-  async findCargoById(
-    appContext: AppContext,
-    dto: IFindCargoByIdInput,
-    options: FindOneOptions<CargoDbEntity> | null = null,
-  ) {
-    const { id } = dto;
+  // ...
 
-    const targetCargo = await appContext.databaseRun(
-      async ({ entityManager }) => {
-        const cargoRepository = getCargoRepository(entityManager);
+  async findCargoById(actorContext: ActorContext, dto: IFindCargoByIdInput, options: FindOneOptions<CargoDbEntity> | null = null) {
+    const targetCargo = await actorContext.databaseRun(async ({ entityManager }) => {
+      const cargoRepository = getCargoRepository(entityManager);
 
-        return cargoRepository.findOne({
-          where: { id },
-          select: ['id'],
-        });
-      },
-    );
+      return cargoRepository.findOne({
+        where: { id: dto.id },
+        select: ['id'],
+        cache: 20,
+      });
+    });
 
     if (!targetCargo) {
       return null;
     }
 
-    const cargo = await appContext.databaseRun(async ({ entityManager }) => {
+    const cargo = await actorContext.databaseRun(async ({ entityManager }) => {
       const cargoRepository = getCargoRepository(entityManager);
 
       return cargoRepository.findOneOrFail({
@@ -53,15 +45,11 @@ export class CargoService {
       });
     });
 
-    return cargo;
+    return actorContext.readResource(APP_RESOURCE_CARGO, cargo);
   }
 
-  async findCargoByIdStrict(
-    appContext: AppContext,
-    dto: IFindCargoByIdInput,
-    options: FindOneOptions<CargoDbEntity> | null = null,
-  ) {
-    const cargo = await this.findCargoById(appContext, dto, options);
+  async findCargoByIdStrict(actorContext: ActorContext, dto: IFindCargoByIdInput, options: FindOneOptions<CargoDbEntity> | null = null) {
+    const cargo = await this.findCargoById(actorContext, dto, options);
 
     if (!cargo) {
       throw new NotFoundException();
@@ -70,112 +58,113 @@ export class CargoService {
     return cargo;
   }
 
-  async listCargo(
-    appContext: AppContext,
-    dto: IGenericListInput,
-  ): Promise<ListCargoResultType> {
-    const result = await this.meilisearchService.listResource<CargoType>(
-      INDEX_CARGO,
-      dto,
-    );
-
-    const items = await parralelMap(result.items, async (hit) => {
-      const id = hit.id;
-
-      if (!isNil(id)) {
-        const row = await this.findCargoById(appContext, {
-          id: hit.id,
-        });
-
-        if (row) {
-          return row;
-        }
-      }
-
-      return null;
-    });
-
-    return {
-      ...result,
-      items,
-    };
-  }
-
-  async findCargoByIdStrictSimple<T = Pick<CargoDbEntity, 'id'>>(
-    appContext: AppContext,
-    cargoId: number,
-  ): Promise<T> {
-    const cargo = await this.findCargoByIdStrict(appContext, { id: cargoId });
+  async findCargoByIdStrictSimple<T = Pick<CargoDbEntity, 'id'>>(actorContext: ActorContext, cargoId: number): Promise<T> {
+    const cargo = await this.findCargoByIdStrict(actorContext, { id: cargoId });
     return <T>cargo;
   }
 
+  //
+
+  async listCargo(actorContext: ActorContext, dto: IGenericListInput): Promise<ListCargoResultType> {
+    const allowedIds = await actorContext.getAllowedResourcesIdsForResourceAction(APP_RESOURCE_CARGO, ContextAction.READ);
+
+    const result = await this.meilisearchService.listResource<CargoType>(APP_RESOURCE_CARGO, dto, allowedIds);
+
+    return {
+      ...result,
+    };
+  }
+
+  // ...
+
   async getCargoStrictGenericField<K extends keyof CargoDbEntity>(
-    appContext: AppContext,
+    actorContext: ActorContext,
     cargoId: number,
     field: K,
   ): Promise<CargoDbEntity[K]> {
-    const cargo = await this.findCargoByIdStrict(
-      appContext,
-      { id: cargoId },
-      { select: ['id', field] },
-    );
-
+    const cargo = await this.findCargoByIdStrict(actorContext, { id: cargoId }, { select: ['id', field] });
     return <CargoDbEntity[K]>cargo[field];
   }
 
-  async getCargoSlug(appContext: AppContext, cargoId: number) {
-    return this.getCargoStrictGenericField(appContext, cargoId, 'slug');
+  //
+
+  async getCargoSlug(actorContext: ActorContext, cargoId: number) {
+    return this.getCargoStrictGenericField(actorContext, cargoId, 'slug');
   }
 
-  async createCargo(appContext: AppContext, dto: ICreateCargoInput) {
+  async getCargoCreatedAt(actorContext: ActorContext, cargoId: number) {
+    return this.getCargoStrictGenericField(actorContext, cargoId, 'createdAt');
+  }
+
+  async getCargoUpdatedAt(actorContext: ActorContext, cargoId: number) {
+    return this.getCargoStrictGenericField(actorContext, cargoId, 'updatedAt');
+  }
+
+  async getCargoDeletedAt(actorContext: ActorContext, cargoId: number) {
+    return this.getCargoStrictGenericField(actorContext, cargoId, 'deletedAt');
+  }
+
+  async getCargoSearchSyncAt(actorContext: ActorContext, cargoId: number) {
+    return this.getCargoStrictGenericField(actorContext, cargoId, 'searchSyncAt');
+  }
+
+  // ...
+
+  async createCargo(actorContext: ActorContext, dto: ICreateCargoInput) {
     const fieldsData = omit(dto, []);
 
-    const cargo = await appContext.databaseRun(async ({ entityManager }) => {
+    const cargo = <CargoDbEntity>{
+      ...fieldsData,
+    };
+
+    await actorContext.ensurePermission(APP_RESOURCE_CARGO, ContextAction.CREATE, cargo);
+
+    const dbCargo = await actorContext.databaseRun(async ({ entityManager }) => {
       const cargoRepository = getCargoRepository(entityManager);
-
-      const cargo = { ...fieldsData };
       await cargoRepository.save(cargo);
-
       return <CargoDbEntity>cargo;
     });
 
-    return this.findCargoByIdStrictSimple(appContext, cargo.id);
+    return this.findCargoByIdStrictSimple(actorContext, dbCargo.id);
   }
 
-  async updateCargo(appContext: AppContext, dto: IUpdateCargoInput) {
-    const { id } = dto;
-
-    const cargo = await this.findCargoByIdStrictSimple(appContext, id);
+  async updateCargo(actorContext: ActorContext, dto: IUpdateCargoInput) {
+    const cargo = await this.findCargoByIdStrictSimple(actorContext, dto.id);
 
     const fieldsData = omit(dto, ['id']);
 
-    await appContext.databaseRun(async ({ entityManager }) => {
+    const updatedCargo = <CargoDbEntity>{
+      ...cargo,
+      ...fieldsData,
+    };
+
+    await actorContext.ensurePermission(APP_RESOURCE_CARGO, ContextAction.UPDATE, updatedCargo);
+
+    await actorContext.databaseRun(async ({ entityManager }) => {
       const cargoRepository = getCargoRepository(entityManager);
-
-      const updatedCargo = { ...cargo, ...fieldsData };
       await cargoRepository.save(updatedCargo);
-
       return <CargoDbEntity>updatedCargo;
     });
 
-    return this.findCargoByIdStrictSimple(appContext, cargo.id);
+    return this.findCargoByIdStrictSimple(actorContext, cargo.id);
   }
 
-  async deleteCargo(appContext: AppContext, dto: IDeleteCargoInput) {
-    const { id } = dto;
+  async deleteCargo(actorContext: ActorContext, dto: IDeleteCargoInput) {
+    const cargo = await this.findCargoByIdStrictSimple(actorContext, dto.id);
 
-    const cargo = await this.findCargoByIdStrictSimple(appContext, id);
+    await actorContext.ensurePermission(APP_RESOURCE_CARGO, ContextAction.DELETE, cargo);
 
-    return appContext.databaseRun(async ({ entityManager }) => {
+    return actorContext.databaseRun(async ({ entityManager }) => {
       const cargoRepository = getCargoRepository(entityManager);
 
-      try {
-        await cargoRepository.delete(cargo.id);
-
-        return true;
-      } catch (error) {
-        return false;
-      }
+      await cargoRepository
+        .createQueryBuilder('cargo')
+        .update()
+        .set({
+          deletedAt: new Date(),
+        })
+        .where('id = :id', { id: cargo.id })
+        .execute();
     });
   }
 }

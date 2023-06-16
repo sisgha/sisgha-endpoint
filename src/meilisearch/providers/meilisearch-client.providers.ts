@@ -1,6 +1,6 @@
 import { Provider } from '@nestjs/common';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 import { getMeiliSearchClient } from '../helpers/getMeilisearchClient';
+import { MEILISEARCH_CLIENT } from '../consts/MEILISEARCH_CLIENT.const';
 
 export const MeiliSearchClientFactory: Provider = {
   provide: MEILISEARCH_CLIENT,

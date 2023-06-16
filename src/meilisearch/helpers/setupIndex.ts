@@ -1,39 +1,26 @@
 import { isEqual } from 'lodash';
 import { ErrorStatusCode, MeiliSearch } from 'meilisearch';
-import { IMeiliSearchIndexDefinition } from '../interfaces/MeiliSearchIndexDefinition';
+import { IAppResource } from 'src/actor-context/interfaces';
 
-const ensureIndexExists = async (
-  client: MeiliSearch,
-  index: string,
-): Promise<void> => {
-  console.info(
-    `[INFO] MeilisearchClient: ${index} -> ensuring that it exists...`,
-  );
+const ensureIndexExists = async (client: MeiliSearch, index: string): Promise<void> => {
+  console.info(`[INFO] MeilisearchClient: ${index} -> ensuring that it exists...`);
 
   await client.getIndex(index).catch((err) => {
     if (err.code === ErrorStatusCode.INDEX_NOT_FOUND) {
       console.info(`[INFO] MeilisearchClient: ${index} -> creating index...`);
 
-      return client
-        .createIndex(index, { primaryKey: 'id' })
-        .then((task) => client.waitForTask(task.taskUid));
+      return client.createIndex(index, { primaryKey: 'id' }).then((task) => client.waitForTask(task.taskUid));
     }
   });
 
   console.info('[INFO] done');
 };
 
-const ensureSearchable = async (
-  client: MeiliSearch,
-  index: string,
-  searchable: string[],
-) => {
+const ensureSearchable = async (client: MeiliSearch, index: string, searchable: string[]) => {
   const currentSearchable = await client.index(index).getSearchableAttributes();
 
   if (!isEqual(currentSearchable, searchable)) {
-    console.info(
-      `[INFO] MeilisearchClient: ${index} -> updateSearchableAttributes(${searchable})`,
-    );
+    console.info(`[INFO] MeilisearchClient: ${index} -> updateSearchableAttributes(${searchable})`);
 
     await client
       .index(index)
@@ -44,17 +31,11 @@ const ensureSearchable = async (
   }
 };
 
-const ensureFilterable = async (
-  client: MeiliSearch,
-  index: string,
-  filterable: string[],
-) => {
+const ensureFilterable = async (client: MeiliSearch, index: string, filterable: string[]) => {
   const currentFilterable = await client.index(index).getFilterableAttributes();
 
   if (!isEqual(currentFilterable, filterable)) {
-    console.info(
-      `[INFO] MeilisearchClient: ${index} -> updateFilterableAttributes(${filterable})`,
-    );
+    console.info(`[INFO] MeilisearchClient: ${index} -> updateFilterableAttributes(${filterable})`);
 
     await client
       .index(index)
@@ -65,17 +46,11 @@ const ensureFilterable = async (
   }
 };
 
-export const ensureSortable = async (
-  client: MeiliSearch,
-  index: string,
-  sortable: string[],
-) => {
+export const ensureSortable = async (client: MeiliSearch, index: string, sortable: string[]) => {
   const currentSortable = await client.index(index).getSortableAttributes();
 
   if (!isEqual(currentSortable, sortable)) {
-    console.info(
-      `[INFO] MeilisearchClient: ${index} -> updateSortableAttributes(${sortable})`,
-    );
+    console.info(`[INFO] MeilisearchClient: ${index} -> updateSortableAttributes(${sortable})`);
 
     await client
       .index(index)
@@ -86,14 +61,15 @@ export const ensureSortable = async (
   }
 };
 
-export const setupIndex = async (
-  client: MeiliSearch,
-  setupIndex: IMeiliSearchIndexDefinition,
-) => {
-  const { filterable, index, searchable, sortable } = setupIndex;
+export const setupIndex = async (client: MeiliSearch, appResource: IAppResource) => {
+  const appResourceSearchOptions = appResource.search;
 
-  await ensureIndexExists(client, index);
-  await ensureSearchable(client, index, searchable);
-  await ensureFilterable(client, index, filterable);
-  await ensureSortable(client, index, sortable);
+  if (appResourceSearchOptions) {
+    const { filterable, meilisearchIndex: index, searchable, sortable } = appResourceSearchOptions;
+
+    await ensureIndexExists(client, index);
+    await ensureSearchable(client, index, searchable);
+    await ensureFilterable(client, index, filterable);
+    await ensureSortable(client, index, sortable);
+  }
 };

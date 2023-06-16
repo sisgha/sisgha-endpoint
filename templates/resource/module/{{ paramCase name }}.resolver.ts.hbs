@@ -1,17 +1,8 @@
-import {
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
-import {
-  GenericListInputType,
-  GenericListInputZod,
-} from 'src/meilisearch/dtos';
-import { ValidatedArgs } from 'src/graphql/ValidatedArgs.decorator';
+import { Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { ActorContext } from 'src/actor-context/ActorContext';
+import { ResolveActorContext } from 'src/actor-context/resolvers/ResolveActorContext';
+import { GenericListInputType, GenericListInputZod } from 'src/meilisearch/dtos';
+import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
 import { {{ pascalCase name }}Service } from './{{ paramCase name }}.service';
 import { {{ pascalCase name }}Type } from './{{ paramCase name }}.type';
 import {
@@ -26,7 +17,6 @@ import {
   Update{{ pascalCase name }}InputZod,
 } from './dtos';
 
-
 @Resolver(() => {{ pascalCase name }}Type)
 export class {{ pascalCase name }}Resolver {
   constructor(private {{ camelCase name }}Service: {{ pascalCase name }}Service) {}
@@ -35,25 +25,22 @@ export class {{ pascalCase name }}Resolver {
 
   @Query(() => {{ pascalCase name }}Type)
   async find{{ pascalCase name }}ById(
-    @ResolveAppContext()
-    appContext: AppContext,
-
+    @ResolveActorContext()
+    actorContext: ActorContext,
     @ValidatedArgs('dto', Find{{ pascalCase name }}ByIdInputZod)
     dto: Find{{ pascalCase name }}ByIdInputType,
   ) {
-    return this.{{ camelCase name }}Service.find{{ pascalCase name }}ByIdStrict(appContext, dto);
+    return this.{{ camelCase name }}Service.find{{ pascalCase name }}ByIdStrict(actorContext, dto);
   }
-
 
   @Query(() => List{{ pascalCase name }}ResultType)
   async list{{ pascalCase name }}(
-    @ResolveAppContext()
-    appContext: AppContext,
-
+    @ResolveActorContext()
+    actorContext: ActorContext,
     @ValidatedArgs('dto', GenericListInputZod)
     dto: GenericListInputType,
   ) {
-    return this.{{ camelCase name }}Service.list{{ pascalCase name }}(appContext, dto);
+    return this.{{ camelCase name }}Service.list{{ pascalCase name }}(actorContext, dto);
   }
 
   // END: queries
@@ -62,53 +49,84 @@ export class {{ pascalCase name }}Resolver {
 
   @Mutation(() => {{ pascalCase name }}Type)
   async create{{ pascalCase name }}(
-    @ResolveAppContext()
-    appContext: AppContext,
-
+    @ResolveActorContext()
+    actorContext: ActorContext,
     @ValidatedArgs('dto', Create{{ pascalCase name }}InputZod)
     dto: Create{{ pascalCase name }}InputType,
   ) {
-    return this.{{ camelCase name }}Service.create{{ pascalCase name }}(appContext, dto);
+    return this.{{ camelCase name }}Service.create{{ pascalCase name }}(actorContext, dto);
   }
 
   @Mutation(() => {{ pascalCase name }}Type)
   async update{{ pascalCase name }}(
-    @ResolveAppContext()
-    appContext: AppContext,
-
+    @ResolveActorContext()
+    actorContext: ActorContext,
     @ValidatedArgs('dto', Update{{ pascalCase name }}InputZod)
     dto: Update{{ pascalCase name }}InputType,
   ) {
-    return this.{{ camelCase name }}Service.update{{ pascalCase name }}(appContext, dto);
+    return this.{{ camelCase name }}Service.update{{ pascalCase name }}(actorContext, dto);
   }
 
   @Mutation(() => Boolean)
   async delete{{ pascalCase name }}(
-    @ResolveAppContext()
-    appContext: AppContext,
-
+    @ResolveActorContext()
+    actorContext: ActorContext,
     @ValidatedArgs('dto', Delete{{ pascalCase name }}InputZod)
     dto: Delete{{ pascalCase name }}InputType,
   ) {
-    return this.{{ camelCase name }}Service.delete{{ pascalCase name }}(appContext, dto);
+    return this.{{ camelCase name }}Service.delete{{ pascalCase name }}(actorContext, dto);
   }
 
   // END: mutations
 
   // START: fields resolvers
 
-  /*
-  @ResolveField('genericField', () => String)
-  async genericField(
-    @ResolveAppContext()
-    appContext: AppContext,
-
-    @Parent()
-    parent: {{ pascalCase name }}Type,
+  @ResolveField('field', () => String)
+  async field(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: {{ pascalCase name }}Type,
   ) {
-    return this.{{ camelCase name }}Service.get{{ pascalCase name }}GenericField(appContext, parent.id);
+    return this.{{ camelCase name }}Service.get{{ pascalCase name }}Field(actorContext, parent.id);
   }
-  */
+
+  // 
+
+  // @ResolveField('createdAt', () => Date)
+  // async createdAt(
+  //   @ResolveActorContext()
+  //   actorContext: ActorContext,
+  //   @Parent() parent: {{ pascalCase name }}Type,
+  // ) {
+  //   return this.{{ camelCase name }}Service.get{{ pascalCase name }}CreatedAt(actorContext, parent.id);
+  // }
+
+  // @ResolveField('updatedAt', () => Date)
+  // async updatedAt(
+  //   @ResolveActorContext()
+  //   actorContext: ActorContext,
+  //   @Parent() parent: {{ pascalCase name }}Type,
+  // ) {
+  //   return this.{{ camelCase name }}Service.get{{ pascalCase name }}UpdatedAt(actorContext, parent.id);
+  // }
+
+  // @ResolveField('deletedAt', () => Date, { nullable: true })
+  // async deletedAt(
+  //   @ResolveActorContext()
+  //   actorContext: ActorContext,
+  //   @Parent() parent: {{ pascalCase name }}Type,
+  // ) {
+  //   return this.{{ camelCase name }}Service.get{{ pascalCase name }}DeletedAt(actorContext, parent.id);
+  // }
+
+  // @ResolveField('searchSyncAt', () => Date, { nullable: true })
+  // async searchSyncAt(
+  //   @ResolveActorContext()
+  //   actorContext: ActorContext,
+  //   @Parent() parent: {{ pascalCase name }}Type,
+  // ) {
+  //   return this.{{ camelCase name }}Service.get{{ pascalCase name }}SearchSyncAt(actorContext, parent.id);
+  // }
 
   // END: fields resolvers
 }

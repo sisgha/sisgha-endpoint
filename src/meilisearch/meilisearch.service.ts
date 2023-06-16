@@ -2,129 +2,50 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { pick } from 'lodash';
 import MeiliSearch from 'meilisearch';
-import { AppContext } from 'src/app/AppContext/AppContext';
-import { ResourceActionRequest } from 'src/auth/interfaces/ResourceActionRequest';
+import { Actor } from 'src/actor-context/Actor';
+import { ActorContext } from 'src/actor-context/ActorContext';
+import { IAppResource } from 'src/actor-context/interfaces';
+import { APP_RESOURCES } from 'src/actor-context/providers';
 import { DATA_SOURCE } from 'src/database/constants/DATA_SOURCE';
-import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
-import { DataSource } from 'typeorm';
-import { DeletedRowsLogDbEntity } from '../database/entities/deleted-rows-log.db';
-import { getDeletedRowsLogRepository } from '../database/repositories/deleted-rows-log.repository';
-import { MeilisearchIndexDefinitions } from './config/MeiliSearchIndexDefinitions';
-import { MEILISEARCH_SYNC_RECORDS_INTERVAL } from './constants/MEILISEARCH_SYNC_RECORDS_INTERVAL';
+import { Brackets, DataSource } from 'typeorm';
+import { MEILISEARCH_CLIENT } from './consts/MEILISEARCH_CLIENT.const';
+import { MEILISEARCH_SYNC_RECORDS_INTERVAL } from './consts/MEILISEARCH_SYNC_RECORDS_INTERVAL';
 import { GenericSearchResult, IGenericListInput } from './dtos';
-import { IMeiliSearchIndexDefinition } from './interfaces/MeiliSearchIndexDefinition';
 
 @Injectable()
 export class MeiliSearchService {
   private syncInProgress = false;
-  private appContext = new AppContext(
-    this.dataSource,
-    ResourceActionRequest.forSystemInternalActions(),
-  );
+
+  private systemActorContext: ActorContext;
 
   constructor(
     @Inject(DATA_SOURCE)
     private dataSource: DataSource,
     @Inject(MEILISEARCH_CLIENT)
     private meilisearchClient: MeiliSearch,
-  ) {}
-
-  async findUpdatedRecords() {
-    const findUpdatedRecordsGenerator = async function* (
-      this: MeiliSearchService,
-    ) {
-      const getUpdatedRecordsForIndexDefinition = async (
-        indexDefinition: IMeiliSearchIndexDefinition,
-      ) => {
-        return await this.appContext.databaseRun(async ({ entityManager }) => {
-          const getRepository = indexDefinition.getTypeormRepositoryFactory();
-          const repository = getRepository(entityManager);
-
-          const records = await repository
-            .createQueryBuilder('record')
-            .select('record')
-            .loadAllRelationIds({ disableMixedMap: true })
-            .where('record.lastSearchSync IS NULL')
-            .orWhere('record.lastSearchSync < record.lastUpdate')
-            .limit(20)
-            .getMany();
-
-          return records;
-        });
-      };
-
-      for (const indexDefinition of MeilisearchIndexDefinitions) {
-        let records: any[] = [];
-
-        do {
-          records = await getUpdatedRecordsForIndexDefinition(indexDefinition);
-
-          if (records.length > 0) {
-            yield { indexDefinition, records };
-          }
-        } while (records.length > 0);
-      }
-    };
-
-    return findUpdatedRecordsGenerator.call(this);
+  ) {
+    this.systemActorContext = new ActorContext(this.dataSource, Actor.forSystemInternalActions());
   }
 
-  async findIndexDefinitionsDeletedRowLogs() {
-    const findIndexDefinitionsDeletedRowLogsGenerator = async function* (
-      this: MeiliSearchService,
-    ) {
-      const getDeletedRowLogsForIndexDefinition = async (
-        indexDefinition: IMeiliSearchIndexDefinition,
-      ) => {
-        return await this.appContext.databaseRun(async ({ entityManager }) => {
-          const getRepository = indexDefinition.getTypeormRepositoryFactory();
-          const repository = getRepository(entityManager);
-          const tableTame = repository.metadata.tableName;
-
-          const deletedRowsLogRepository =
-            getDeletedRowsLogRepository(entityManager);
-
-          const records = await deletedRowsLogRepository
-            .createQueryBuilder('deleted_rows_log')
-            .where('deleted_rows_log.table_name = :tableName', {
-              tableName: tableTame,
-            })
-            .andWhere('deleted_rows_log.meilisearch_synced = :synced', {
-              synced: false,
-            })
-            .select('deleted_rows_log')
-            .limit(50)
-            .getMany();
-
-          return records;
-        });
-      };
-
-      for (const indexDefinition of MeilisearchIndexDefinitions) {
-        let records: DeletedRowsLogDbEntity[] = [];
-
-        do {
-          records = await getDeletedRowLogsForIndexDefinition(indexDefinition);
-
-          if (records.length > 0) {
-            yield { indexDefinition, records };
-          }
-        } while (records.length > 0);
-      }
-    };
-
-    return findIndexDefinitionsDeletedRowLogsGenerator.call(this);
-  }
-
-  async listResource<T extends { id: unknown }>(
+  async listResource<T extends { id: K }, K = unknown>(
     indexUid: string,
     dto: IGenericListInput,
+    targetIds: K[] | null = null,
   ): Promise<GenericSearchResult<T>> {
-    const { query, limit, offset, filter, sort } = dto;
+    const { query, limit, offset, sort } = dto;
 
-    const meilisearchResult = await this.meilisearchClient
-      .index(indexUid)
-      .search<T>(query, { limit, offset, filter, sort });
+    const filter = [
+      // ...
+      `id IN ${JSON.stringify(targetIds)}`,
+      ...(dto.filter ? [dto.filter] : []),
+    ];
+
+    const meilisearchResult = await this.meilisearchClient.index(indexUid).search<T>(query, {
+      limit,
+      offset,
+      filter,
+      sort,
+    });
 
     const result = {
       query: meilisearchResult.query,
@@ -140,104 +61,147 @@ export class MeiliSearchService {
     return result;
   }
 
-  async syncRecords() {
+  async handleSyncRecords() {
     if (this.syncInProgress) {
       return;
     }
 
     this.syncInProgress = true;
 
-    await this.syncDeletedRecords();
-    await this.syncUpdatedRecords();
+    await this.syncRecords();
 
     this.syncInProgress = false;
   }
 
   @Interval(MEILISEARCH_SYNC_RECORDS_INTERVAL)
   async handleSyncRecordsInterval() {
-    await this.syncRecords();
+    await this.handleSyncRecords();
   }
 
-  async deleteDocument(index: string, id: string) {
-    const task = await this.meilisearchClient.index(index).deleteDocument(id);
-    await this.meilisearchClient.index(index).waitForTask(task.taskUid);
-  }
+  async handleDeletedRecords(appResource: IAppResource, deletedRecords: any[]) {
+    const appResourceSearchOptions = appResource.search;
 
-  private async syncUpdatedRecords() {
-    const updatedRecords = await this.findUpdatedRecords();
-
-    for await (const updatedRecord of updatedRecords) {
-      const { indexDefinition, records } = updatedRecord;
-
-      const documents = records.map((record) => {
-        const searchableDataView =
-          indexDefinition.getSearchableDataView(record);
-
-        const data = Array.isArray(searchableDataView)
-          ? pick(record, searchableDataView)
-          : searchableDataView;
-
-        return data;
-      });
-
-      const task = await this.meilisearchClient
-        .index(indexDefinition.index)
-        .updateDocuments([...documents], {
-          primaryKey: indexDefinition.primaryKey,
-        });
-
-      await this.meilisearchClient
-        .index(indexDefinition.index)
-        .waitForTask(task.taskUid);
-
-      await this.appContext.databaseRun(async ({ entityManager }) => {
-        const entity = indexDefinition.getTypeormEntity();
-        const getRepository = indexDefinition.getTypeormRepositoryFactory();
-        const repository = getRepository(entityManager);
-
-        await repository
-          .createQueryBuilder()
-          .update(entity)
-          .set({ lastSearchSync: () => 'NOW()' })
-          .whereInIds(records.map((r) => r.id))
-          .execute();
-      });
+    if (deletedRecords.length === 0 || !appResourceSearchOptions) {
+      return;
     }
+
+    const deletedRecordsIds = deletedRecords.map((record) => record.id);
+    const deleteDocumentsTask = await this.meilisearchClient
+      .index(appResourceSearchOptions.meilisearchIndex)
+      .deleteDocuments([...deletedRecordsIds]);
+    await this.meilisearchClient.index(appResourceSearchOptions.meilisearchIndex).waitForTask(deleteDocumentsTask.taskUid);
   }
 
-  private async syncDeletedRecords() {
-    const deletedRecords = await this.findIndexDefinitionsDeletedRowLogs();
+  async handleUpdatedRecords(appResource: IAppResource, updatedRecords: any[]) {
+    const appResourceSearchOptions = appResource.search;
 
-    for await (const deletedRowLogRecord of deletedRecords) {
-      const { indexDefinition, records } = deletedRowLogRecord;
+    if (updatedRecords.length === 0 || !appResourceSearchOptions) {
+      return;
+    }
 
-      const deletedDataIds = records.map((record) => record.deletedRowData.id);
+    const updatedDocuments = updatedRecords.map((record) => {
+      const searchableDataView = appResourceSearchOptions.getSearchableDataView(record);
+      const data = Array.isArray(searchableDataView) ? pick(record, searchableDataView) : searchableDataView;
+      return data;
+    });
 
-      const task = await this.meilisearchClient
-        .index(indexDefinition.index)
-        .deleteDocuments([...deletedDataIds]);
+    const updateDocumentsTask = await this.meilisearchClient
+      .index(appResourceSearchOptions.meilisearchIndex)
+      .updateDocuments([...updatedDocuments], { primaryKey: 'id' });
 
-      await this.meilisearchClient
-        .index(indexDefinition.index)
-        .waitForTask(task.taskUid);
+    await this.meilisearchClient.index(appResourceSearchOptions.meilisearchIndex).waitForTask(updateDocumentsTask.taskUid);
+  }
 
-      await this.appContext.databaseRun(async ({ entityManager }) => {
-        const deletedRowsRepository =
-          getDeletedRowsLogRepository(entityManager);
+  async updateRecordsSearchSyncAt(appResource: IAppResource, records: any[]) {
+    if (records.length === 0) {
+      return;
+    }
 
-        // await deletedRowsRepository
-        //   .createQueryBuilder()
-        //   .update()
-        //   .set({ meilisearchSynced: true })
-        //   .whereInIds(records.map((r) => r.id))
-        //   .execute();
+    await this.systemActorContext.databaseRun(async ({ entityManager }) => {
+      const entity = appResource.getTypeormEntity();
 
-        await deletedRowsRepository
-          .createQueryBuilder()
-          .delete()
-          .whereInIds(records.map((r) => r.id))
-          .execute();
-      });
+      const getRepository = appResource.getTypeormRepositoryFactory();
+      const repository = getRepository(entityManager);
+
+      await repository
+        .createQueryBuilder()
+        .update(entity)
+        .set({
+          updatedAt: () => 'NOW()',
+          searchSyncAt: () => 'NOW()',
+        })
+        .whereInIds(records.map((r) => r.id))
+        .execute();
+    });
+  }
+
+  private async findUnsynchedRecords() {
+    const findUnsynchedRecordsGenerator = async function* (this: MeiliSearchService) {
+      const getUnsynchedRecordsForAppResource = async (appResource: IAppResource) => {
+        if (!appResource.search) {
+          return [];
+        }
+
+        return await this.systemActorContext.databaseRun(async ({ entityManager }) => {
+          const getRepository = appResource.getTypeormRepositoryFactory();
+          const repository = getRepository(entityManager);
+
+          try {
+            const records = await repository
+              .createQueryBuilder('record')
+              .withDeleted()
+              .select('record')
+              .loadAllRelationIds({ disableMixedMap: true })
+              .where('record.searchSyncAt IS NULL')
+              .orWhere('record.searchSyncAt < record.deletedAt')
+              .orWhere(
+                new Brackets((qb) => {
+                  qb.where('record.searchSyncAt < record.updatedAt');
+                  qb.andWhere('record.deletedAt IS NULL');
+                }),
+              )
+              .limit(10)
+              .getMany();
+
+            return records;
+          } catch (e) {
+            return [];
+          }
+        });
+      };
+
+      for (const appResource of APP_RESOURCES) {
+        let unsynchedRecords: any[] = [];
+
+        do {
+          unsynchedRecords = await getUnsynchedRecordsForAppResource(appResource);
+
+          if (unsynchedRecords.length > 0) {
+            yield {
+              appResource,
+              records: unsynchedRecords,
+            };
+          }
+        } while (unsynchedRecords.length > 0);
+      }
+    };
+
+    return findUnsynchedRecordsGenerator.call(this);
+  }
+
+  private async syncRecords() {
+    const unsynchedRecords = await this.findUnsynchedRecords();
+
+    for await (const unsynchedRecord of unsynchedRecords) {
+      const { appResource, records } = unsynchedRecord;
+
+      const deletedRecords = records.filter((record) => record.deletedAt !== null);
+      await this.handleDeletedRecords(appResource, deletedRecords);
+
+      const updatedRecords = records.filter((record) => record.deletedAt === null);
+      await this.handleUpdatedRecords(appResource, updatedRecords);
+
+      await this.updateRecordsSearchSyncAt(appResource, records);
     }
   }
 }

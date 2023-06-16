@@ -1,33 +1,48 @@
-import {
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-import { UsuarioHasCargoDbEntity } from './usuario-has-cargo.db.entity';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { CargoPermissaoDbEntity } from './cargo_permissao.db.entity';
+import { UsuarioCargoDbEntity } from './usuario_cargo.db.entity';
+import { UsuarioInternoCargoDbEntity } from './usuario_interno_cargo.db.entity';
 
 @Entity('cargo')
 export class CargoDbEntity {
   @PrimaryGeneratedColumn({ name: 'id' })
   id!: number;
 
-  @Column({ name: 'slug', type: 'varchar' })
+  // ...
+
+  @Column({ name: 'slug', type: 'text' })
   slug!: string;
 
-  @UpdateDateColumn({
-    name: 'last_update',
+  //
+
+  @CreateDateColumn({
+    name: 'created_at',
     type: 'timestamptz',
-    nullable: true,
+    nullable: false,
   })
-  lastUpdate!: Date | null;
+  createdAt!: Date;
 
-  @Column({ name: 'last_search_sync', type: 'timestamptz', nullable: true })
-  lastSearchSync!: Date | null;
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamptz',
+    nullable: false,
+  })
+  updatedAt!: Date;
 
-  @OneToMany(
-    () => UsuarioHasCargoDbEntity,
-    (usuarioHasCargo) => usuarioHasCargo.cargo,
-  )
-  usuarioHasCargo!: UsuarioHasCargoDbEntity[];
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz', nullable: true })
+  deletedAt!: Date | null;
+
+  @Column({ name: 'search_sync_at', type: 'timestamptz', nullable: true })
+  searchSyncAt!: Date | null;
+
+  //
+
+  @OneToMany(() => CargoPermissaoDbEntity, (entity) => entity.cargo)
+  cargoPermissao!: CargoPermissaoDbEntity[];
+
+  @OneToMany(() => UsuarioCargoDbEntity, (entity) => entity.cargo)
+  usuarioCargo!: UsuarioCargoDbEntity[];
+
+  @OneToMany(() => UsuarioInternoCargoDbEntity, (entity) => entity.cargo)
+  usuarioInternoCargo!: UsuarioInternoCargoDbEntity[];
 }

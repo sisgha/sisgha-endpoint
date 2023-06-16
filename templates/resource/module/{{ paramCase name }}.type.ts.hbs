@@ -4,4 +4,20 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 export class {{ pascalCase name }}Type {
   @Field(() => Int)
   id!: number;
+
+  // ...
+
+  // @Field(() => Date)
+  // createdAt!: Date;
+
+  // @Field(() => Date)
+  // updatedAt!: Date;
+
+  // @Field(() => Date, { nullable: true })
+  // deletedAt!: Date | null;
+
+  // @Field(() => Date, { nullable: true })
+  // searchSyncAt!: Date | null;
+
+  // ...
 }

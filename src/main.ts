@@ -16,7 +16,10 @@ async function bootstrap() {
   const helmet = await getHelmet();
 
   app.use(
-    helmet({ contentSecurityPolicy: IS_PRODUCTION_MODE ? undefined : false }),
+    helmet({
+      contentSecurityPolicy: IS_PRODUCTION_MODE ? undefined : false,
+      crossOriginEmbedderPolicy: false,
+    }),
   );
 
   app.use(compression());

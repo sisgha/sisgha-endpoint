@@ -2,13 +2,13 @@ import { Field, InputType } from '@nestjs/graphql';
 import { z } from 'zod';
 
 export const Create{{ pascalCase name }}InputZod = z.object({
-  placeholder: z.boolean().default(false),
+  field: z.string(),
 });
 
 export type ICreate{{ pascalCase name }}Input = z.infer<typeof Create{{ pascalCase name }}InputZod>;
 
 @InputType('Create{{ pascalCase name }}Input')
 export class Create{{ pascalCase name }}InputType implements ICreate{{ pascalCase name }}Input {
-  @Field(() => Boolean, { nullable: true })
-  placeholder!: boolean;
+  @Field()
+  field!: string;
 }

@@ -1,10 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { IGenericSearchResult } from '../../../../common/zod/GenericSearchInputZod';
+import { GenericSearchResultType } from 'src/meilisearch/dtos';
 import { {{ pascalCase name }}Type } from '../{{ paramCase name }}.type';
 
-
 @ObjectType('List{{ pascalCase name }}Result')
-export class List{{ pascalCase name }}ResultType extends GenericSearchResultType<{{ pascalCase name }}Type | null> {
-  @Field(() => [{{ pascalCase name }}Type], { nullable: 'items' })
-  items!: ({{ pascalCase name }}Type | null)[];
+export class List{{ pascalCase name }}ResultType extends GenericSearchResultType<{{ pascalCase name }}Type> {
+  @Field(() => [{{ pascalCase name }}Type])
+  items!: {{ pascalCase name }}Type[];
 }

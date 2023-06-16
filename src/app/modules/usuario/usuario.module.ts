@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../../../database/database.module';
-import { CargoModule } from '../cargo/cargo.module';
 import { UsuarioResolver } from './usuario.resolver';
 import { UsuarioService } from './usuario.service';
 import { MeiliSearchModule } from 'src/meilisearch/meilisearch.module';
@@ -10,7 +9,6 @@ import { MeiliSearchModule } from 'src/meilisearch/meilisearch.module';
     DatabaseModule,
     MeiliSearchModule,
     // ...
-    CargoModule,
   ],
   exports: [UsuarioService],
   providers: [UsuarioService, UsuarioResolver],

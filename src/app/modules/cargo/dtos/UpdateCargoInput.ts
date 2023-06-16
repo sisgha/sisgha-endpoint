@@ -19,6 +19,8 @@ export class UpdateCargoInputType implements IUpdateCargoInput {
   @Field(() => Int)
   id!: number;
 
+  // ...
+
   @Field({ nullable: true })
   slug?: string;
 }

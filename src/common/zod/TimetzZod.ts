@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-const timetzRegex =
-  /^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])([+-][01][0-9]:[0-5][0-9])?$/;
+const timetzRegex = /^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])([+-][01][0-9]:[0-5][0-9])?$/;
 
 export const parseTimeTz = (value: string) => {
   const [, hour, minute, second, offset] = timetzRegex.exec(value) ?? [];

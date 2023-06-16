@@ -6,7 +6,11 @@ import { Find{{ pascalCase name }}ByIdInputZod } from './Find{{ pascalCase name 
 export const Update{{ pascalCase name }}InputZod = z
   .object({})
   .merge(Find{{ pascalCase name }}ByIdInputZod)
-  .merge(Create{{ pascalCase name }}InputZod.pick({}).partial());
+  .merge(
+    Create{{ pascalCase name }}InputZod.pick({
+      field: true,
+    }).partial(),
+  );
 
 export type IUpdate{{ pascalCase name }}Input = z.infer<typeof Update{{ pascalCase name }}InputZod>;
 
@@ -14,4 +18,9 @@ export type IUpdate{{ pascalCase name }}Input = z.infer<typeof Update{{ pascalCa
 export class Update{{ pascalCase name }}InputType implements IUpdate{{ pascalCase name }}Input {
   @Field(() => Int)
   id!: number;
+
+  // ...
+
+  @Field({ nullable: true })
+  field?: string;
 }
