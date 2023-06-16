@@ -42,7 +42,7 @@ export class AuthenticationService {
 
       const userinfo = await this.openIDClient.userinfo(accessToken);
 
-      const user = await this.usuarioService.getUsuarioFromKeycloakId(appContext, userinfo.sub);
+      const user = await this.usuarioService.loadUsuarioFromKeycloakId(appContext, userinfo.sub);
 
       return user;
     } catch (err) {

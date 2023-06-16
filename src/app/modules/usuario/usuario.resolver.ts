@@ -3,7 +3,6 @@ import { ActorContext } from 'src/actor-context/ActorContext';
 import { ResolveActorContext } from 'src/actor-context/resolvers/ResolveActorContext';
 import { GenericListInputType, GenericListInputZod } from 'src/meilisearch/dtos';
 import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
-import { CargoType } from '../cargo/cargo.type';
 import {
   CreateUsuarioInputType,
   CreateUsuarioInputZod,
@@ -11,12 +10,13 @@ import {
   DeleteUsuarioInputZod,
   FindUsuarioByIdInputType,
   FindUsuarioByIdInputZod,
+  ListUsuarioResultType,
   UpdateUsuarioInputType,
   UpdateUsuarioInputZod,
 } from './dtos';
-import { ListUsuarioResultType } from './dtos/ListUsuarioResult';
 import { UsuarioService } from './usuario.service';
 import { UsuarioType } from './usuario.type';
+import { PermissaoType } from '../permissao/permissao.type';
 
 @Resolver(() => UsuarioType)
 export class UsuarioResolver {
@@ -91,15 +91,6 @@ export class UsuarioResolver {
     return this.usuarioService.getUsuarioEmail(actorContext, parent.id);
   }
 
-  @ResolveField('keycloakId', () => String, { nullable: true })
-  async keycloakId(
-    @ResolveActorContext()
-    actorContext: ActorContext,
-    @Parent() parent: UsuarioType,
-  ) {
-    return this.usuarioService.getUsuarioKeycloakId(actorContext, parent.id);
-  }
-
   @ResolveField('matriculaSiape', () => String, { nullable: true })
   async matriculaSiape(
     @ResolveActorContext()
@@ -109,13 +100,64 @@ export class UsuarioResolver {
     return this.usuarioService.getUsuarioMatriculaSiape(actorContext, parent.id);
   }
 
-  @ResolveField('cargos', () => [CargoType])
-  async cargos(
+  //
+
+  @ResolveField('keycloakId', () => String, { nullable: true })
+  async keycloakId(
     @ResolveActorContext()
     actorContext: ActorContext,
     @Parent() parent: UsuarioType,
   ) {
-    return this.usuarioService.getUsuarioCargos(actorContext, parent.id);
+    return this.usuarioService.getUsuarioKeycloakId(actorContext, parent.id);
+  }
+
+  // ...
+
+  @ResolveField('createdAt', () => Date)
+  async createdAt(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: UsuarioType,
+  ) {
+    return this.usuarioService.getUsuarioCreatedAt(actorContext, parent.id);
+  }
+
+  @ResolveField('updatedAt', () => Date)
+  async updatedAt(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: UsuarioType,
+  ) {
+    return this.usuarioService.getUsuarioUpdatedAt(actorContext, parent.id);
+  }
+
+  @ResolveField('deletedAt', () => Date, { nullable: true })
+  async deletedAt(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: UsuarioType,
+  ) {
+    return this.usuarioService.getUsuarioDeletedAt(actorContext, parent.id);
+  }
+
+  @ResolveField('searchSyncAt', () => Date, { nullable: true })
+  async searchSyncAt(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: UsuarioType,
+  ) {
+    return this.usuarioService.getUsuarioSearchSyncAt(actorContext, parent.id);
+  }
+
+  // ...
+
+  @ResolveField('permissoes', () => [PermissaoType])
+  async permissoes(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: UsuarioType,
+  ) {
+    return this.usuarioService.getUsuarioPermissoes(actorContext, parent.id);
   }
 
   // END: fields resolvers

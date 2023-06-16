@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { omit, pick } from 'lodash';
+import { intersection, omit, pick } from 'lodash';
 import { ActorContext } from 'src/actor-context/ActorContext';
-import { APP_RESOURCE_CARGO, APP_RESOURCE_USUARIO } from 'src/actor-context/providers';
+import { APP_RESOURCE_PERMISSAO, APP_RESOURCE_USUARIO } from 'src/actor-context/providers';
 import { ContextAction } from 'src/authorization/interfaces';
 import { getCargoRepository } from 'src/database/repositories/cargo.repository';
 import { getUsuarioRepository } from 'src/database/repositories/usuario.repository';
@@ -10,23 +10,24 @@ import { IGenericListInput } from 'src/meilisearch/dtos';
 import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
 import { UsuarioDbEntity } from '../../../database/entities/usuario.db.entity';
-import { ICreateUsuarioInput, IDeleteUsuarioInput, IFindUsuarioByIdInput, IUpdateUsuarioInput } from './dtos';
-import { ListUsuarioResultType } from './dtos/ListUsuarioResult';
+import { ICreateUsuarioInput, IDeleteUsuarioInput, IFindUsuarioByIdInput, IUpdateUsuarioInput, ListUsuarioResultType } from './dtos';
 import { UsuarioType } from './usuario.type';
+import { getPermissaoRepository } from '../../../database/repositories/permissao.repository';
+import { pickIds } from '../../../common/pickIds';
+import { PermissaoDbEntity } from '../../../database/entities/permissao.db.entity';
 
 @Injectable()
 export class UsuarioService {
   constructor(private meilisearchService: MeiliSearchService) {}
 
   async findUsuarioById(actorContext: ActorContext, dto: IFindUsuarioByIdInput, options?: FindOneOptions<UsuarioDbEntity>) {
-    const { id } = dto;
-
     const targetUsuario = await actorContext.databaseRun(async ({ entityManager }) => {
       const usuarioRepository = getUsuarioRepository(entityManager);
 
       return usuarioRepository.findOne({
-        where: { id },
+        where: { id: dto.id },
         select: ['id'],
+        cache: 20,
       });
     });
 
@@ -57,12 +58,36 @@ export class UsuarioService {
     return usuario;
   }
 
-  async findUsuarioByIdStrictSimple(actorContext: ActorContext, usuarioId: number): Promise<Pick<UsuarioDbEntity, 'id'>> {
-    const usuario = await this.findUsuarioByIdStrict(actorContext, {
-      id: usuarioId,
+  async findUsuarioByIdStrictSimple<T = Pick<UsuarioDbEntity, 'id'>>(actorContext: ActorContext, usuarioId: number): Promise<T> {
+    const usuario = await this.findUsuarioByIdStrict(actorContext, { id: usuarioId });
+    return <T>usuario;
+  }
+
+  async findUsuarioByKeycloakId(actorContext: ActorContext, keycloakId: string, options?: FindOneOptions<UsuarioDbEntity>) {
+    const targetUsuario = await actorContext.databaseRun(async ({ entityManager }) => {
+      const usuarioRepository = getUsuarioRepository(entityManager);
+
+      return await usuarioRepository.findOne({
+        where: { keycloakId: keycloakId },
+        select: ['id'],
+      });
     });
 
-    return usuario as Pick<UsuarioDbEntity, 'id'>;
+    if (!targetUsuario) {
+      return null;
+    }
+
+    return this.findUsuarioById(actorContext, { id: targetUsuario.id }, options);
+  }
+
+  async findUsuarioByKeycloakIdStrict(actorContext: ActorContext, keycloakId: string, options?: FindOneOptions<UsuarioDbEntity>) {
+    const usuario = await this.findUsuarioByKeycloakId(actorContext, keycloakId, options);
+
+    if (!usuario) {
+      throw new NotFoundException();
+    }
+
+    return usuario;
   }
 
   async listUsuario(actorContext: ActorContext, dto: IGenericListInput): Promise<ListUsuarioResultType> {
@@ -75,21 +100,87 @@ export class UsuarioService {
     };
   }
 
-  async getUsuarioFromKeycloakId(actorContext: ActorContext, keycloakId: string) {
-    const userExists = await actorContext.databaseRun(async ({ entityManager }) => {
-      const usuarioRepository = getUsuarioRepository(entityManager);
+  async getUsuarioStrictGenericField<K extends keyof UsuarioDbEntity>(
+    actorContext: ActorContext,
+    usuarioId: number,
+    field: K,
+  ): Promise<UsuarioDbEntity[K]> {
+    const usuario = await this.findUsuarioByIdStrict(actorContext, { id: usuarioId }, { select: ['id', field] });
+    return <UsuarioDbEntity[K]>usuario[field];
+  }
 
-      return await usuarioRepository.findOne({
-        where: { keycloakId: keycloakId },
-        select: ['id'],
-      });
+  // ...
+
+  async getUsuarioEmail(actorContext: ActorContext, usuarioId: number) {
+    return this.getUsuarioStrictGenericField(actorContext, usuarioId, 'email');
+  }
+
+  async getUsuarioMatriculaSiape(actorContext: ActorContext, usuarioId: number) {
+    return this.getUsuarioStrictGenericField(actorContext, usuarioId, 'matriculaSiape');
+  }
+
+  //
+
+  async getUsuarioKeycloakId(actorContext: ActorContext, usuarioId: number) {
+    return this.getUsuarioStrictGenericField(actorContext, usuarioId, 'keycloakId');
+  }
+
+  //
+
+  async getUsuarioCreatedAt(actorContext: ActorContext, usuarioId: number) {
+    return this.getUsuarioStrictGenericField(actorContext, usuarioId, 'createdAt');
+  }
+
+  async getUsuarioUpdatedAt(actorContext: ActorContext, usuarioId: number) {
+    return this.getUsuarioStrictGenericField(actorContext, usuarioId, 'updatedAt');
+  }
+
+  async getUsuarioDeletedAt(actorContext: ActorContext, usuarioId: number) {
+    return this.getUsuarioStrictGenericField(actorContext, usuarioId, 'deletedAt');
+  }
+
+  async getUsuarioSearchSyncAt(actorContext: ActorContext, usuarioId: number) {
+    return this.getUsuarioStrictGenericField(actorContext, usuarioId, 'searchSyncAt');
+  }
+
+  //
+
+  async getUsuarioPermissoes(actorContext: ActorContext, usuarioId: number) {
+    const usuario = await this.findUsuarioByIdStrictSimple(actorContext, usuarioId);
+
+    const allowedIds = await actorContext.getAllowedResourcesIdsForResourceAction(APP_RESOURCE_PERMISSAO, ContextAction.READ);
+
+    const usuarioPermissoesIds = await actorContext.databaseRun(async ({ entityManager }) => {
+      const permissaoRepository = getPermissaoRepository(entityManager);
+
+      const qb = await permissaoRepository.createQueryBuilderForUser(usuario.id);
+
+      qb.select(['permissao.id']);
+
+      const permissoes = await qb.getMany();
+
+      const ids = pickIds(permissoes);
+
+      return ids;
     });
 
-    if (userExists) {
-      return this.findUsuarioByIdStrictSimple(actorContext, userExists.id);
+    const targetPermissoesIds = intersection(allowedIds, usuarioPermissoesIds);
+
+    const permissoes = targetPermissoesIds.map((id) => <PermissaoDbEntity>{ id: id });
+
+    return permissoes;
+  }
+
+  // ...
+
+  async loadUsuarioFromKeycloakId(actorContext: ActorContext, keycloakId: string) {
+    const usuarioExists = await this.findUsuarioByKeycloakId(actorContext, keycloakId);
+
+    if (usuarioExists) {
+      return this.findUsuarioByIdStrictSimple(actorContext, usuarioExists.id);
     }
 
-    const newUser = await actorContext.databaseRun(async ({ entityManager }) => {
+    const newUsuario = await actorContext.databaseRun(async ({ entityManager }) => {
       const cargoRepository = getCargoRepository(entityManager);
       const usuarioRepository = getUsuarioRepository(entityManager);
       const usuarioCargoRepository = getUsuarioCargoRepository(entityManager);
@@ -121,52 +212,7 @@ export class UsuarioService {
       });
     });
 
-    return this.findUsuarioByIdStrictSimple(actorContext, newUser.id);
-  }
-
-  async getUsuarioStrictGenericField<K extends keyof UsuarioDbEntity>(
-    actorContext: ActorContext,
-    usuarioId: number,
-    field: K,
-  ): Promise<UsuarioDbEntity[K]> {
-    const usuario = await this.findUsuarioByIdStrict(actorContext, { id: usuarioId }, { select: ['id', field] });
-
-    return <UsuarioDbEntity[K]>usuario[field];
-  }
-
-  async getUsuarioEmail(actorContext: ActorContext, usuarioId: number) {
-    return this.getUsuarioStrictGenericField(actorContext, usuarioId, 'email');
-  }
-
-  async getUsuarioKeycloakId(actorContext: ActorContext, usuarioId: number) {
-    return this.getUsuarioStrictGenericField(actorContext, usuarioId, 'keycloakId');
-  }
-
-  async getUsuarioMatriculaSiape(actorContext: ActorContext, usuarioId: number) {
-    return this.getUsuarioStrictGenericField(actorContext, usuarioId, 'matriculaSiape');
-  }
-
-  async getUsuarioCargos(actorContext: ActorContext, usuarioId: number) {
-    const usuario = await this.findUsuarioByIdStrictSimple(actorContext, usuarioId);
-
-    const allowedCargoIds = await actorContext.getAllowedResourcesForResourceAction(APP_RESOURCE_CARGO, ContextAction.READ);
-
-    const cargos = await actorContext.databaseRun(async ({ entityManager }) => {
-      const cargoRepository = getCargoRepository(entityManager);
-
-      return cargoRepository
-        .createQueryBuilder('cargo')
-        .innerJoin('cargo.usuarioCargo', 'usuarioCargo')
-        .innerJoin('usuarioCargo.usuario', 'usuario')
-        .where('usuario.id = :usuarioId', { usuarioId: usuario.id })
-        .andWhere('cargo.id IN (:...allowedCargoIds)', {
-          allowedCargoIds: allowedCargoIds,
-        })
-        .select(['cargo.id'])
-        .getMany();
-    });
-
-    return cargos;
+    return this.findUsuarioByIdStrictSimple(actorContext, newUsuario.id);
   }
 
   async createUsuario(actorContext: ActorContext, dto: ICreateUsuarioInput) {
@@ -216,12 +262,13 @@ export class UsuarioService {
     return actorContext.databaseRun(async ({ entityManager }) => {
       const usuarioRepository = getUsuarioRepository(entityManager);
 
-      try {
-        await usuarioRepository.delete(usuario.id);
-        return true;
-      } catch (error) {
-        return false;
-      }
+      await usuarioRepository
+        .createQueryBuilder('usuario')
+        .update()
+        .set({
+          deletedAt: new Date(),
+        })
+        .where('id = :id', { id: usuario.id });
     });
   }
 }
