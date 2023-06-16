@@ -7,7 +7,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { MeiliSearchModule } from 'src/meilisearch/meilisearch.module';
 import { AuthenticationModule } from '../authentication/authentication.module';
-import { IS_PRODUCTION_MODE } from '../common/constants/IS_PRODUCTION_MODE.const';
 import { DatabaseModule } from '../database/database.module';
 import { DateScalar } from '../graphql/DateScalar';
 import { HttpExceptionFilter } from '../graphql/HttpExceptionFilter';
@@ -15,6 +14,7 @@ import { AppController } from './app.controller';
 import { AppResolver } from './app.resolver';
 import { CargoModule } from './modules/cargo/cargo.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
+import GraphQLJSON from 'graphql-type-json';
 
 @Module({
   imports: [
@@ -37,10 +37,9 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
       playground: true,
       introspection: true,
 
-      debug: !IS_PRODUCTION_MODE,
       autoSchemaFile: true,
 
-      // resolvers: { JSON: GraphQLJSON },
+      resolvers: { JSON: GraphQLJSON },
     }),
 
     //
