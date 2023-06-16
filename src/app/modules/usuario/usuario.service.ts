@@ -9,12 +9,12 @@ import { getUsuarioCargoRepository } from 'src/database/repositories/usuario_car
 import { IGenericListInput } from 'src/meilisearch/dtos';
 import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
+import { extractIds } from '../../../common/extract-ids';
+import { PermissaoDbEntity } from '../../../database/entities/permissao.db.entity';
 import { UsuarioDbEntity } from '../../../database/entities/usuario.db.entity';
+import { getPermissaoRepository } from '../../../database/repositories/permissao.repository';
 import { ICreateUsuarioInput, IDeleteUsuarioInput, IFindUsuarioByIdInput, IUpdateUsuarioInput, ListUsuarioResultType } from './dtos';
 import { UsuarioType } from './usuario.type';
-import { getPermissaoRepository } from '../../../database/repositories/permissao.repository';
-import { pickIds } from '../../../common/pickIds';
-import { PermissaoDbEntity } from '../../../database/entities/permissao.db.entity';
 
 @Injectable()
 export class UsuarioService {
@@ -159,7 +159,7 @@ export class UsuarioService {
 
       const permissoes = await qb.getMany();
 
-      const ids = pickIds(permissoes);
+      const ids = extractIds(permissoes);
 
       return ids;
     });

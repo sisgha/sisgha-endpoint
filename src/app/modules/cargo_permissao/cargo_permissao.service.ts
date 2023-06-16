@@ -5,22 +5,22 @@ import { APP_RESOURCE_CARGO_PERMISSAO, APP_RESOURCE_PERMISSAO } from 'src/actor-
 import { ContextAction } from 'src/authorization/interfaces';
 import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
-import { getCargoRepository } from '../../../database/repositories/cargo.repository';
+import { extractIds } from '../../../common/extract-ids';
 import { CargoPermissaoDbEntity } from '../../../database/entities/cargo_permissao.db.entity';
-import { IFindCargoPermissaoByIdInput } from './dtos/FindCargoPermissaoByIdInput';
+import { getCargoRepository } from '../../../database/repositories/cargo.repository';
 import { getCargoPermissaoRepository } from '../../../database/repositories/cargo_permissao.repository';
+import { getPermissaoRepository } from '../../../database/repositories/permissao.repository';
+import { CargoService } from '../cargo/cargo.service';
+import { ListPermissaoResultType } from '../permissao/dtos';
+import { PermissaoService } from '../permissao/permissao.service';
+import { PermissaoType } from '../permissao/permissao.type';
 import {
   IAddPermissaoToCargoInput,
   IFindCargoPermissaoByCargoIdAndPermissaoIdInput,
   IListPermissaoFromCargoInput,
   IRemovePermissaoFromCargoInput,
 } from './dtos';
-import { ListPermissaoResultType } from '../permissao/dtos';
-import { CargoService } from '../cargo/cargo.service';
-import { getPermissaoRepository } from '../../../database/repositories/permissao.repository';
-import { pickIds } from '../../../common/pickIds';
-import { PermissaoType } from '../permissao/permissao.type';
-import { PermissaoService } from '../permissao/permissao.service';
+import { IFindCargoPermissaoByIdInput } from './dtos/FindCargoPermissaoByIdInput';
 
 @Injectable()
 export class CargoPermissaoService {
@@ -135,9 +135,9 @@ export class CargoPermissaoService {
   async listPermissoesFromCargo(actorContext: ActorContext, dto: IListPermissaoFromCargoInput): Promise<ListPermissaoResultType> {
     const cargo = await this.cargoService.findCargoByIdStrictSimple(actorContext, dto.cargoId);
 
-    const allowedIds = await actorContext.getAllowedResourcesIdsForResourceAction(APP_RESOURCE_PERMISSAO, ContextAction.READ);
+    const allowedPermissaoIds = await actorContext.getAllowedResourcesIdsForResourceAction(APP_RESOURCE_PERMISSAO, ContextAction.READ);
 
-    const cargoPermissoesIds = await actorContext.databaseRun(async ({ entityManager }) => {
+    const allPermissoesIdsForCargo = await actorContext.databaseRun(async ({ entityManager }) => {
       const permissaoRepository = getPermissaoRepository(entityManager);
 
       const qb = await permissaoRepository.createQueryBuilderForCargoId(cargo.id);
@@ -146,14 +146,14 @@ export class CargoPermissaoService {
 
       const permissoes = await qb.getMany();
 
-      const ids = pickIds(permissoes);
+      const ids = extractIds(permissoes);
 
       return ids;
     });
 
-    const targetPermissoesIds = intersection(allowedIds, cargoPermissoesIds);
+    const targetPermissaoIds = intersection(allowedPermissaoIds, allPermissoesIdsForCargo);
 
-    const result = await this.meilisearchService.listResource<PermissaoType>(APP_RESOURCE_PERMISSAO, dto, targetPermissoesIds);
+    const result = await this.meilisearchService.listResource<PermissaoType>(APP_RESOURCE_PERMISSAO, dto, targetPermissaoIds);
 
     return {
       ...result,

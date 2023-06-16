@@ -1,4 +1,4 @@
-import { AbilityBuilder, createMongoAbility, subject as castSubject } from '@casl/ability';
+import { AbilityBuilder, subject as castSubject, createMongoAbility } from '@casl/ability';
 import { ForbiddenException } from '@nestjs/common';
 import { pg } from '@ucast/sql';
 import { get, has, intersection } from 'lodash';
@@ -6,6 +6,7 @@ import { ConstraintInterpreter } from 'src/authorization/ConstraintInterpreter';
 import { ConstraintJoinMode, ContextAction, IRawConstraint } from 'src/authorization/interfaces';
 import { DatabaseActorRole } from 'src/database/constants/DatabaseActorRole';
 import { Brackets, DataSource, EntityManager, SelectQueryBuilder } from 'typeorm';
+import { extractIds } from '../common/extract-ids';
 import { PermissaoDbEntity } from '../database/entities/permissao.db.entity';
 import { getPermissaoRepository } from '../database/repositories/permissao.repository';
 import { Actor } from './Actor';
@@ -13,7 +14,6 @@ import { ActorUser } from './ActorUser';
 import { IDatabaseRunCallback } from './interfaces';
 import { ActorType } from './interfaces/ActorType';
 import { getAppResource } from './providers';
-import { pickIds } from '../common/pickIds';
 
 const RECURSO_QUALQUER = 'all';
 
@@ -290,7 +290,7 @@ export class ActorContext {
 
       const results = await qb.getMany();
 
-      const ids = pickIds(results);
+      const ids = extractIds(results);
 
       return ids;
     }

@@ -5,6 +5,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
+import GraphQLJSON from 'graphql-type-json';
 import { MeiliSearchModule } from 'src/meilisearch/meilisearch.module';
 import { AuthenticationModule } from '../authentication/authentication.module';
 import { DatabaseModule } from '../database/database.module';
@@ -16,7 +17,7 @@ import { CargoModule } from './modules/cargo/cargo.module';
 import { CargoPermissaoModule } from './modules/cargo_permissao/cargo_permissao.module';
 import { PermissaoModule } from './modules/permissao/permissao.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
-import GraphQLJSON from 'graphql-type-json';
+import { UsuarioCargoModule } from './modules/usuario_cargo/usuario_cargo.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import GraphQLJSON from 'graphql-type-json';
     CargoModule,
     CargoPermissaoModule,
     UsuarioModule,
+    UsuarioCargoModule,
   ],
 
   controllers: [AppController],

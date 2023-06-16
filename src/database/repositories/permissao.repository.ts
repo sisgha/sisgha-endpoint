@@ -1,7 +1,7 @@
 import { ActorType } from 'src/actor-context/interfaces';
 import { DataSource, EntityManager } from 'typeorm';
-import { PermissaoDbEntity } from '../entities/permissao.db.entity';
 import { CargoDbEntity } from '../entities/cargo.db.entity';
+import { PermissaoDbEntity } from '../entities/permissao.db.entity';
 
 export type IPermissaoRepository = ReturnType<typeof getPermissaoRepository>;
 
