@@ -1,16 +1,16 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { omit } from 'lodash';
 import { APP_RESOURCE_PERMISSAO } from 'src/actor-context/providers';
 import { FindOneOptions } from 'typeorm';
 import { ActorContext } from '../../../actor-context/ActorContext';
-import { PermissaoDbEntity } from '../../../database/entities/permissao.db.entity';
-import { MeiliSearchService } from '../../../meilisearch/meilisearch.service';
-import { IFindPermissaoByIdInput, ListPermissaoResultType } from './dtos';
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { IGenericListInput } from '../../../meilisearch/dtos';
 import { ContextAction } from '../../../authorization/interfaces';
-import { PermissaoType } from './permissao.type';
-import { ICreatePermissaoInput, IDeletePermissaoInput, IUpdatePermissaoInput } from '../permissao/dtos';
-import { omit } from 'lodash';
+import { PermissaoDbEntity } from '../../../database/entities/permissao.db.entity';
 import { getPermissaoRepository } from '../../../database/repositories/permissao.repository';
+import { IGenericListInput } from '../../../meilisearch/dtos';
+import { MeiliSearchService } from '../../../meilisearch/meilisearch.service';
+import { ICreatePermissaoInput, IDeletePermissaoInput, IUpdatePermissaoInput } from '../permissao/dtos';
+import { IFindPermissaoByIdInput, ListPermissaoResultType } from './dtos';
+import { PermissaoType } from './permissao.type';
 
 @Injectable()
 export class PermissaoService {
@@ -171,7 +171,8 @@ export class PermissaoService {
         .set({
           deletedAt: new Date(),
         })
-        .where('id = :id', { id: permissao.id });
+        .where('id = :id', { id: permissao.id })
+        .execute();
     });
   }
 }

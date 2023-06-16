@@ -150,7 +150,8 @@ export class CargoService {
         .set({
           deletedAt: new Date(),
         })
-        .where('id = :id', { id: cargo.id });
+        .where('id = :id', { id: cargo.id })
+        .execute();
     });
   }
 }

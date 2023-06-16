@@ -91,9 +91,9 @@ export class UsuarioService {
   }
 
   async listUsuario(actorContext: ActorContext, dto: IGenericListInput): Promise<ListUsuarioResultType> {
-    const allowedIds = await actorContext.getAllowedResourcesIdsForResourceAction(APP_RESOURCE_USUARIO, ContextAction.READ);
+    const allowedUsuarioIds = await actorContext.getAllowedResourcesIdsForResourceAction(APP_RESOURCE_USUARIO, ContextAction.READ);
 
-    const result = await this.meilisearchService.listResource<UsuarioType>(APP_RESOURCE_USUARIO, dto, allowedIds);
+    const result = await this.meilisearchService.listResource<UsuarioType>(APP_RESOURCE_USUARIO, dto, allowedUsuarioIds);
 
     return {
       ...result,
@@ -148,12 +148,12 @@ export class UsuarioService {
   async getUsuarioPermissoes(actorContext: ActorContext, usuarioId: number) {
     const usuario = await this.findUsuarioByIdStrictSimple(actorContext, usuarioId);
 
-    const allowedIds = await actorContext.getAllowedResourcesIdsForResourceAction(APP_RESOURCE_PERMISSAO, ContextAction.READ);
+    const allowedPermissaoIds = await actorContext.getAllowedResourcesIdsForResourceAction(APP_RESOURCE_PERMISSAO, ContextAction.READ);
 
-    const usuarioPermissoesIds = await actorContext.databaseRun(async ({ entityManager }) => {
+    const allUsuarioPermissaoIds = await actorContext.databaseRun(async ({ entityManager }) => {
       const permissaoRepository = getPermissaoRepository(entityManager);
 
-      const qb = await permissaoRepository.createQueryBuilderForUser(usuario.id);
+      const qb = await permissaoRepository.createQueryBuilderForUsuarioId(usuario.id);
 
       qb.select(['permissao.id']);
 
@@ -164,9 +164,9 @@ export class UsuarioService {
       return ids;
     });
 
-    const targetPermissoesIds = intersection(allowedIds, usuarioPermissoesIds);
+    const targetPermissaoIds = intersection(allowedPermissaoIds, allUsuarioPermissaoIds);
 
-    const permissoes = targetPermissoesIds.map((id) => <PermissaoDbEntity>{ id: id });
+    const permissoes = targetPermissaoIds.map((id) => <PermissaoDbEntity>{ id: id });
 
     return permissoes;
   }
@@ -268,7 +268,8 @@ export class UsuarioService {
         .set({
           deletedAt: new Date(),
         })
-        .where('id = :id', { id: usuario.id });
+        .where('id = :id', { id: usuario.id })
+        .execute();
     });
   }
 }

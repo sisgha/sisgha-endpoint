@@ -74,7 +74,7 @@ export class ActorContext {
       case ActorType.USER: {
         const userRef = (<ActorUser>this.actor).user;
 
-        const qb = await permissaoRepository.createQueryBuilderForUser(userRef.id);
+        const qb = await permissaoRepository.createQueryBuilderForUsuarioId(userRef.id);
         return qb;
       }
 

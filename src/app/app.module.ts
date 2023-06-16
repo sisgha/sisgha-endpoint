@@ -18,6 +18,7 @@ import { CargoPermissaoModule } from './modules/cargo_permissao/cargo_permissao.
 import { PermissaoModule } from './modules/permissao/permissao.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { UsuarioCargoModule } from './modules/usuario_cargo/usuario_cargo.module';
+import { UsuarioInternoModule } from './modules/usuario_interno/usuario_interno.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { UsuarioCargoModule } from './modules/usuario_cargo/usuario_cargo.module
     CargoPermissaoModule,
     UsuarioModule,
     UsuarioCargoModule,
+    UsuarioInternoModule,
   ],
 
   controllers: [AppController],

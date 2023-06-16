@@ -7,7 +7,7 @@ export type IPermissaoRepository = ReturnType<typeof getPermissaoRepository>;
 
 export const getPermissaoRepository = (dataSource: DataSource | EntityManager) =>
   dataSource.getRepository(PermissaoDbEntity).extend({
-    async createQueryBuilderForUser(userId: number) {
+    async createQueryBuilderForUsuarioId(usuarioId: number) {
       const qb = this.createQueryBuilder('permissao')
         .select(['permissao'])
         .innerJoin('permissao.cargoPermissao', 'cargo_permissao')
@@ -15,9 +15,28 @@ export const getPermissaoRepository = (dataSource: DataSource | EntityManager) =
         .innerJoin('cargo.usuarioCargo', 'usuario_cargo')
         .innerJoin('usuario_cargo.usuario', 'usuario');
 
-      qb.where('usuario.id = :usuarioId', { usuarioId: userId });
+      qb.where('usuario.id = :usuarioId', { usuarioId: usuarioId });
 
       qb.andWhere('usuario.deletedAt IS NULL');
+      qb.andWhere('permissao.deletedAt IS NULL');
+      qb.andWhere('cargo.deletedAt IS NULL');
+
+      qb.cache(1000);
+
+      return qb;
+    },
+
+    async createQueryBuilderForUsuarioInternoId(usuarioInternoId: number) {
+      const qb = this.createQueryBuilder('permissao')
+        .select(['permissao'])
+        .innerJoin('permissao.cargoPermissao', 'cargo_permissao')
+        .innerJoin('cargo_permissao.cargo', 'cargo')
+        .innerJoin('cargo.usuarioInternoCargo', 'usuario_iterno_cargo')
+        .innerJoin('usuario_iterno_cargo.usuarioInterno', 'usuario_interno');
+
+      qb.where('usuario_interno.id = :usuarioInternoId', { usuarioInternoId: usuarioInternoId });
+
+      qb.andWhere('usuario_interno.deletedAt IS NULL');
       qb.andWhere('permissao.deletedAt IS NULL');
       qb.andWhere('cargo.deletedAt IS NULL');
 
