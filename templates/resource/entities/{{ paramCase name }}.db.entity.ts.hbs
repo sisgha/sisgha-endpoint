@@ -1,10 +1,36 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('{{ snakeCase name }}')
 export class {{ pascalCase name }}DbEntity {
   @PrimaryGeneratedColumn({ name: 'id' })
   id!: number;
+
+  // ...
+
+  @Column({ name: 'field', type: 'text' })
+  field!: string;
+
+  //
+
+  // @CreateDateColumn({
+  //   name: 'created_at',
+  //   type: 'timestamptz',
+  //   nullable: false,
+  // })
+  // createdAt!: Date;
+
+  // @UpdateDateColumn({
+  //   name: 'updated_at',
+  //   type: 'timestamptz',
+  //   nullable: false,
+  // })
+  // updatedAt!: Date;
+
+  // @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz', nullable: true })
+  // deletedAt!: Date | null;
+
+  // @Column({ name: 'search_sync_at', type: 'timestamptz', nullable: true })
+  // searchSyncAt!: Date | null;
+
+  //
 }

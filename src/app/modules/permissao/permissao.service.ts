@@ -14,7 +14,10 @@ import { PermissaoType } from './permissao.type';
 
 @Injectable()
 export class PermissaoService {
-  constructor(private meilisearchService: MeiliSearchService) {}
+  constructor(
+    // ...
+    private meilisearchService: MeiliSearchService,
+  ) {}
 
   async findPermissaoById(
     actorContext: ActorContext,

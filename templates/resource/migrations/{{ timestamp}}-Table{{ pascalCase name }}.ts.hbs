@@ -1,0 +1,61 @@
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+
+export class Table{{ pascalCase name }}{{ timestamp }} implements MigrationInterface {
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.createTable(
+      new Table({
+        name: '{{ snakeCase name }}',
+
+        columns: [
+          {
+            name: 'id',
+            type: 'int',
+            isPrimary: true,
+            isGenerated: true,
+            generationStrategy: 'increment',
+          },
+
+          // ...
+
+          {
+            name: 'field',
+            type: 'text',
+            isNullable: false,
+          },
+
+          // ...
+
+          // {
+          //   name: 'created_at',
+          //   type: 'timestamptz',
+          //   default: 'now()',
+          //   isNullable: false,
+          // },
+
+          // {
+          //   name: 'updated_at',
+          //   type: 'timestamptz',
+          //   default: 'now()',
+          //   isNullable: false,
+          // },
+
+          // {
+          //   name: 'deleted_at',
+          //   type: 'timestamptz',
+          //   isNullable: true,
+          // },
+
+          // {
+          //   name: 'search_sync_at',
+          //   type: 'timestamptz',
+          //   isNullable: true,
+          // },
+        ],
+      }),
+    );
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropTable('{{ snakeCase name }}', true);
+  }
+}

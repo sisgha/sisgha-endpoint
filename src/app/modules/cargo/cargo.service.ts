@@ -13,7 +13,12 @@ import { ICreateCargoInput, IDeleteCargoInput, IFindCargoByIdInput, IUpdateCargo
 
 @Injectable()
 export class CargoService {
-  constructor(private meilisearchService: MeiliSearchService) {}
+  constructor(
+    // ...
+    private meilisearchService: MeiliSearchService,
+  ) {}
+
+  // ...
 
   async findCargoById(actorContext: ActorContext, dto: IFindCargoByIdInput, options: FindOneOptions<CargoDbEntity> | null = null) {
     const targetCargo = await actorContext.databaseRun(async ({ entityManager }) => {
@@ -58,6 +63,8 @@ export class CargoService {
     return <T>cargo;
   }
 
+  //
+
   async listCargo(actorContext: ActorContext, dto: IGenericListInput): Promise<ListCargoResultType> {
     const allowedIds = await actorContext.getAllowedResourcesIdsForResourceAction(APP_RESOURCE_CARGO, ContextAction.READ);
 
@@ -68,6 +75,8 @@ export class CargoService {
     };
   }
 
+  // ...
+
   async getCargoStrictGenericField<K extends keyof CargoDbEntity>(
     actorContext: ActorContext,
     cargoId: number,
@@ -76,6 +85,8 @@ export class CargoService {
     const cargo = await this.findCargoByIdStrict(actorContext, { id: cargoId }, { select: ['id', field] });
     return <CargoDbEntity[K]>cargo[field];
   }
+
+  //
 
   async getCargoSlug(actorContext: ActorContext, cargoId: number) {
     return this.getCargoStrictGenericField(actorContext, cargoId, 'slug');
@@ -96,6 +107,8 @@ export class CargoService {
   async getCargoSearchSyncAt(actorContext: ActorContext, cargoId: number) {
     return this.getCargoStrictGenericField(actorContext, cargoId, 'searchSyncAt');
   }
+
+  // ...
 
   async createCargo(actorContext: ActorContext, dto: ICreateCargoInput) {
     const fieldsData = omit(dto, []);

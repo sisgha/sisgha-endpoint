@@ -128,11 +128,11 @@ export const APP_RESOURCES: IAppResource[] = [
     search: null,
 
     // search: {
-    //   meilisearchIndex: 'usuario_cargo',
-    //   searchable: ['id', 'usuario.id', 'cargo.id'],
-    //   filterable: ['id', 'usuario.id', 'cargo.id'],
-    //   sortable: ['id', 'usuario.id', 'cargo.id'],
-    //   getSearchableDataView: () => ['id', 'usuario.id', 'cargo.id'],
+    //   meilisearchIndex: 'usuario_interno_cargo',
+    //   searchable: ['id', 'usuario_interno.id', 'cargo.id'],
+    //   filterable: ['id', 'usuario_interno.id', 'cargo.id'],
+    //   sortable: ['id', 'usuario_interno.id', 'cargo.id'],
+    //   getSearchableDataView: () => ['id', 'usuario_interno.id', 'cargo.id'],
     // },
 
     getTypeormEntity: () => UsuarioInternoCargoDbEntity,
