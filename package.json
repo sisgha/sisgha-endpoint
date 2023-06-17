@@ -15,14 +15,14 @@
     "typeorm": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm",
     "typeorm-db-migration": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm -d src/database/data-sources/app-migration.data-source.ts",
     "typeorm-db-seed": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm -d src/database/data-sources/seed.data-source.ts",
-    "typeorm:entity": "npm run typeorm entity:create",
-    "typeorm:generate": "npm run typeorm migration:generate",
-    "typeorm:create": "npm run typeorm migration:create",
-    "db:migrate": "npm run typeorm-db-migration migration:run",
-    "db:rollback": "npm run typeorm-db-migration migration:revert",
-    "seed:create": "npm run typeorm-db-seed migration:create",
-    "seed:run": "npm run typeorm-db-seed migration:run",
-    "seed:rollback": "npm run typeorm-db-seed migration:revert"
+    "typeorm:entity": "yarn typeorm entity:create",
+    "typeorm:generate": "yarn typeorm migration:generate",
+    "typeorm:create": "yarn typeorm migration:create",
+    "db:migrate": "yarn typeorm-db-migration migration:run",
+    "db:rollback": "yarn typeorm-db-migration migration:revert",
+    "seed:create": "yarn typeorm-db-seed migration:create",
+    "seed:run": "yarn typeorm-db-seed migration:run",
+    "seed:rollback": "yarn typeorm-db-seed migration:revert"
   },
   "dependencies": {
     "@apollo/server": "^4.7.3",

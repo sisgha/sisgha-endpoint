@@ -4,17 +4,17 @@ WORKDIR /app
 
 FROM base as prod-deps
 COPY package.json package-lock.json ./
-RUN npm install --omit=dev
+RUN yarn install --production
 
 FROM prod-deps as dev-deps
-RUN npm install
+RUN yarn install
 
 FROM dev-deps as assets
 COPY . .
-RUN npm run build
+RUN yarn build
 RUN rm -rf node_modules
 
 FROM prod-deps
 COPY --from=assets /app /app
 WORKDIR /app
-CMD npm run db:migrate && npm run seed:run && npm run start:prod
+CMD yarn db:migrate && yarn seed:run && yarn start:prod

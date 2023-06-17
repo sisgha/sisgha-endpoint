@@ -1,7 +1,7 @@
 services:
   endpoint:
     image: node:18
-    command: sh -c "npm i && npm run db:migrate && npm run seed:run && npm run start:dev"
+    command: sh -c "yarn && yarn db:migrate && yarn seed:run && yarn start:dev"
     container_name: sisgha-endpoint
     restart: always
     working_dir: /code
