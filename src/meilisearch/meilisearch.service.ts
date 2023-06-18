@@ -2,19 +2,19 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { pick } from 'lodash';
 import MeiliSearch from 'meilisearch';
-import { Actor } from 'src/actor-context/Actor';
 import { ActorContext } from 'src/actor-context/ActorContext';
 import { IAppResource } from 'src/actor-context/interfaces';
 import { APP_RESOURCES } from 'src/actor-context/providers';
 import { DATA_SOURCE } from 'src/database/constants/DATA_SOURCE';
-import { Brackets, DataSource } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { MEILISEARCH_CLIENT } from './consts/MEILISEARCH_CLIENT.const';
+import { MEILISEARCH_PRIMARY_KEY } from './consts/MEILISEARCH_PRIMARY_KEY.const';
 import { MEILISEARCH_SYNC_RECORDS_INTERVAL } from './consts/MEILISEARCH_SYNC_RECORDS_INTERVAL';
 import { GenericSearchResult, IGenericListInput } from './dtos';
 
 @Injectable()
 export class MeiliSearchService {
-  private syncInProgress = false;
+  private isSyncInProgress = false;
 
   private systemActorContext: ActorContext;
 
@@ -24,7 +24,7 @@ export class MeiliSearchService {
     @Inject(MEILISEARCH_CLIENT)
     private meilisearchClient: MeiliSearch,
   ) {
-    this.systemActorContext = new ActorContext(this.dataSource, Actor.forSystemInternalActions());
+    this.systemActorContext = ActorContext.forSystem(dataSource);
   }
 
   async listResource<T extends { id: K }, K = unknown>(
@@ -34,9 +34,9 @@ export class MeiliSearchService {
   ): Promise<GenericSearchResult<T>> {
     const { query, limit, offset, sort } = dto;
 
-    const filter = [
+    const filter: string[] = [
       // ...
-      `id IN ${JSON.stringify(targetIds)}`,
+      ...(Array.isArray(targetIds) ? [`id IN ${JSON.stringify(targetIds)}`] : []),
       ...(dto.filter ? [dto.filter] : []),
     ];
 
@@ -62,15 +62,15 @@ export class MeiliSearchService {
   }
 
   async handleSyncRecords() {
-    if (this.syncInProgress) {
+    if (this.isSyncInProgress) {
       return;
     }
 
-    this.syncInProgress = true;
+    this.isSyncInProgress = true;
 
     await this.syncRecords();
 
-    this.syncInProgress = false;
+    this.isSyncInProgress = false;
   }
 
   @Interval(MEILISEARCH_SYNC_RECORDS_INTERVAL)
@@ -86,9 +86,11 @@ export class MeiliSearchService {
     }
 
     const deletedRecordsIds = deletedRecords.map((record) => record.id);
+
     const deleteDocumentsTask = await this.meilisearchClient
       .index(appResourceSearchOptions.meilisearchIndex)
       .deleteDocuments([...deletedRecordsIds]);
+
     await this.meilisearchClient.index(appResourceSearchOptions.meilisearchIndex).waitForTask(deleteDocumentsTask.taskUid);
   }
 
@@ -101,13 +103,15 @@ export class MeiliSearchService {
 
     const updatedDocuments = updatedRecords.map((record) => {
       const searchableDataView = appResourceSearchOptions.getSearchableDataView(record);
+
       const data = Array.isArray(searchableDataView) ? pick(record, searchableDataView) : searchableDataView;
+
       return data;
     });
 
     const updateDocumentsTask = await this.meilisearchClient
       .index(appResourceSearchOptions.meilisearchIndex)
-      .updateDocuments([...updatedDocuments], { primaryKey: 'id' });
+      .updateDocuments([...updatedDocuments], { primaryKey: MEILISEARCH_PRIMARY_KEY });
 
     await this.meilisearchClient.index(appResourceSearchOptions.meilisearchIndex).waitForTask(updateDocumentsTask.taskUid);
   }
@@ -135,9 +139,9 @@ export class MeiliSearchService {
     });
   }
 
-  private async findUnsynchedRecords() {
-    const findUnsynchedRecordsGenerator = async function* (this: MeiliSearchService) {
-      const getUnsynchedRecordsForAppResource = async (appResource: IAppResource) => {
+  private async findRecordsNotSynced() {
+    const findRecordsNotSyncedGenerator = async function* (this: MeiliSearchService) {
+      const getRecordsNotSyncedForAppResource = async (appResource: IAppResource) => {
         if (!appResource.search) {
           return [];
         }
@@ -149,17 +153,10 @@ export class MeiliSearchService {
           try {
             const records = await repository
               .createQueryBuilder('record')
-              .withDeleted()
               .select('record')
               .loadAllRelationIds({ disableMixedMap: true })
               .where('record.searchSyncAt IS NULL')
-              .orWhere('record.searchSyncAt < record.deletedAt')
-              .orWhere(
-                new Brackets((qb) => {
-                  qb.where('record.searchSyncAt < record.updatedAt');
-                  qb.andWhere('record.deletedAt IS NULL');
-                }),
-              )
+              .orWhere('record.searchSyncAt < record.updatedAt')
               .limit(10)
               .getMany();
 
@@ -171,35 +168,37 @@ export class MeiliSearchService {
       };
 
       for (const appResource of APP_RESOURCES) {
-        let unsynchedRecords: any[] = [];
+        let recordsNotSynced: any[] = [];
 
         do {
-          unsynchedRecords = await getUnsynchedRecordsForAppResource(appResource);
+          recordsNotSynced = await getRecordsNotSyncedForAppResource(appResource);
 
-          if (unsynchedRecords.length > 0) {
+          if (recordsNotSynced.length > 0) {
             yield {
               appResource,
-              records: unsynchedRecords,
+              records: recordsNotSynced,
             };
           }
-        } while (unsynchedRecords.length > 0);
+        } while (recordsNotSynced.length > 0);
       }
     };
 
-    return findUnsynchedRecordsGenerator.call(this);
+    return findRecordsNotSyncedGenerator.call(this);
   }
 
   private async syncRecords() {
-    const unsynchedRecords = await this.findUnsynchedRecords();
+    const recordsNotSynced = await this.findRecordsNotSynced();
 
-    for await (const unsynchedRecord of unsynchedRecords) {
-      const { appResource, records } = unsynchedRecord;
+    for await (const recordNotSynced of recordsNotSynced) {
+      const { appResource, records } = recordNotSynced;
 
-      const deletedRecords = records.filter((record) => record.deletedAt !== null);
-      await this.handleDeletedRecords(appResource, deletedRecords);
+      // const deletedRecords = records.filter((record) => record.deletedAt !== null);
+      // await this.handleDeletedRecords(appResource, deletedRecords);
 
-      const updatedRecords = records.filter((record) => record.deletedAt === null);
-      await this.handleUpdatedRecords(appResource, updatedRecords);
+      // const updatedRecords = records.filter((record) => record.deletedAt === null);
+      // await this.handleUpdatedRecords(appResource, updatedRecords);
+
+      await this.handleUpdatedRecords(appResource, records);
 
       await this.updateRecordsSearchSyncAt(appResource, records);
     }

@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { CargoPermissaoDbEntity } from './cargo_permissao.db.entity';
 import { UsuarioCargoDbEntity } from './usuario_cargo.db.entity';
 import { UsuarioInternoCargoDbEntity } from './usuario_interno_cargo.db.entity';
@@ -29,7 +29,7 @@ export class CargoDbEntity {
   })
   updatedAt!: Date;
 
-  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz', nullable: true })
+  @Column({ name: 'deleted_at', type: 'timestamptz', nullable: true })
   deletedAt!: Date | null;
 
   @Column({ name: 'search_sync_at', type: 'timestamptz', nullable: true })

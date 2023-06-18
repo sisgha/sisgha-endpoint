@@ -70,7 +70,7 @@ export class UsuarioInternoCargoResolver {
     return this.usuarioInternoCargoService.addCargoToUsuarioInterno(actorContext, dto);
   }
 
-  @Mutation(() => UsuarioInternoCargoType)
+  @Mutation(() => Boolean)
   async removeCargoFromUsuarioInterno(
     @ResolveActorContext()
     actorContext: ActorContext,

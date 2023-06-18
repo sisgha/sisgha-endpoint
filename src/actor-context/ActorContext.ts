@@ -1,4 +1,4 @@
-import { AbilityBuilder, subject as castSubject, createMongoAbility } from '@casl/ability';
+import { AbilityBuilder, createMongoAbility, subject as castSubject } from '@casl/ability';
 import { ForbiddenException } from '@nestjs/common';
 import { pg } from '@ucast/sql';
 import { get, has, intersection } from 'lodash';
@@ -19,6 +19,12 @@ const RECURSO_QUALQUER = 'all';
 
 export class ActorContext {
   constructor(public readonly dataSource: DataSource, public readonly actor: Actor) {}
+
+  // ...
+
+  static forSystem(dataSource: DataSource) {
+    return new ActorContext(dataSource, Actor.forSystemInternalActions());
+  }
 
   // ...
 
@@ -64,8 +70,6 @@ export class ActorContext {
       throw error;
     }
   }
-
-  // ...
 
   async getQueryPermissions(): Promise<SelectQueryBuilder<PermissaoDbEntity>> {
     const permissaoRepository = getPermissaoRepository(this.dataSource);
@@ -117,6 +121,8 @@ export class ActorContext {
 
     return qb;
   }
+
+  //
 
   async getQueryAllowedResourcesForConstraint(
     resource: string,
@@ -177,8 +183,6 @@ export class ActorContext {
     return qb;
   }
 
-  //
-
   async getPermissions(): Promise<PermissaoDbEntity[]> {
     const qb = await this.getQueryPermissions();
     return qb.getMany();
@@ -190,12 +194,12 @@ export class ActorContext {
     return qb.getMany();
   }
 
+  // ...
+
   async getPermissionsForResourceAction(resource: string, action: string): Promise<PermissaoDbEntity[]> {
     const qb = await this.getQueryPermissionsForResourceAction(resource, action);
     return qb.getMany();
   }
-
-  // ...
 
   async getAllowedResourcesForPermissions<Id = unknown>(
     resource: string,
@@ -265,6 +269,8 @@ export class ActorContext {
     return this.getAllowedResourcesForPermissions(resource, permissions, targetEntityId);
   }
 
+  //
+
   async getAllowedResourcesIdsForResourceAction(resource: string, action: string, targetEntityId: unknown | null = null) {
     const appResource = getAppResource(resource);
 
@@ -298,8 +304,6 @@ export class ActorContext {
     return [];
   }
 
-  //
-
   async getAbilityForPermissions(resource: string, permissions: PermissaoDbEntity[], targetEntityId: unknown | null = null) {
     const { can: allow, cannot: forbid, build } = new AbilityBuilder(createMongoAbility);
 
@@ -328,12 +332,12 @@ export class ActorContext {
     return ability;
   }
 
+  // ...
+
   async getAbilityForResourceAction(resource: string, action: string, targetEntityId: unknown | null = null) {
     const permissions = await this.getPermissionsForResourceAction(resource, action);
     return this.getAbilityForPermissions(resource, permissions, targetEntityId);
   }
-
-  // ...
 
   async can<Entity extends object>(resource: string, action: string, entity?: Entity): Promise<boolean> {
     const targetEntityId = entity && has(entity, 'id') ? get(entity, 'id') : null;
@@ -350,6 +354,8 @@ export class ActorContext {
     return entity;
   }
 
+  // ...
+
   async ensurePermission<Entity extends object>(resource: string, action: string, entity?: Entity) {
     const isAllowed = await this.can(resource, action, entity);
 
@@ -357,6 +363,4 @@ export class ActorContext {
       throw new ForbiddenException();
     }
   }
-
-  // ...
 }

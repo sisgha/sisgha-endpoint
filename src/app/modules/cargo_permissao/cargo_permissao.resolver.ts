@@ -70,7 +70,7 @@ export class CargoPermissaoResolver {
     return this.cargoPermissaoService.addPermissaoToCargo(actorContext, dto);
   }
 
-  @Mutation(() => CargoPermissaoType)
+  @Mutation(() => Boolean)
   async removePermissaoFromCargo(
     @ResolveActorContext()
     actorContext: ActorContext,

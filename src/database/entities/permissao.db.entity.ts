@@ -1,5 +1,5 @@
 import { IRawConstraint } from 'src/authorization/interfaces';
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { CargoPermissaoDbEntity } from './cargo_permissao.db.entity';
 
 @Entity('permissao')
@@ -41,7 +41,7 @@ export class PermissaoDbEntity {
   })
   updatedAt!: Date;
 
-  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz', nullable: true })
+  @Column({ name: 'deleted_at', type: 'timestamptz', nullable: true })
   deletedAt!: Date | null;
 
   @Column({ name: 'search_sync_at', type: 'timestamptz', nullable: true })

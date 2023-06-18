@@ -259,7 +259,7 @@ export class UsuarioService {
 
     await actorContext.ensurePermission(APP_RESOURCE_USUARIO, ContextAction.DELETE, usuario);
 
-    return actorContext.databaseRun(async ({ entityManager }) => {
+    await actorContext.databaseRun(async ({ entityManager }) => {
       const usuarioRepository = getUsuarioRepository(entityManager);
 
       await usuarioRepository
@@ -271,5 +271,7 @@ export class UsuarioService {
         .where('id = :id', { id: usuario.id })
         .execute();
     });
+
+    return true;
   }
 }

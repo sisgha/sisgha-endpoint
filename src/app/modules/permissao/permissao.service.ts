@@ -165,7 +165,7 @@ export class PermissaoService {
 
     await actorContext.ensurePermission(APP_RESOURCE_PERMISSAO, ContextAction.DELETE, permissao);
 
-    return actorContext.databaseRun(async ({ entityManager }) => {
+    await actorContext.databaseRun(async ({ entityManager }) => {
       const permissaoRepository = getPermissaoRepository(entityManager);
 
       await permissaoRepository
@@ -177,5 +177,7 @@ export class PermissaoService {
         .where('id = :id', { id: permissao.id })
         .execute();
     });
+
+    return true;
   }
 }

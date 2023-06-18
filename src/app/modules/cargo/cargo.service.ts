@@ -154,7 +154,7 @@ export class CargoService {
 
     await actorContext.ensurePermission(APP_RESOURCE_CARGO, ContextAction.DELETE, cargo);
 
-    return actorContext.databaseRun(async ({ entityManager }) => {
+    await actorContext.databaseRun(async ({ entityManager }) => {
       const cargoRepository = getCargoRepository(entityManager);
 
       await cargoRepository
@@ -166,5 +166,7 @@ export class CargoService {
         .where('id = :id', { id: cargo.id })
         .execute();
     });
+
+    return true;
   }
 }

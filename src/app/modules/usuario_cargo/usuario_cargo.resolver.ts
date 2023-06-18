@@ -70,7 +70,7 @@ export class UsuarioCargoResolver {
     return this.usuarioCargoService.addCargoToUsuario(actorContext, dto);
   }
 
-  @Mutation(() => UsuarioCargoType)
+  @Mutation(() => Boolean)
   async removeCargoFromUsuario(
     @ResolveActorContext()
     actorContext: ActorContext,

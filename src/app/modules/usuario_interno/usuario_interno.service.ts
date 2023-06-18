@@ -202,7 +202,7 @@ export class UsuarioInternoService {
 
     await actorContext.ensurePermission(APP_RESOURCE_USUARIO_INTERNO, ContextAction.DELETE, usuarioInterno);
 
-    return actorContext.databaseRun(async ({ entityManager }) => {
+    await actorContext.databaseRun(async ({ entityManager }) => {
       const usuarioInternoRepository = getUsuarioInternoRepository(entityManager);
 
       await usuarioInternoRepository
@@ -214,5 +214,7 @@ export class UsuarioInternoService {
         .where('id = :id', { id: usuarioInterno.id })
         .execute();
     });
+
+    return true;
   }
 }
