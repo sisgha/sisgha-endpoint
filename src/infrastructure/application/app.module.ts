@@ -12,6 +12,7 @@ import { AuthenticationModule } from '../authentication/authentication.module';
 import { HttpExceptionFilter } from '../common/filter/HttpExceptionFilter';
 import { EnvironmentConfigModule } from '../config/environment-config/environment-config.module';
 import { DatabaseModule } from '../database/database.module';
+import { EventsModule } from '../events/events.module';
 import { DateScalar } from '../graphql/DateScalar';
 import { MeiliSearchModule } from '../meilisearch/meilisearch.module';
 import { OidcClientModule } from '../oidc-client/oidc-client.module';
@@ -35,6 +36,8 @@ import { UsuarioInternoCargoModule } from './resources/usuario_interno_cargo/usu
     }),
 
     ScheduleModule.forRoot(),
+
+    EventsModule.forRoot(),
 
     //
 

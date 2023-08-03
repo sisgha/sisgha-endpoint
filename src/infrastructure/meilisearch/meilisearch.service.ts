@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { Interval } from '@nestjs/schedule';
 import { has } from 'lodash';
 import MeiliSearch from 'meilisearch';
@@ -71,7 +72,7 @@ export class MeiliSearchService {
     return result;
   }
 
-  async dispatchSyncRecords() {
+  async dispatchRecordsSync() {
     if (this.isSyncInProgress) {
       return;
     }
@@ -85,7 +86,12 @@ export class MeiliSearchService {
 
   @Interval(MEILISEARCH_SYNC_RECORDS_INTERVAL)
   async handleSyncRecordsInterval() {
-    await this.dispatchSyncRecords();
+    await this.dispatchRecordsSync();
+  }
+
+  @OnEvent('change-subscriber.event.*')
+  async handleSubscriberEvent() {
+    await this.dispatchRecordsSync();
   }
 
   async performRecordsDelete(appResource: IAppResource, records: any[]) {
