@@ -1,9 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { databaseProviders } from './database.providers';
-import { EnvironmentConfigModule } from '../config/environment-config/environment-config.module';
 
+@Global()
 @Module({
-  imports: [EnvironmentConfigModule],
   providers: [...databaseProviders],
   exports: [...databaseProviders],
 })

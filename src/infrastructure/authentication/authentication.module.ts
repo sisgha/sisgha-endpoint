@@ -6,18 +6,14 @@ import { UsuarioModule } from '../application/resources/usuario/usuario.module';
 import { AuthenticatedGuard } from '../common/guards/authenticated.guard';
 import { SessionSerializer } from '../common/serializers/session.serializer';
 import { AccessTokenStrategy } from '../common/strategies/access-token.strategy';
-import { EnvironmentConfigModule } from '../config/environment-config/environment-config.module';
-import { DatabaseModule } from '../database/database.module';
 import { OidcClientModule } from '../oidc-client/oidc-client.module';
 import { AuthenticationService } from './authentication.service';
 
 @Module({
   imports: [
-    // ...
-    DatabaseModule,
-    OidcClientModule,
-    EnvironmentConfigModule,
     UsuarioModule,
+    // ...
+    OidcClientModule,
     PassportModule.register({ defaultStrategy: 'access-token' }),
   ],
 

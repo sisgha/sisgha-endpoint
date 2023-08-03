@@ -11,10 +11,10 @@ import { AppResolver } from '../adapters/resolvers/app.resolver';
 import { AuthenticationModule } from '../authentication/authentication.module';
 import { HttpExceptionFilter } from '../common/filter/HttpExceptionFilter';
 import { EnvironmentConfigModule } from '../config/environment-config/environment-config.module';
-import { OidcClientModule } from '../oidc-client/oidc-client.module';
 import { DatabaseModule } from '../database/database.module';
 import { DateScalar } from '../graphql/DateScalar';
 import { MeiliSearchModule } from '../meilisearch/meilisearch.module';
+import { OidcClientModule } from '../oidc-client/oidc-client.module';
 import { CargoModule } from './resources/cargo/cargo.module';
 import { CargoPermissaoModule } from './resources/cargo_permissao/cargo_permissao.module';
 import { PermissaoModule } from './resources/permissao/permissao.module';
@@ -49,14 +49,17 @@ import { UsuarioInternoCargoModule } from './resources/usuario_interno_cargo/usu
       resolvers: { JSON: GraphQLJSON },
     }),
 
-    //
+    // GLOBAL MODULES
 
-    DatabaseModule,
-    OidcClientModule,
     EnvironmentConfigModule,
+    DatabaseModule,
     MeiliSearchModule,
 
+    // AUTHENTICATION MODULES
+    OidcClientModule,
     AuthenticationModule,
+
+    // APPLICATION RESOURCES
 
     CargoModule,
     PermissaoModule,
@@ -69,7 +72,10 @@ import { UsuarioInternoCargoModule } from './resources/usuario_interno_cargo/usu
     UsuarioInternoCargoModule,
   ],
 
-  controllers: [AppController],
+  controllers: [
+    // ...
+    AppController,
+  ],
 
   providers: [
     {

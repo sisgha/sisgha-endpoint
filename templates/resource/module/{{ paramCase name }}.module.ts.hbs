@@ -1,15 +1,8 @@
 import { Module } from '@nestjs/common';
-import { MeiliSearchModule } from 'src/meilisearch/meilisearch.module';
 import { {{ pascalCase name }}Resolver } from './{{ paramCase name }}.resolver';
 import { {{ pascalCase name }}Service } from './{{ paramCase name }}.service';
-import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
-  imports: [
-    DatabaseModule,
-    MeiliSearchModule,
-    // ...
-  ],
   exports: [{{ pascalCase name }}Service],
   providers: [{{ pascalCase name }}Service, {{ pascalCase name }}Resolver],
 })
