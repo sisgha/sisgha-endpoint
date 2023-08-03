@@ -1,10 +1,10 @@
+import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import compression from 'compression';
-import 'reflect-metadata';
-import { AppModule } from './app/app.module';
-import { IS_PRODUCTION_MODE } from './common/constants/IS_PRODUCTION_MODE.const';
-import { getHelmet } from './common/fixtures';
+import { AppModule } from './infrastructure/application/app.module';
+import { IS_PRODUCTION_MODE_TOKEN } from './infrastructure/config/IS_PRODUCTION_MODE_TOKEN';
+import { getHelmet } from './infrastructure/helpers/modules-fixtures';
 
 async function bootstrap() {
   const PORT = process.env.PORT ?? 3001;
@@ -17,7 +17,7 @@ async function bootstrap() {
 
   app.use(
     helmet({
-      contentSecurityPolicy: IS_PRODUCTION_MODE ? undefined : false,
+      contentSecurityPolicy: IS_PRODUCTION_MODE_TOKEN ? undefined : false,
       crossOriginEmbedderPolicy: false,
     }),
   );
