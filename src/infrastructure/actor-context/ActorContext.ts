@@ -1,24 +1,38 @@
-import { AbilityBuilder, subject as castSubject, createMongoAbility } from '@casl/ability';
-import { ForbiddenException } from '@nestjs/common';
-import { get, has, intersection } from 'lodash';
-import { DataSource, ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
+import { AbilityBuilder, AnyAbility, subject as castSubject, createMongoAbility } from '@casl/ability';
+import { ForbiddenException, InternalServerErrorException } from '@nestjs/common';
+import { get, has, intersection, union, without } from 'lodash';
+import { DataSource } from 'typeorm';
+import { CASL_RECURSO_WILDCARD } from '../../domain/CASL_RECURSO_WILDCARD';
+import { CASL_VERBO_WILDCARD } from '../../domain/CASL_VERBO_WILDCARD';
+import { IAppResource } from '../../domain/application-resources';
 import { AuthenticatedEntityType } from '../../domain/authentication';
-import { ContextAction, IAuthorizationConstraintRecipe } from '../../domain/authorization-constraints';
-import { IAllowedResources } from '../../domain/authorization/IAllowedResources';
+import {
+  ContextAction,
+  IAuthorizationConstraintRecipe,
+  IAuthorizationConstraintRecipeResolutionMode,
+  IAuthorizationConstraintRecipeType,
+} from '../../domain/authorization-constraints';
+import { PermissaoModel } from '../../domain/models';
 import { getAppResource } from '../application/helpers';
+import { AuthorizationConstraintRecipeZod } from '../authorization/zod';
 import { PermissaoDbEntity } from '../database/entities/permissao.db.entity';
 import { getPermissaoRepository } from '../database/repositories/permissao.repository';
 import { extractIds } from '../helpers/extract-ids';
 import { Actor } from './Actor';
+import { ActorContextRepository } from './ActorContextRepository';
 import { ActorUser } from './ActorUser';
 import { IActorContextDatabaseRunCallback } from './interfaces';
 
 export class ActorContext {
+  public actorContextRepository: ActorContextRepository;
+
   constructor(
     // ...
     public readonly dataSource: DataSource,
     public readonly actor: Actor,
-  ) {}
+  ) {
+    this.actorContextRepository = new ActorContextRepository(dataSource, actor);
+  }
 
   // ...
 
@@ -39,11 +53,8 @@ export class ActorContext {
           throw new Error('Query runner not found.');
         }
 
-        let anonymous = true;
-
         switch (actor.type) {
           case AuthenticatedEntityType.SYSTEM: {
-            anonymous = false;
             break;
           }
 
@@ -53,7 +64,6 @@ export class ActorContext {
             if (user) {
               // await queryRunner.query('set local "request.auth.role" to \'authenticated\';');
               await queryRunner.query(`set local "request.auth.user.id" to ${user.id};`);
-              anonymous = false;
             }
 
             break;
@@ -61,8 +71,6 @@ export class ActorContext {
 
           case AuthenticatedEntityType.ANON:
           default: {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            anonymous = true;
             break;
           }
         }
@@ -80,195 +88,227 @@ export class ActorContext {
     }
   }
 
-  async getPermissions(): Promise<PermissaoDbEntity[]> {
-    const qb = await this.getQueryPermissions();
-    return qb.getMany();
-  }
-
-  async getPermissionsByResource(resource: string) {
-    const qb = await this.getQueryPermissionsForResource(resource);
-    return qb.getMany();
-  }
-
-  async getPermissionsByResourceAction(resource: string, action: string): Promise<PermissaoDbEntity[]> {
-    const qb = await this.getQueryPermissionsForResourceAction(resource, action);
-    return qb.getMany();
-  }
-
   //
 
-  async getAllowedResourcesByConstraint<Id = unknown>(
-    resource: string,
-    constraint: IAuthorizationConstraintRecipe,
+  async getAllowedIdsByAppResourceAuthorizationConstraintRecipe<Id = unknown>(
+    appResource: IAppResource,
+    authorizationConstraintRecipe: IAuthorizationConstraintRecipe,
     targetEntityId: unknown | null = null,
-  ): Promise<IAllowedResources<Id>> {
-    const qbAllowedForConstraint = await this.getQueryAllowedResourcesForConstraint(resource, constraint, targetEntityId);
+  ): Promise<Id[]> {
+    const isValid = AuthorizationConstraintRecipeZod.safeParse(authorizationConstraintRecipe);
 
-    if (typeof qbAllowedForConstraint === 'boolean') {
-      return {
-        type: 'boolean',
-        value: qbAllowedForConstraint,
-      };
+    if (!isValid.success) {
+      throw new InternalServerErrorException(isValid.error);
     }
 
-    const qbResults = await qbAllowedForConstraint.getMany();
+    return this.databaseRun(async ({ entityManager }) => {
+      const permissaoRepository = getPermissaoRepository(entityManager);
 
-    const ids = extractIds(qbResults as any[]) as Id[];
+      const qb = await permissaoRepository.createActorQueryBuilderByConstraintRecipe<{ id: Id }>(
+        appResource,
+        authorizationConstraintRecipe,
+        targetEntityId,
+      );
 
-    return {
-      type: 'id_array',
-      ids,
-    };
+      const results = await qb.getMany();
+
+      const ids = extractIds(results);
+
+      return ids;
+    });
   }
 
-  async getAllowedResourcesForPermissions<Id = unknown>(
-    resource: string,
-    permissions: PermissaoDbEntity[],
+  async getAllowedIdsByAppResourcePermissoes<Id = unknown>(
+    appResource: IAppResource,
+    permissoes: PermissaoDbEntity[],
     targetEntityId: unknown | null = null,
-  ): Promise<IAllowedResources<Id>> {
-    let allowedResources: IAllowedResources<Id> = { type: 'null', value: null };
+  ): Promise<Id[]> {
+    let allowedResources: Id[] | null = null;
 
-    for (const permission of permissions) {
-      const appResource = getAppResource(resource);
+    for (const permissao of permissoes) {
+      const { authorizationConstraintRecipe } = permissao;
 
-      if (!appResource) {
-        continue;
+      const isValid = AuthorizationConstraintRecipeZod.safeParse(authorizationConstraintRecipe);
+
+      if (!isValid.success) {
+        throw new InternalServerErrorException(isValid.error);
       }
 
-      const { constraint } = permission;
+      const constraintAllowedResources = await this.getAllowedIdsByAppResourceAuthorizationConstraintRecipe<Id>(
+        appResource,
+        authorizationConstraintRecipe,
+        targetEntityId,
+      );
 
-      const allowedForConstraint = await this.getAllowedResourcesByConstraint<Id>(resource, constraint, targetEntityId);
+      switch (authorizationConstraintRecipe.resolutionMode) {
+        case IAuthorizationConstraintRecipeResolutionMode.INTERSECTION: {
+          if (allowedResources === null) {
+            allowedResources = constraintAllowedResources;
+          } else {
+            allowedResources = intersection(allowedResources, constraintAllowedResources);
+          }
 
-      if (allowedForConstraint.type === 'boolean') {
-        if (allowedForConstraint.value === false) {
-          allowedResources = { type: 'boolean', value: false };
           break;
         }
 
-        if (allowedForConstraint.value === true) {
-          if (allowedResources.type !== 'id_array') {
-            allowedResources = { type: 'boolean', value: true };
+        case IAuthorizationConstraintRecipeResolutionMode.MERGE: {
+          if (allowedResources === null) {
+            allowedResources = constraintAllowedResources;
+          } else {
+            allowedResources = union(allowedResources, constraintAllowedResources);
           }
+
+          break;
+        }
+
+        case IAuthorizationConstraintRecipeResolutionMode.EXCLUDE: {
+          if (allowedResources !== null) {
+            allowedResources = without(allowedResources, ...constraintAllowedResources);
+          }
+
+          break;
         }
       }
-
-      if (allowedForConstraint.type === 'id_array') {
-        const ids: Id[] =
-          allowedResources.type === 'id_array' ? intersection(allowedResources.ids, allowedForConstraint.ids) : allowedForConstraint.ids;
-
-        allowedResources = {
-          type: 'id_array',
-          ids: ids,
-        };
-      }
     }
 
-    if (allowedResources.type === 'null') {
-      allowedResources = {
-        type: 'boolean',
-        value: false,
-      };
-    }
-
-    return allowedResources;
+    return allowedResources ?? [];
   }
 
-  async getAllowedResourcesForResourceAction(resource: string, action: string, targetEntityId: unknown | null = null) {
-    const permissions = await this.getPermissionsByResourceAction(resource, action);
-    return this.getAllowedResourcesForPermissions(resource, permissions, targetEntityId);
-  }
+  async getAllowedIdsByRecursoPermissoes<Id = unknown>(
+    recurso: string,
+    permissoes: PermissaoDbEntity[],
+    targetEntityId: unknown | null = null,
+  ): Promise<Id[]> {
+    const appResource = getAppResource(recurso);
 
-  async getAllowedIdsForResourceAction(resource: string, action: string, targetEntityId: unknown | null = null) {
-    const appResource = getAppResource(resource);
-
-    if (!appResource) {
-      return [];
-    }
-
-    const allowedResources = await this.getAllowedResourcesForResourceAction(resource, action, targetEntityId);
-
-    switch (allowedResources.type) {
-      case 'id_array': {
-        return allowedResources.ids;
-      }
-
-      case 'boolean': {
-        if (allowedResources.value === true) {
-          const getResourceRepository = appResource.database.getTypeormRepositoryFactory();
-          const resourceRepository = getResourceRepository(this.dataSource) as Repository<ObjectLiteral>;
-
-          const qb = resourceRepository.createQueryBuilder('resource').select(['resource.id']);
-          const results = await qb.getMany();
-
-          const ids = extractIds(results as any[]);
-          return ids;
-        }
-      }
+    if (appResource) {
+      const allowedIds = await this.getAllowedIdsByAppResourcePermissoes<Id>(appResource, permissoes, targetEntityId);
+      return allowedIds;
     }
 
     return [];
   }
 
+  async getAllowedIdsByRecursoVerbo<Id = unknown>(recurso: string, verbo: string, targetEntityId: unknown | null = null): Promise<Id[]> {
+    const permissoes = await this.actorContextRepository.getPermissoesByRecursoVerbo(recurso, verbo);
+
+    return this.getAllowedIdsByRecursoPermissoes<Id>(recurso, permissoes, targetEntityId);
+  }
+
   // ...
 
-  async getAbilityForPermissions(resource: string, permissions: PermissaoDbEntity[], targetEntityId: unknown | null = null) {
-    const { can: allow, cannot: forbid, build } = new AbilityBuilder(createMongoAbility as any);
+  private async attachRecursoVerboPermissaoToCaslAbilityBuilder(
+    abilityBuilder: AbilityBuilder<AnyAbility>,
+    verbo: string,
+    recurso: string,
+    permissao: PermissaoModel,
+    targetEntityId: unknown | null = null,
+  ) {
+    const { authorizationConstraintRecipe } = permissao;
 
-    for (const permission of permissions) {
-      const { acao } = permission;
+    const { can: allow, cannot: forbid } = abilityBuilder;
 
-      const allowedResources = await this.getAllowedResourcesForResourceAction(resource, acao, targetEntityId);
-
-      switch (allowedResources.type) {
-        case 'id_array': {
-          allow(acao, resource, {
-            id: {
-              $in: [...allowedResources.ids],
-            },
-          });
-
-          break;
-        }
-
-        case 'boolean': {
-          if (allowedResources.value) {
-            allow(acao, resource);
-          } else {
-            forbid(acao, resource);
-          }
-        }
-      }
+    if (
+      // ...
+      verbo === CASL_VERBO_WILDCARD ||
+      recurso === CASL_RECURSO_WILDCARD
+    ) {
+      return;
     }
 
-    const ability = build({});
+    switch (authorizationConstraintRecipe.resolutionMode) {
+      case IAuthorizationConstraintRecipeResolutionMode.INTERSECTION:
+      case IAuthorizationConstraintRecipeResolutionMode.MERGE:
+      case IAuthorizationConstraintRecipeResolutionMode.EXCLUDE: {
+        const appResource = getAppResource(recurso);
+
+        if (appResource) {
+          const allowedIds = await this.getAllowedIdsByAppResourceAuthorizationConstraintRecipe(
+            appResource,
+            authorizationConstraintRecipe,
+            targetEntityId,
+          );
+
+          allow(verbo, recurso, { id: { $in: [...allowedIds] } });
+        }
+      }
+
+      case IAuthorizationConstraintRecipeResolutionMode.CASL_ONLY: {
+        const forbidMode = authorizationConstraintRecipe.caslInverted;
+
+        const caslAction = verbo;
+        const caslSubject = recurso;
+
+        switch (authorizationConstraintRecipe.type) {
+          case IAuthorizationConstraintRecipeType.FILTER: {
+            if (forbidMode) {
+              forbid(caslAction, caslSubject, authorizationConstraintRecipe.condition);
+            } else {
+              allow(caslAction, caslSubject, authorizationConstraintRecipe.condition);
+            }
+
+            break;
+          }
+
+          case IAuthorizationConstraintRecipeType.BOOLEAN: {
+            if (forbidMode) {
+              if (authorizationConstraintRecipe.value) {
+                forbid(caslAction, caslSubject);
+              } /* else {
+                allow(caslAction, caslSubject);
+              } */
+            } else {
+              if (authorizationConstraintRecipe.value) {
+                allow(caslAction, caslSubject);
+              } /* else {
+                forbid(caslAction, caslSubject);
+              } */
+            }
+
+            break;
+          }
+        }
+
+        break;
+      }
+    }
+  }
+
+  async getAbilityByRecursoVerbo(recurso: string, verbo: string, targetEntityId: unknown | null = null) {
+    const abilityBuilder = new AbilityBuilder(createMongoAbility as any);
+
+    const permissoes = await this.actorContextRepository.getPermissoesByRecursoVerbo(recurso, verbo);
+
+    for (const permissao of permissoes) {
+      await this.attachRecursoVerboPermissaoToCaslAbilityBuilder(abilityBuilder, verbo, recurso, permissao, targetEntityId);
+    }
+
+    const ability = abilityBuilder.build({});
 
     return ability;
   }
 
-  async getAbilityForResourceAction(resource: string, action: string, targetEntityId: unknown | null = null) {
-    const permissions = await this.getPermissionsByResourceAction(resource, action);
-    return this.getAbilityForPermissions(resource, permissions, targetEntityId);
-  }
-
-  async can<Entity extends object>(resource: string, action: string, entity?: Entity): Promise<boolean> {
+  async can<Entity extends object>(recurso: string, verbo: string, entity?: Entity): Promise<boolean> {
     const targetEntityId = entity && has(entity, 'id') ? get(entity, 'id') : null;
 
-    const ability = await this.getAbilityForResourceAction(resource, action, targetEntityId);
+    const ability = await this.getAbilityByRecursoVerbo(recurso, verbo, targetEntityId);
 
-    const targetSubject = entity ? castSubject(resource, entity) : resource;
+    const targetSubject = entity ? castSubject(recurso, entity) : recurso;
 
-    return ability.can(action, targetSubject);
+    const isAllowed = ability.can(verbo, targetSubject);
+
+    return isAllowed;
   }
 
   //
 
-  async readResource<Entity extends object>(resource: string, entity: Entity) {
-    await this.ensurePermission(resource, ContextAction.READ, entity);
-    return entity;
+  async readResource<Entity extends object>(recurso: string, entidade: Entity) {
+    await this.ensurePermission(recurso, ContextAction.READ, entidade);
+    return entidade;
   }
 
-  async ensurePermission<Entity extends object>(resource: string, action: string, entity?: Entity) {
-    const isAllowed = await this.can(resource, action, entity);
+  async ensurePermission<Entity extends object>(recurso: string, verbo: string, entidade?: Entity) {
+    const isAllowed = await this.can(recurso, verbo, entidade);
 
     if (!isAllowed) {
       throw new ForbiddenException();
@@ -276,36 +316,4 @@ export class ActorContext {
   }
 
   // ...
-
-  private async getQueryAllowedResourcesForConstraint(
-    resource: string,
-    constraint: IAuthorizationConstraintRecipe,
-    targetEntityId: unknown | null = null,
-  ) {
-    // Nota para os desenvolvedores:
-    // A interpretação da condição SQL depende do usuário autenticado.
-    // Por isso, é necessário em algum momento chamar o databaseRun.
-
-    return this.databaseRun(async ({ entityManager }) => {
-      const permissaoRepository = getPermissaoRepository(entityManager);
-      return permissaoRepository.createActorQueryBuilderForConstraint(resource, constraint, targetEntityId);
-    });
-  }
-
-  private async getQueryPermissions(): Promise<SelectQueryBuilder<PermissaoDbEntity>> {
-    const permissaoRepository = getPermissaoRepository(this.dataSource);
-    return permissaoRepository.createQueryBuilderForActor(this.actor);
-  }
-
-  private async getQueryPermissionsForResource(resource: string) {
-    const permissaoRepository = getPermissaoRepository(this.dataSource);
-    return permissaoRepository.createActorQueryBuilderForResource(this.actor, resource);
-  }
-
-  // ...
-
-  private async getQueryPermissionsForResourceAction(resource: string, action: string) {
-    const permissaoRepository = getPermissaoRepository(this.dataSource);
-    return permissaoRepository.createActorQueryBuilderForResourceAction(this.actor, resource, action);
-  }
 }

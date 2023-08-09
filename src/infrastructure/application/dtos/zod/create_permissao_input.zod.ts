@@ -1,9 +1,20 @@
 import { z } from 'zod';
-import { PermissaoConstraintZod } from './literals/permissao_constraint.zod';
+import { CASL_RECURSO_WILDCARD } from '../../../../domain/CASL_RECURSO_WILDCARD';
+import { CASL_VERBO_WILDCARD } from '../../../../domain/CASL_VERBO_WILDCARD';
+import { AuthorizationConstraintRecipeZod } from '../../../authorization/zod';
 
 export const CreatePermissaoInputZod = z.object({
   descricao: z.string(),
-  acao: z.string(),
-  recurso: z.string(),
-  constraint: PermissaoConstraintZod,
+
+  verboGlobal: z.boolean().default(false),
+
+  verbos: z.array(z.string().refine((v) => v !== CASL_VERBO_WILDCARD, { message: 'verbos não pode conter o valor CASL_VERBO_WILDCARD' })),
+
+  recursoGlobal: z.boolean().default(false),
+
+  recursos: z.array(
+    z.string().refine((v) => v !== CASL_RECURSO_WILDCARD, { message: 'recursos não pode conter o valor CASL_RECURSO_WILDCARD' }),
+  ),
+
+  authorizationConstraintRecipe: AuthorizationConstraintRecipeZod,
 });

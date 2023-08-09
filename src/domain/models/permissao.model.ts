@@ -7,7 +7,9 @@ export interface PermissaoModel extends ISearchableEntity {
   // ...
 
   descricao: string;
-  acao: string;
-  recurso: string;
-  constraint: IAuthorizationConstraintRecipe;
+
+  verboGlobal: boolean;
+  recursoGlobal: boolean;
+
+  authorizationConstraintRecipe: IAuthorizationConstraintRecipe;
 }

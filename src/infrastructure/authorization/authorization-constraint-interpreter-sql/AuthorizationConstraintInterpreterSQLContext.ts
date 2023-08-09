@@ -13,7 +13,7 @@ export class AuthorizationConstraintInterpreterSQLContext {
   #paramsCount = 0;
 
   constructor(
-    readonly constraint: IAuthorizationConstraintRecipe,
+    readonly authorizationConstraintRecipe: IAuthorizationConstraintRecipe,
     readonly options: IAuthorizationConstraintInterpreterSQLContextOptions = {},
   ) {
     const { dbDialect = pg } = options;
@@ -60,18 +60,18 @@ export class AuthorizationConstraintInterpreterSQLContext {
   };
 
   joinRelation = (entity: string) => {
-    const constraint = this.constraint;
+    const { authorizationConstraintRecipe } = this;
 
     const baseEntities = this.baseEntities;
 
-    switch (constraint.type) {
+    switch (authorizationConstraintRecipe.type) {
       case IAuthorizationConstraintRecipeType.BOOLEAN: {
         return false;
       }
 
       case IAuthorizationConstraintRecipeType.FILTER: {
-        const rootAlias = constraint.alias;
-        const rootJoins = constraint.joins ?? [];
+        const rootAlias = authorizationConstraintRecipe.alias;
+        const rootJoins = authorizationConstraintRecipe.joins ?? [];
 
         const allEntitiesAliases = [
           // ...

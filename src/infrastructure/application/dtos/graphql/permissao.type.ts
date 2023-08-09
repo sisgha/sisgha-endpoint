@@ -1,7 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import GraphQLJSON from 'graphql-type-json';
-import { PermissaoModel } from '../../../../domain/models/permissao.model';
 import { IAuthorizationConstraintRecipe } from '../../../../domain/authorization-constraints';
+import { PermissaoModel } from '../../../../domain/models/permissao.model';
 
 @ObjectType('Permissao')
 export class PermissaoType implements PermissaoModel {
@@ -13,16 +13,22 @@ export class PermissaoType implements PermissaoModel {
   @Field(() => String, { nullable: false })
   descricao!: string;
 
-  @Field(() => String, { nullable: false })
-  acao!: string;
+  @Field(() => Boolean, { nullable: false })
+  verboGlobal!: boolean;
 
-  @Field(() => String, { nullable: false })
-  recurso!: string;
+  @Field(() => [String], { nullable: false })
+  verbos!: string[];
+
+  @Field(() => Boolean, { nullable: false })
+  recursoGlobal!: boolean;
+
+  @Field(() => [String], { nullable: false })
+  recursos!: string[];
 
   // ...
 
   @Field(() => GraphQLJSON, { nullable: false })
-  constraint!: IAuthorizationConstraintRecipe;
+  authorizationConstraintRecipe!: IAuthorizationConstraintRecipe;
 
   // ...
 

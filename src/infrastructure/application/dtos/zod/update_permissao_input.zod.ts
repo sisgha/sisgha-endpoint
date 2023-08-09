@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { FindPermissaoByIdInputZod } from './find_permissao_by_id_input.zod';
 import { CreatePermissaoInputZod } from './create_permissao_input.zod';
+import { FindPermissaoByIdInputZod } from './find_permissao_by_id_input.zod';
 
 export const UpdatePermissaoInputZod = z
   .object({})
@@ -8,8 +8,13 @@ export const UpdatePermissaoInputZod = z
   .merge(
     CreatePermissaoInputZod.pick({
       descricao: true,
-      acao: true,
-      recurso: true,
-      constraint: true,
+
+      verboGlobal: true,
+      verbos: true,
+
+      recursoGlobal: true,
+      recursos: true,
+
+      authorizationConstraintRecipe: true,
     }).partial(),
   );

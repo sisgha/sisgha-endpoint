@@ -15,10 +15,10 @@ import { getUsuarioInternoCargoRepository } from '../../../database/repositories
 import { extractIds } from '../../../helpers/extract-ids';
 import { MeiliSearchService } from '../../../meilisearch/meilisearch.service';
 import { CargoType, ListCargoResultType } from '../../dtos/graphql';
+import { APP_RESOURCE_CARGO } from '../cargo/cargo.resource';
 import { CargoService } from '../cargo/cargo.service';
 import { UsuarioInternoService } from '../usuario_interno/usuario_interno.service';
 import { APP_RESOURCE_USUARIO_INTERNO_CARGO } from './usuario_interno_cargo.resource';
-import { APP_RESOURCE_CARGO } from '../cargo/cargo.resource';
 
 @Injectable()
 export class UsuarioInternoCargoService {
@@ -133,7 +133,7 @@ export class UsuarioInternoCargoService {
   async listCargoFromUsuarioInterno(actorContext: ActorContext, dto: IListCargoFromUsuarioInternoInput): Promise<ListCargoResultType> {
     const usuarioInterno = await this.usuarioInternoService.findUsuarioInternoByIdStrictSimple(actorContext, dto.usuarioInternoId);
 
-    const allowedCargoIds = await actorContext.getAllowedIdsForResourceAction(APP_RESOURCE_CARGO, ContextAction.READ);
+    const allowedCargoIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_CARGO, ContextAction.READ);
 
     const allCargoIdsForUsuarioInterno = await actorContext.databaseRun(async ({ entityManager }) => {
       const cargoRepository = getCargoRepository(entityManager);

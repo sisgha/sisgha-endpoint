@@ -66,7 +66,7 @@ export class CargoService {
   //
 
   async listCargo(actorContext: ActorContext, dto: IGenericListInput): Promise<ListCargoResultType> {
-    const allowedIds = await actorContext.getAllowedIdsForResourceAction(APP_RESOURCE_CARGO, ContextAction.READ);
+    const allowedIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_CARGO, ContextAction.READ);
 
     const result = await this.meiliSearchService.listResource<CargoType>(APP_RESOURCE_CARGO, dto, allowedIds);
 

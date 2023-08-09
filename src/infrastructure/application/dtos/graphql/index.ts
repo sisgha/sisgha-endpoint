@@ -31,6 +31,8 @@ export * from './list_permissao_result.type';
 export * from './list_usuario_interno_result.type';
 export * from './list_usuario_result.type';
 export * from './permissao.type';
+export * from './permissao_recurso.type';
+export * from './permissao_verbo.type';
 export * from './remove_cargo_from_usuario_input.type';
 export * from './remove_cargo_from_usuario_interno_input.type';
 export * from './remove_permissao_from_cargo.input';

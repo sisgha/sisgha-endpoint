@@ -12,12 +12,18 @@ export class UpdatePermissaoInputType implements IUpdatePermissaoInput {
   @Field(() => String, { nullable: true })
   descricao?: string;
 
-  @Field(() => String, { nullable: true })
-  acao?: string;
-
-  @Field(() => String, { nullable: true })
-  recurso?: string;
-
   @Field(() => GraphQLJSON, { nullable: true })
-  constraint?: never;
+  authorizationConstraintRecipe?: never;
+
+  @Field(() => Boolean, { nullable: true })
+  verboGlobal?: boolean;
+
+  @Field(() => [String], { nullable: true })
+  verbos?: string[];
+
+  @Field(() => Boolean, { nullable: true })
+  recursoGlobal?: boolean;
+
+  @Field(() => [String], { nullable: true })
+  recursos?: string[];
 }

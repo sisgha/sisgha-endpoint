@@ -8,12 +8,6 @@ export interface IAuthorizationConstraintRecipeFilter
   type: IAuthorizationConstraintRecipeType.FILTER;
 
   /**
-   * @description Mode of the filter. The default is 'include'. The 'include' mode means that the filter will include the results that match the filter. The 'exclude' mode means that the filter will exclude the results that match the filter.
-   * @default 'include'
-   */
-  mode?: 'include'; // exclude not implemented
-
-  /**
    * @description Alias of the resource
    */
   alias: string;

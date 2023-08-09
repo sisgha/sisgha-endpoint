@@ -135,12 +135,14 @@ export class CargoPermissaoService {
   async listPermissoesFromCargo(actorContext: ActorContext, dto: IListPermissaoFromCargoInput): Promise<ListPermissaoResultType> {
     const cargo = await this.cargoService.findCargoByIdStrictSimple(actorContext, dto.cargoId);
 
-    const allowedPermissaoIds = await actorContext.getAllowedIdsForResourceAction(APP_RESOURCE_PERMISSAO, ContextAction.READ);
+    const allowedPermissaoIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_PERMISSAO, ContextAction.READ);
 
     const allPermissoesIdsForCargo = await actorContext.databaseRun(async ({ entityManager }) => {
       const permissaoRepository = getPermissaoRepository(entityManager);
 
-      const qb = await permissaoRepository.createQueryBuilderForCargoId(cargo.id);
+      const qb = await permissaoRepository.initQueryBuilder();
+
+      await permissaoRepository.filterQueryByCargoId(qb, cargo.id);
 
       qb.select(['permissao.id']);
 

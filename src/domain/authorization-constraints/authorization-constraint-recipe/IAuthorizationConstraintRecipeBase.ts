@@ -1,3 +1,4 @@
+import { IAuthorizationConstraintRecipeResolutionMode } from './IAuthorizationConstraintRecipeResolutionMode';
 import { IAuthorizationConstraintRecipeType } from './IAuthorizationConstraintRecipeType';
 
 export interface IAuthorizationConstraintRecipeBase<T extends IAuthorizationConstraintRecipeType> {
@@ -5,4 +6,8 @@ export interface IAuthorizationConstraintRecipeBase<T extends IAuthorizationCons
    * @description Type of the recipe
    */
   type: T;
+
+  resolutionMode: IAuthorizationConstraintRecipeResolutionMode;
+
+  caslInverted?: boolean;
 }

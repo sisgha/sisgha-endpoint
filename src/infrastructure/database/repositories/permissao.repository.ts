@@ -1,8 +1,8 @@
 import { pg } from '@ucast/sql';
 import { Brackets, DataSource, EntityManager, ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 import { IActor } from '../../../domain/actor';
+import { IAppResource } from '../../../domain/application-resources';
 import { AuthenticatedEntityType } from '../../../domain/authentication';
-import { RECURSO_CORINGA_TOKEN } from '../../../domain/authorization';
 import {
   AuthorizationConstraintJoinMode,
   IAuthorizationConstraintRecipe,
@@ -14,200 +14,229 @@ import { AuthorizationConstraintInterpreterSQL } from '../../authorization/autho
 import { CargoDbEntity } from '../entities/cargo.db.entity';
 import { PermissaoDbEntity } from '../entities/permissao.db.entity';
 
-export type IPermissaoRepository = Repository<PermissaoDbEntity> & {
-  createQueryBuilderForUsuarioId(usuarioId: number): Promise<SelectQueryBuilder<PermissaoDbEntity>>;
-  createQueryBuilderForUsuarioInternoId(usuarioInternoId: number): Promise<SelectQueryBuilder<PermissaoDbEntity>>;
-  createQueryBuilderForActorSimples(actorType: AuthenticatedEntityType): Promise<SelectQueryBuilder<PermissaoDbEntity>>;
-  createQueryBuilderForCargoId(cargoId: CargoDbEntity['id']): Promise<SelectQueryBuilder<PermissaoDbEntity>>;
-  createQueryBuilderForActor(actor: IActor): Promise<SelectQueryBuilder<PermissaoDbEntity>>;
-  createActorQueryBuilderForResource(actor: IActor, resource: string): Promise<SelectQueryBuilder<PermissaoDbEntity>>;
-  createActorQueryBuilderForResourceAction(actor: IActor, resource: string, action: string): Promise<SelectQueryBuilder<PermissaoDbEntity>>;
-};
+export type IPermissaoRepository = ReturnType<typeof getPermissaoRepository>;
 
 export const getPermissaoRepository = (dataSource: DataSource | EntityManager) =>
   dataSource.getRepository(PermissaoDbEntity).extend({
-    async createQueryBuilderForUsuarioId(this: IPermissaoRepository, usuarioId: number) {
-      const qb = this.createQueryBuilder('permissao')
-        .select(['permissao'])
-        .innerJoin('permissao.cargoPermissao', 'cargo_permissao')
+    async initQueryBuilder() {
+      const qb = this.createQueryBuilder('permissao').select(['permissao']);
+      return qb;
+    },
+
+    async filterQueryByUsuarioId(qb: SelectQueryBuilder<PermissaoDbEntity>, usuarioId: number) {
+      qb.innerJoin('permissao.cargoPermissao', 'cargo_permissao')
         .innerJoin('cargo_permissao.cargo', 'cargo')
         .innerJoin('cargo.usuarioCargo', 'usuario_cargo')
         .innerJoin('usuario_cargo.usuario', 'usuario');
 
-      qb.where('usuario.id = :usuarioId', { usuarioId: usuarioId });
+      qb.andWhere('usuario.id = :usuarioId', { usuarioId: usuarioId });
 
       qb.andWhere('usuario.dateDeleted IS NULL');
       qb.andWhere('permissao.dateDeleted IS NULL');
       qb.andWhere('cargo.dateDeleted IS NULL');
 
-      qb.cache(1000);
-
       return qb;
     },
 
-    async createQueryBuilderForUsuarioInternoId(this: IPermissaoRepository, usuarioInternoId: number) {
-      const qb = this.createQueryBuilder('permissao')
-        .select(['permissao'])
-        .innerJoin('permissao.cargoPermissao', 'cargo_permissao')
-        .innerJoin('cargo_permissao.cargo', 'cargo')
-        .innerJoin('cargo.usuarioInternoCargo', 'usuario_iterno_cargo')
-        .innerJoin('usuario_iterno_cargo.usuarioInterno', 'usuario_interno');
-
-      qb.where('usuario_interno.id = :usuarioInternoId', { usuarioInternoId: usuarioInternoId });
-
-      qb.andWhere('usuario_interno.dateDeleted IS NULL');
-      qb.andWhere('permissao.dateDeleted IS NULL');
-      qb.andWhere('cargo.dateDeleted IS NULL');
-
-      qb.cache(1000);
-
+    async createQueryBuilderByUsuarioId(usuarioId: number) {
+      const qb = await this.initQueryBuilder();
+      await this.filterQueryByUsuarioId(qb, usuarioId);
       return qb;
     },
 
-    async createQueryBuilderForActorSimples(this: IPermissaoRepository, actorType: AuthenticatedEntityType) {
-      const qb = this.createQueryBuilder('permissao')
-        .select(['permissao'])
-        .innerJoin('permissao.cargoPermissao', 'cargo_permissao')
+    async filterQueryByUsuarioInternoId(qb: SelectQueryBuilder<PermissaoDbEntity>, usuarioInternoId: number) {
+      qb.innerJoin('permissao.cargoPermissao', 'cargo_permissao')
         .innerJoin('cargo_permissao.cargo', 'cargo')
         .innerJoin('cargo.usuarioInternoCargo', 'usuario_interno_cargo')
         .innerJoin('usuario_interno_cargo.usuarioInterno', 'usuario_interno');
 
-      qb.where('usuario_interno.tipoEntidade = :tipoEntidade', { tipoEntidade: actorType });
+      qb.andWhere('usuario_interno.id = :usuarioInternoId', { usuarioInternoId: usuarioInternoId });
 
       qb.andWhere('usuario_interno.dateDeleted IS NULL');
       qb.andWhere('permissao.dateDeleted IS NULL');
       qb.andWhere('cargo.dateDeleted IS NULL');
 
-      qb.cache(1000);
+      return qb;
+    },
+
+    async createQueryBuilderByUsuarioInternoId(usuarioInternoId: number) {
+      const qb = await this.initQueryBuilder();
+      await this.filterQueryByUsuarioInternoId(qb, usuarioInternoId);
+      return qb;
+    },
+
+    async filterQueryByCargoId(qb: SelectQueryBuilder<PermissaoDbEntity>, cargoId: CargoDbEntity['id']) {
+      qb.innerJoin('permissao.cargoPermissao', 'cargo_permissao').innerJoin('cargo_permissao.cargo', 'cargo');
+      qb.andWhere('cargo.id = :cargoId', { cargoId: cargoId });
+      return qb;
+    },
+
+    async createQueryBuilderByCargoId(cargoId: CargoDbEntity['id']) {
+      const qb = await this.initQueryBuilder();
+      await this.filterQueryByCargoId(qb, cargoId);
+      return qb;
+    },
+
+    async filterQueryByTipoEntidade(qb: SelectQueryBuilder<PermissaoDbEntity>, tipoEntidade: AuthenticatedEntityType) {
+      qb.innerJoin('permissao.cargoPermissao', 'cargo_permissao')
+        .innerJoin('cargo_permissao.cargo', 'cargo')
+        .innerJoin('cargo.usuarioInternoCargo', 'usuario_interno_cargo')
+        .innerJoin('usuario_interno_cargo.usuarioInterno', 'usuario_interno');
+
+      qb.andWhere('usuario_interno.tipoEntidade = :tipoEntidade', { tipoEntidade: tipoEntidade });
+
+      qb.andWhere('usuario_interno.dateDeleted IS NULL');
+      qb.andWhere('permissao.dateDeleted IS NULL');
+      qb.andWhere('cargo.dateDeleted IS NULL');
 
       return qb;
     },
 
-    async createQueryBuilderForCargoId(this: IPermissaoRepository, cargoId: CargoDbEntity['id']) {
-      const qb = this.createQueryBuilder('permissao')
-        .select(['permissao'])
-        .innerJoin('permissao.cargoPermissao', 'cargo_permissao')
-        .innerJoin('cargo_permissao.cargo', 'cargo');
-
-      qb.where('cargo.id = :cargoId', { cargoId: cargoId });
-
-      qb.cache(1000);
-
+    async createQueryBuilderByTipoEntidade(tipoEntidade: AuthenticatedEntityType) {
+      const qb = await this.initQueryBuilder();
+      await this.filterQueryByTipoEntidade(qb, tipoEntidade);
       return qb;
     },
 
-    async createQueryBuilderForActor(this: IPermissaoRepository, actor: IActor) {
+    async filterQueryByActor(qb: SelectQueryBuilder<PermissaoDbEntity>, actor: IActor) {
       switch (actor.type) {
         case AuthenticatedEntityType.USER: {
           const actorAsActorUser = <ActorUser>actor;
-
-          const userRef = actorAsActorUser.userRef;
-
-          const qb = await this.createQueryBuilderForUsuarioId(userRef.id);
+          const usuarioId = actorAsActorUser.userRef.id;
+          await this.filterQueryByUsuarioId(qb, usuarioId);
           return qb;
         }
 
         case AuthenticatedEntityType.ANON: {
-          const qb = await this.createQueryBuilderForActorSimples(AuthenticatedEntityType.ANON);
+          await this.filterQueryByTipoEntidade(qb, AuthenticatedEntityType.ANON);
           return qb;
         }
 
         case AuthenticatedEntityType.SYSTEM: {
-          const qb = await this.createQueryBuilderForActorSimples(AuthenticatedEntityType.SYSTEM);
+          await this.filterQueryByTipoEntidade(qb, AuthenticatedEntityType.SYSTEM);
           return qb;
         }
       }
     },
 
-    // ...
+    async createQueryBuilderByActor(actor: IActor) {
+      const qb = await this.initQueryBuilder();
 
-    async createActorQueryBuilderForResource(this: IPermissaoRepository, actor: IActor, resource: string) {
-      const qb = await this.createQueryBuilderForActor(actor);
+      await this.filterQueryByActor(qb, actor);
+
+      return qb;
+    },
+
+    async filterQueryByRecurso(qb: SelectQueryBuilder<PermissaoDbEntity>, recurso: string) {
+      qb.leftJoin('permissao.recursos', 'permissao_recurso');
 
       qb.andWhere(
         new Brackets((qb) => {
-          qb.where('permissao.recurso = :resource', { resource });
-          qb.orWhere('permissao.recurso = :recursoQualquer', { recursoQualquer: RECURSO_CORINGA_TOKEN });
+          qb.where('permissao_recurso.recurso = :recurso', { recurso: recurso });
+          qb.orWhere('permissao.recursoGlobal = :recursoGlobal', { recursoGlobal: true });
         }),
       );
 
       return qb;
     },
 
-    async createActorQueryBuilderForResourceAction(this: IPermissaoRepository, actor: IActor, resource: string, action: string) {
-      const qb = await this.createActorQueryBuilderForResource(actor, resource);
+    async createActorQueryBuilderByRecurso(actor: IActor, resource: string) {
+      const qb = await this.createQueryBuilderByActor(actor);
+      await this.filterQueryByRecurso(qb, resource);
+      return qb;
+    },
+
+    async filterQueryByVerbo(qb: SelectQueryBuilder<PermissaoDbEntity>, verbo: string) {
+      qb.leftJoin('permissao.verbos', 'permissao_verbo');
 
       qb.andWhere(
         new Brackets((qb) => {
-          qb.where('permissao.acao = :acao', { acao: action });
-
-          qb.orWhere('permissao.acao = :acaoQualquer', {
-            acaoQualquer: 'manage',
-          });
+          qb.where('permissao_verbo.verbo = :verbo', { verbo: verbo });
+          qb.orWhere('permissao.verboGlobal = :verboGlobal', { verboGlobal: true });
         }),
       );
 
       return qb;
     },
 
-    async createActorQueryBuilderForConstraint(
-      this: IPermissaoRepository,
-      resource: string,
-      constraint: IAuthorizationConstraintRecipe,
+    async filterQueryByRecursoVerbo(qb: SelectQueryBuilder<PermissaoDbEntity>, recurso: string, verbo: string) {
+      await this.filterQueryByRecurso(qb, recurso);
+      await this.filterQueryByVerbo(qb, verbo);
+
+      return qb;
+    },
+
+    async createActorQueryBuilderByActorRecursoVerbo(actor: IActor, recurso: string, verbo: string) {
+      const qb = await this.createQueryBuilderByActor(actor);
+
+      await this.filterQueryByRecursoVerbo(qb, recurso, verbo);
+
+      return qb;
+    },
+
+    async createActorQueryBuilderByConstraintRecipe<Entity extends ObjectLiteral = ObjectLiteral>(
+      appResource: IAppResource,
+      authorizationConstraintRecipe: IAuthorizationConstraintRecipe,
       targetEntityId: unknown | null = null,
-    ) {
-      switch (constraint.type) {
-        case IAuthorizationConstraintRecipeType.BOOLEAN: {
-          return constraint.value;
-        }
-      }
-
-      const appResource = getAppResource(resource);
-
-      if (!appResource) {
-        return false;
-      }
-
-      const constraintInterpreter = new AuthorizationConstraintInterpreterSQL({
-        dbDialect: {
-          ...pg,
-          paramPlaceholder: (index: number) => `:${index}`,
-        },
-      });
-
-      const interpretedConstraint = constraintInterpreter.interpret(constraint);
-
+    ): Promise<SelectQueryBuilder<Entity>> {
       const getResourceRepository = appResource.database.getTypeormRepositoryFactory();
-      const resourceRepository = getResourceRepository(dataSource) as Repository<ObjectLiteral>;
+      const resourceRepository = getResourceRepository(dataSource) as Repository<Entity>;
 
-      const qb = resourceRepository.createQueryBuilder(interpretedConstraint.alias);
+      switch (authorizationConstraintRecipe.type) {
+        case IAuthorizationConstraintRecipeType.BOOLEAN: {
+          const qb = resourceRepository.createQueryBuilder('resource');
 
-      qb.select([`${interpretedConstraint.alias}.id`]);
+          qb.select(['resource.id']);
 
-      for (const join of interpretedConstraint.joins) {
-        const joinResource = getAppResource(join.resource);
+          qb.where(authorizationConstraintRecipe.value ? 'TRUE' : 'FALSE');
 
-        const joinEntity = joinResource?.database.getTypeormEntity();
-
-        if (!joinEntity) {
-          continue;
-        }
-
-        switch (join.mode) {
-          case AuthorizationConstraintJoinMode.INNER: {
-            qb.innerJoin(joinEntity, join.alias, join.on);
+          if (authorizationConstraintRecipe.value && targetEntityId !== null) {
+            qb.andWhere('resource.id = :id', { id: targetEntityId });
           }
+
+          return qb;
+        }
+
+        case IAuthorizationConstraintRecipeType.FILTER: {
+          const authorizationConstraintInterpreterSQL = new AuthorizationConstraintInterpreterSQL({
+            dbDialect: {
+              ...pg,
+              paramPlaceholder: (index: number) => `:${index}`,
+            },
+          });
+
+          const interpretedConstraint = authorizationConstraintInterpreterSQL.interpret(authorizationConstraintRecipe);
+
+          const qb = resourceRepository.createQueryBuilder(interpretedConstraint.alias);
+
+          qb.select([`${interpretedConstraint.alias}.id`]);
+
+          for (const join of interpretedConstraint.joins) {
+            const joinAppResource = getAppResource(join.resource);
+
+            if (joinAppResource) {
+              const joinEntity = joinAppResource?.database.getTypeormEntity();
+
+              if (joinEntity) {
+                switch (join.mode) {
+                  case AuthorizationConstraintJoinMode.INNER: {
+                    qb.innerJoin(joinEntity, join.alias, join.on);
+                  }
+                }
+              }
+            }
+          }
+
+          qb.where(interpretedConstraint.condition);
+
+          if (targetEntityId !== null) {
+            qb.andWhere('id = :id', { id: targetEntityId });
+          }
+
+          qb.setParameters(interpretedConstraint.params);
+
+          return qb;
         }
       }
-
-      qb.where(interpretedConstraint.condition);
-
-      if (targetEntityId !== null) {
-        qb.andWhere('id = :id', { id: targetEntityId });
-      }
-
-      qb.setParameters(interpretedConstraint.params);
-
-      return qb;
     },
   });

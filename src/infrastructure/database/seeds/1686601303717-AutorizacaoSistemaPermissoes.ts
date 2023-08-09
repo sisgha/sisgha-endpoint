@@ -1,5 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { IAuthorizationConstraintRecipeBoolean } from '../../../domain/authorization-constraints';
+import {
+  IAuthorizationConstraintRecipeBoolean,
+  IAuthorizationConstraintRecipeResolutionMode,
+} from '../../../domain/authorization-constraints';
 import { PermissaoModel } from '../../../domain/models/permissao.model';
 import { getPermissaoRepository } from '../repositories/permissao.repository';
 
@@ -10,10 +13,11 @@ export class AutorizacaoSistemaPermissoes1686601303717 implements MigrationInter
     const permissao: Partial<PermissaoModel> = {
       descricao: 'manage_all',
 
-      acao: 'manage',
-      recurso: 'all',
+      verboGlobal: true,
+      recursoGlobal: true,
 
-      constraint: <IAuthorizationConstraintRecipeBoolean>{
+      authorizationConstraintRecipe: <IAuthorizationConstraintRecipeBoolean>{
+        resolutionMode: IAuthorizationConstraintRecipeResolutionMode.MERGE,
         type: 'boolean',
         value: true,
       },

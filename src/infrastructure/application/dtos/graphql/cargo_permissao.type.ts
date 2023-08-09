@@ -1,7 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { CargoPermissaoModel } from '../../../../domain/models/cargo_permissao.model';
 import { CargoType } from './index';
 import { PermissaoType } from './permissao.type';
-import { CargoPermissaoModel } from '../../../../domain/models/cargo_permissao.model';
 
 @ObjectType('CargoPermissao')
 export class CargoPermissaoType implements CargoPermissaoModel {

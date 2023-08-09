@@ -1,7 +1,9 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { CargoPermissaoDbEntity } from './cargo_permissao.db.entity';
-import { PermissaoModel } from '../../../domain/models/permissao.model';
 import { IAuthorizationConstraintRecipe } from '../../../domain/authorization-constraints';
+import { PermissaoModel } from '../../../domain/models/permissao.model';
+import { CargoPermissaoDbEntity } from './cargo_permissao.db.entity';
+import { PermissaoRecursoDbEntity } from './permissao_recurso.db.entity';
+import { PermissaoVerboDbEntity } from './permissao_verbo.db.entity';
 
 @Entity('permissao')
 export class PermissaoDbEntity implements PermissaoModel {
@@ -13,16 +15,16 @@ export class PermissaoDbEntity implements PermissaoModel {
   @Column({ name: 'descricao', type: 'text', nullable: false, unique: true })
   descricao!: string;
 
-  @Column({ name: 'acao', type: 'text', nullable: false })
-  acao!: string;
+  @Column({ name: 'verbo_global', type: 'boolean', nullable: false })
+  verboGlobal!: boolean;
 
-  @Column({ name: 'recurso', type: 'text', nullable: false })
-  recurso!: string;
+  @Column({ name: 'recurso_global', type: 'boolean', nullable: false })
+  recursoGlobal!: boolean;
 
   //
 
-  @Column({ name: 'constraint', type: 'json', nullable: false })
-  constraint!: IAuthorizationConstraintRecipe;
+  @Column({ name: 'authorization_constraint_recipe', type: 'json', nullable: false })
+  authorizationConstraintRecipe!: IAuthorizationConstraintRecipe;
 
   // ...
 
@@ -47,6 +49,12 @@ export class PermissaoDbEntity implements PermissaoModel {
   dateSearchSync!: Date | null;
 
   // ...
+
+  @OneToMany(() => PermissaoVerboDbEntity, (entity) => entity.permissao)
+  verbos!: PermissaoVerboDbEntity[];
+
+  @OneToMany(() => PermissaoRecursoDbEntity, (entity) => entity.permissao)
+  recursos!: PermissaoRecursoDbEntity[];
 
   @OneToMany(() => CargoPermissaoDbEntity, (entity) => entity.permissao)
   cargoPermissao!: CargoPermissaoDbEntity[];

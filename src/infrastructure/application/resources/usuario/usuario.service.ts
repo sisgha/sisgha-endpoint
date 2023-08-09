@@ -93,7 +93,7 @@ export class UsuarioService {
   }
 
   async listUsuario(actorContext: ActorContext, dto: IGenericListInput): Promise<ListUsuarioResultType> {
-    const allowedUsuarioIds = await actorContext.getAllowedIdsForResourceAction(APP_RESOURCE_USUARIO, ContextAction.READ);
+    const allowedUsuarioIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_USUARIO, ContextAction.READ);
 
     const result = await this.meilisearchService.listResource<UsuarioType>(APP_RESOURCE_USUARIO, dto, allowedUsuarioIds);
 
@@ -150,12 +150,14 @@ export class UsuarioService {
   async getUsuarioPermissoes(actorContext: ActorContext, usuarioId: number) {
     const usuario = await this.findUsuarioByIdStrictSimple(actorContext, usuarioId);
 
-    const allowedPermissaoIds = await actorContext.getAllowedIdsForResourceAction(APP_RESOURCE_PERMISSAO, ContextAction.READ);
+    const allowedPermissaoIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_PERMISSAO, ContextAction.READ);
 
     const allUsuarioPermissaoIds = await actorContext.databaseRun(async ({ entityManager }) => {
       const permissaoRepository = getPermissaoRepository(entityManager);
 
-      const qb = await permissaoRepository.createQueryBuilderForUsuarioId(usuario.id);
+      const qb = await permissaoRepository.initQueryBuilder();
+
+      await permissaoRepository.filterQueryByUsuarioId(qb, usuario.id);
 
       qb.select(['permissao.id']);
 

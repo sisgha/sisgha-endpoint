@@ -95,31 +95,49 @@ export class PermissaoResolver {
     return this.permissaoService.getPermissaoDescricao(actorContext, parent.id);
   }
 
-  @ResolveField('acao', () => String)
-  async acao(
+  @ResolveField('verboGlobal', () => Boolean)
+  async verboGlobal(
     @ResolveActorContext()
     actorContext: ActorContext,
     @Parent() parent: PermissaoType,
   ) {
-    return this.permissaoService.getPermissaoAcao(actorContext, parent.id);
+    return this.permissaoService.getPermissaoVerboGlobal(actorContext, parent.id);
   }
 
-  @ResolveField('recurso', () => String)
-  async recurso(
+  @ResolveField('verbos', () => [String])
+  async verbos(
     @ResolveActorContext()
     actorContext: ActorContext,
     @Parent() parent: PermissaoType,
   ) {
-    return this.permissaoService.getPermissaoRecurso(actorContext, parent.id);
+    return this.permissaoService.getPermissaoVerbos(actorContext, parent.id);
   }
 
-  @ResolveField('constraint', () => GraphQLJSON)
-  async constraint(
+  @ResolveField('recursoGlobal', () => Boolean)
+  async recursoGlobal(
     @ResolveActorContext()
     actorContext: ActorContext,
     @Parent() parent: PermissaoType,
   ) {
-    return this.permissaoService.getPermissaoConstraint(actorContext, parent.id);
+    return this.permissaoService.getPermissaoRecursoGlobal(actorContext, parent.id);
+  }
+
+  @ResolveField('recursos', () => [String])
+  async recursos(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: PermissaoType,
+  ) {
+    return this.permissaoService.getPermissaoRecursos(actorContext, parent.id);
+  }
+
+  @ResolveField('authorizationConstraintRecipe', () => GraphQLJSON)
+  async authorizationConstraintRecipe(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: PermissaoType,
+  ) {
+    return this.permissaoService.getPermissaoAuthorizationConstraintRecipe(actorContext, parent.id);
   }
 
   @ResolveField('dateCreated', () => Date)

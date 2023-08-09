@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { omit } from 'lodash';
+import { isEmpty, omit } from 'lodash';
 import { FindOneOptions } from 'typeorm';
 import { ContextAction } from '../../../../domain/authorization-constraints';
 import { ICreatePermissaoInput, IDeletePermissaoInput, IFindPermissaoByIdInput } from '../../../../domain/dtos';
@@ -7,7 +7,11 @@ import { IUpdatePermissaoInput } from '../../../../domain/dtos/IUpdatePermissaoI
 import { IGenericListInput } from '../../../../domain/search/IGenericListInput';
 import { ActorContext } from '../../../actor-context/ActorContext';
 import { PermissaoDbEntity } from '../../../database/entities/permissao.db.entity';
+import { PermissaoRecursoDbEntity } from '../../../database/entities/permissao_recurso.db.entity';
+import { PermissaoVerboDbEntity } from '../../../database/entities/permissao_verbo.db.entity';
 import { getPermissaoRepository } from '../../../database/repositories/permissao.repository';
+import { getPermissaoRecursoRepository } from '../../../database/repositories/permissao_recurso.repository';
+import { getPermissaoVerboRepository } from '../../../database/repositories/permissao_verbo.repository';
 import { MeiliSearchService } from '../../../meilisearch/meilisearch.service';
 import { ListPermissaoResultType, PermissaoType } from '../../dtos';
 import { APP_RESOURCE_PERMISSAO } from './permissao.resource';
@@ -71,7 +75,7 @@ export class PermissaoService {
   }
 
   async listPermissao(actorContext: ActorContext, dto: IGenericListInput): Promise<ListPermissaoResultType> {
-    const allowedIds = await actorContext.getAllowedIdsForResourceAction(APP_RESOURCE_PERMISSAO, ContextAction.READ);
+    const allowedIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_PERMISSAO, ContextAction.READ);
 
     const result = await this.meilisearchService.listResource<PermissaoType>(APP_RESOURCE_PERMISSAO, dto, allowedIds);
 
@@ -93,16 +97,52 @@ export class PermissaoService {
     return this.getPermissaoStrictGenericField(actorContext, permissaoId, 'descricao');
   }
 
-  async getPermissaoAcao(actorContext: ActorContext, permissaoId: number) {
-    return this.getPermissaoStrictGenericField(actorContext, permissaoId, 'acao');
+  async getPermissaoVerboGlobal(actorContext: ActorContext, permissaoId: number) {
+    return this.getPermissaoStrictGenericField(actorContext, permissaoId, 'verboGlobal');
   }
 
-  async getPermissaoRecurso(actorContext: ActorContext, permissaoId: number) {
-    return this.getPermissaoStrictGenericField(actorContext, permissaoId, 'recurso');
+  async getPermissaoVerbos(actorContext: ActorContext, permissaoId: number) {
+    const permissao = await this.findPermissaoByIdStrictSimple(actorContext, permissaoId);
+
+    const verbos = await actorContext.databaseRun(async ({ entityManager }) => {
+      const permissaoVerboRepository = getPermissaoVerboRepository(entityManager);
+
+      const qb = permissaoVerboRepository.createQueryBuilderByPermissaoId(permissao.id);
+
+      qb.select('permissao_verbo.verbo');
+
+      const permissaoVerboList = await qb.getMany();
+
+      return permissaoVerboList.map((permissaoVerbo) => permissaoVerbo.verbo);
+    });
+
+    return verbos;
   }
 
-  async getPermissaoConstraint(actorContext: ActorContext, permissaoId: number) {
-    return this.getPermissaoStrictGenericField(actorContext, permissaoId, 'constraint');
+  async getPermissaoRecursoGlobal(actorContext: ActorContext, permissaoId: number) {
+    return this.getPermissaoStrictGenericField(actorContext, permissaoId, 'recursoGlobal');
+  }
+
+  async getPermissaoRecursos(actorContext: ActorContext, permissaoId: number) {
+    const permissao = await this.findPermissaoByIdStrictSimple(actorContext, permissaoId);
+
+    const recursos = await actorContext.databaseRun(async ({ entityManager }) => {
+      const permissaoRecursoRepository = getPermissaoRecursoRepository(entityManager);
+
+      const qb = permissaoRecursoRepository.createQueryBuilderByPermissaoId(permissao.id);
+
+      qb.select('permissao_recurso.recurso');
+
+      const permissaoRecursoList = await qb.getMany();
+
+      return permissaoRecursoList.map((permissaoRecurso) => permissaoRecurso.recurso);
+    });
+
+    return recursos;
+  }
+
+  async getPermissaoAuthorizationConstraintRecipe(actorContext: ActorContext, permissaoId: number) {
+    return this.getPermissaoStrictGenericField(actorContext, permissaoId, 'authorizationConstraintRecipe');
   }
 
   async getPermissaoDateCreated(actorContext: ActorContext, permissaoId: number) {
@@ -121,8 +161,60 @@ export class PermissaoService {
     return this.getPermissaoStrictGenericField(actorContext, permissaoId, 'dateSearchSync');
   }
 
+  async setPermissaoVerbos(actorContext: ActorContext, permissaoId: number, verboGlobal: boolean, verbos: string[]) {
+    const permissao = await this.findPermissaoByIdStrictSimple(actorContext, permissaoId);
+
+    await actorContext.ensurePermission(APP_RESOURCE_PERMISSAO, ContextAction.UPDATE, { id: permissao.id });
+
+    await actorContext.databaseRun(async ({ entityManager }) => {
+      const permissaoVerboRepository = getPermissaoVerboRepository(entityManager);
+      await permissaoVerboRepository.deleteByPermissaoId(permissao.id);
+    });
+
+    if (!verboGlobal) {
+      await actorContext.databaseRun(async ({ entityManager }) => {
+        const permissaoVerboRepository = getPermissaoVerboRepository(entityManager);
+
+        const permissaoVerboList = verbos.map((verbo) => {
+          return <PermissaoVerboDbEntity>{
+            permissao,
+            verbo,
+          };
+        });
+
+        await permissaoVerboRepository.save(permissaoVerboList);
+      });
+    }
+  }
+
+  async setPermissaoRecursos(actorContext: ActorContext, permissaoId: number, recursoGlobal: boolean, recursos: string[]) {
+    const permissao = await this.findPermissaoByIdStrictSimple(actorContext, permissaoId);
+
+    await actorContext.ensurePermission(APP_RESOURCE_PERMISSAO, ContextAction.UPDATE, { id: permissao.id });
+
+    await actorContext.databaseRun(async ({ entityManager }) => {
+      const permissaoRecursoRepository = getPermissaoRecursoRepository(entityManager);
+      await permissaoRecursoRepository.deleteByPermissaoId(permissao.id);
+    });
+
+    if (!recursoGlobal) {
+      await actorContext.databaseRun(async ({ entityManager }) => {
+        const permissaoRecursoRepository = getPermissaoRecursoRepository(entityManager);
+
+        const permissaoRecursoList = recursos.map((recurso) => {
+          return <PermissaoRecursoDbEntity>{
+            permissao,
+            recurso,
+          };
+        });
+
+        await permissaoRecursoRepository.save(permissaoRecursoList);
+      });
+    }
+  }
+
   async createPermissao(actorContext: ActorContext, dto: ICreatePermissaoInput) {
-    const fieldsData = omit(dto, ['constraint']);
+    const fieldsData = omit(dto, ['verbos', 'recursos']);
 
     const permissao = <PermissaoDbEntity>{
       ...fieldsData,
@@ -136,13 +228,16 @@ export class PermissaoService {
       return <PermissaoDbEntity>permissao;
     });
 
+    await this.setPermissaoVerbos(actorContext, dbPermissao.id, permissao.verboGlobal, dto.verbos);
+    await this.setPermissaoRecursos(actorContext, dbPermissao.id, permissao.recursoGlobal, dto.recursos);
+
     return this.findPermissaoByIdStrictSimple(actorContext, dbPermissao.id);
   }
 
   async updatePermissao(actorContext: ActorContext, dto: IUpdatePermissaoInput) {
     const permissao = await this.findPermissaoByIdStrictSimple(actorContext, dto.id);
 
-    const fieldsData = omit(dto, ['id', 'constraint']);
+    const fieldsData = omit(dto, ['id', 'verbos', 'recursos']);
 
     const updatedPermissao = <PermissaoDbEntity>{
       ...permissao,
@@ -151,11 +246,21 @@ export class PermissaoService {
 
     await actorContext.ensurePermission(APP_RESOURCE_PERMISSAO, ContextAction.UPDATE, updatedPermissao);
 
-    await actorContext.databaseRun(async ({ entityManager }) => {
-      const permissaoRepository = getPermissaoRepository(entityManager);
-      await permissaoRepository.save(updatedPermissao);
-      return <PermissaoDbEntity>updatedPermissao;
-    });
+    const verboGlobal = dto.verboGlobal ?? (await this.getPermissaoVerboGlobal(actorContext, permissao.id));
+    const verbos = dto.verbos ?? (await this.getPermissaoVerbos(actorContext, permissao.id));
+    await this.setPermissaoVerbos(actorContext, permissao.id, verboGlobal, verbos);
+
+    const recursoGlobal = dto.recursoGlobal ?? (await this.getPermissaoRecursoGlobal(actorContext, permissao.id));
+    const recursos = dto.recursos ?? (await this.getPermissaoRecursos(actorContext, permissao.id));
+    await this.setPermissaoRecursos(actorContext, permissao.id, recursoGlobal, recursos);
+
+    if (!isEmpty(fieldsData)) {
+      await actorContext.databaseRun(async ({ entityManager }) => {
+        const permissaoRepository = getPermissaoRepository(entityManager);
+        await permissaoRepository.save(updatedPermissao);
+        return <PermissaoDbEntity>updatedPermissao;
+      });
+    }
 
     return this.findPermissaoByIdStrictSimple(actorContext, permissao.id);
   }

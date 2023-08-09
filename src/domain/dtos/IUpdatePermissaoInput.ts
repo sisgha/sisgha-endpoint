@@ -1,7 +1,14 @@
+import { IAuthorizationConstraintRecipe } from '../authorization-constraints';
+
 export type IUpdatePermissaoInput = {
   id: number;
+
   descricao?: string;
-  acao?: string;
-  recurso?: string;
-  constraint?: never;
+  authorizationConstraintRecipe?: IAuthorizationConstraintRecipe;
+
+  verboGlobal?: boolean;
+  verbos?: string[];
+
+  recursoGlobal?: boolean;
+  recursos?: string[];
 };

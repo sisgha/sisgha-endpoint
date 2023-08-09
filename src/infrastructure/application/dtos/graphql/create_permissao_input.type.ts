@@ -7,12 +7,18 @@ export class CreatePermissaoInputType implements ICreatePermissaoInput {
   @Field()
   descricao!: string;
 
-  @Field()
-  acao!: string;
-
-  @Field()
-  recurso!: string;
-
   @Field(() => GraphQLJSON, { nullable: true })
-  constraint!: never;
+  authorizationConstraintRecipe!: never;
+
+  @Field(() => Boolean, { nullable: false })
+  verboGlobal!: boolean;
+
+  @Field(() => [String], { nullable: false })
+  verbos!: string[];
+
+  @Field(() => [String], { nullable: false })
+  recursos!: string[];
+
+  @Field(() => Boolean, { nullable: false })
+  recursoGlobal!: boolean;
 }
