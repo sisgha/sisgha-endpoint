@@ -21,8 +21,6 @@ export class EventsModule {
       return provider;
     });
 
-    console.log({ out: eventEmitterModule, providers });
-
     return {
       ...eventEmitterModule,
       providers,
