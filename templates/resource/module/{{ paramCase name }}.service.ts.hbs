@@ -94,20 +94,20 @@ export class {{ pascalCase name }}Service {
 
   // 
 
-  // async get{{ pascalCase name }}CreatedAt(actorContext: ActorContext, {{ camelCase name }}Id: number) {
-  //   return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'createdAt');
+  // async get{{ pascalCase name }}DateCreated(actorContext: ActorContext, {{ camelCase name }}Id: number) {
+  //   return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'dateCreated');
   // }
 
-  // async get{{ pascalCase name }}UpdatedAt(actorContext: ActorContext, {{ camelCase name }}Id: number) {
-  //   return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'updatedAt');
+  // async get{{ pascalCase name }}DateUpdated(actorContext: ActorContext, {{ camelCase name }}Id: number) {
+  //   return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'dateUpdated');
   // }
 
-  // async get{{ pascalCase name }}DeletedAt(actorContext: ActorContext, {{ camelCase name }}Id: number) {
-  //   return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'deletedAt');
+  // async get{{ pascalCase name }}DateDeleted(actorContext: ActorContext, {{ camelCase name }}Id: number) {
+  //   return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'dateDeleted');
   // }
 
-  // async get{{ pascalCase name }}SearchSyncAt(actorContext: ActorContext, {{ camelCase name }}Id: number) {
-  //   return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'searchSyncAt');
+  // async get{{ pascalCase name }}DateSearchSync(actorContext: ActorContext, {{ camelCase name }}Id: number) {
+  //   return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'dateSearchSync');
   // }
 
   // ...
@@ -163,7 +163,7 @@ export class {{ pascalCase name }}Service {
         .createQueryBuilder('{{ camelCase name }}')
         .update()
         .set({
-          deletedAt: new Date(),
+          dateDeleted: new Date(),
         })
         .where('id = :id', { id: {{ camelCase name }}.id })
         .execute();

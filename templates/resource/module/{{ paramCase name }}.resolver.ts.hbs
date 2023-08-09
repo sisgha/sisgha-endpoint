@@ -92,40 +92,40 @@ export class {{ pascalCase name }}Resolver {
 
   // 
 
-  // @ResolveField('createdAt', () => Date)
-  // async createdAt(
+  // @ResolveField('dateCreated', () => Date)
+  // async dateCreated(
   //   @ResolveActorContext()
   //   actorContext: ActorContext,
   //   @Parent() parent: {{ pascalCase name }}Type,
   // ) {
-  //   return this.{{ camelCase name }}Service.get{{ pascalCase name }}CreatedAt(actorContext, parent.id);
+  //   return this.{{ camelCase name }}Service.get{{ pascalCase name }}DateCreated(actorContext, parent.id);
   // }
 
-  // @ResolveField('updatedAt', () => Date)
-  // async updatedAt(
+  // @ResolveField('dateUpdated', () => Date)
+  // async dateUpdated(
   //   @ResolveActorContext()
   //   actorContext: ActorContext,
   //   @Parent() parent: {{ pascalCase name }}Type,
   // ) {
-  //   return this.{{ camelCase name }}Service.get{{ pascalCase name }}UpdatedAt(actorContext, parent.id);
+  //   return this.{{ camelCase name }}Service.get{{ pascalCase name }}DateUpdated(actorContext, parent.id);
   // }
 
-  // @ResolveField('deletedAt', () => Date, { nullable: true })
-  // async deletedAt(
+  // @ResolveField('dateDeleted', () => Date, { nullable: true })
+  // async dateDeleted(
   //   @ResolveActorContext()
   //   actorContext: ActorContext,
   //   @Parent() parent: {{ pascalCase name }}Type,
   // ) {
-  //   return this.{{ camelCase name }}Service.get{{ pascalCase name }}DeletedAt(actorContext, parent.id);
+  //   return this.{{ camelCase name }}Service.get{{ pascalCase name }}DateDeleted(actorContext, parent.id);
   // }
 
-  // @ResolveField('searchSyncAt', () => Date, { nullable: true })
-  // async searchSyncAt(
+  // @ResolveField('dateSearchSync', () => Date, { nullable: true })
+  // async dateSearchSync(
   //   @ResolveActorContext()
   //   actorContext: ActorContext,
   //   @Parent() parent: {{ pascalCase name }}Type,
   // ) {
-  //   return this.{{ camelCase name }}Service.get{{ pascalCase name }}SearchSyncAt(actorContext, parent.id);
+  //   return this.{{ camelCase name }}Service.get{{ pascalCase name }}DateSearchSync(actorContext, parent.id);
   // }
 
   // END: fields resolvers
