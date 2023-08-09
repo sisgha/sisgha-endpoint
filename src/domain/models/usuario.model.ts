@@ -5,6 +5,7 @@ export interface UsuarioModel extends ISearchableEntity {
 
   // ...
 
+  nome: string | null;
   email: string | null;
   keycloakId: string | null;
   matriculaSiape: string | null;

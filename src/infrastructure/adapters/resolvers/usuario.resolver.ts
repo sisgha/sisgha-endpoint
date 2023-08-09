@@ -86,6 +86,15 @@ export class UsuarioResolver {
 
   // START: fields resolvers
 
+  @ResolveField('nome', () => String, { nullable: true })
+  async nome(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: UsuarioType,
+  ) {
+    return this.usuarioService.getUsuarioNome(actorContext, parent.id);
+  }
+
   @ResolveField('email', () => String, { nullable: true })
   async email(
     @ResolveActorContext()

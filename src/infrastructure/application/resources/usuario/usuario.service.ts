@@ -113,6 +113,10 @@ export class UsuarioService {
 
   // ...
 
+  async getUsuarioNome(actorContext: ActorContext, usuarioId: number) {
+    return this.getUsuarioStrictGenericField(actorContext, usuarioId, 'nome');
+  }
+
   async getUsuarioEmail(actorContext: ActorContext, usuarioId: number) {
     return this.getUsuarioStrictGenericField(actorContext, usuarioId, 'email');
   }
@@ -220,7 +224,7 @@ export class UsuarioService {
   }
 
   async createUsuario(actorContext: ActorContext, dto: ICreateUsuarioInput) {
-    const fieldsData = pick(dto, ['email']);
+    const fieldsData = pick(dto, ['email', 'nome']);
 
     const usuario = <UsuarioDbEntity>{
       ...fieldsData,

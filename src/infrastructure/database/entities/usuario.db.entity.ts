@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { UsuarioCargoDbEntity } from './usuario_cargo.db.entity';
 import { UsuarioModel } from '../../../domain/models/usuario.model';
+import { UsuarioCargoDbEntity } from './usuario_cargo.db.entity';
 
 @Entity('usuario')
 export class UsuarioDbEntity implements UsuarioModel {
@@ -8,6 +8,9 @@ export class UsuarioDbEntity implements UsuarioModel {
   id!: number;
 
   // ...
+
+  @Column({ name: 'nome', nullable: true, type: 'text' })
+  nome!: string | null;
 
   @Column({ name: 'email', nullable: true, type: 'text' })
   email!: string | null;

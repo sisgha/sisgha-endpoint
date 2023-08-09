@@ -20,7 +20,7 @@ export class TableUsuario1686601159980 implements MigrationInterface {
           {
             name: 'nome',
             type: 'text',
-            isNullable: false,
+            isNullable: true,
           },
 
           {
@@ -30,15 +30,15 @@ export class TableUsuario1686601159980 implements MigrationInterface {
           },
 
           {
-            name: 'matricula_siape',
-            type: 'text',
+            name: 'keycloak_id',
+            type: 'char',
+            length: '36',
             isNullable: true,
           },
 
           {
-            name: 'keycloak_id',
-            type: 'char',
-            length: '36',
+            name: 'matricula_siape',
+            type: 'text',
             isNullable: true,
           },
 

@@ -1,6 +1,6 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { PermissaoType } from './permissao.type';
 import { UsuarioModel } from '../../../../domain/models/usuario.model';
+import { PermissaoType } from './permissao.type';
 
 @ObjectType('Usuario')
 export class UsuarioType implements UsuarioModel {
@@ -8,6 +8,9 @@ export class UsuarioType implements UsuarioModel {
   id!: number;
 
   // ...
+
+  @Field(() => String, { nullable: true })
+  nome!: string | null;
 
   @Field(() => String, { nullable: true })
   email!: string | null;
