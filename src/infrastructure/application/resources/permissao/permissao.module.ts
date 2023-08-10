@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PermissaoResolver } from '../../../adapters/resolvers/permissao.resolver';
+import { PermissaoResolver } from '../../../adapters/graphql-resolvers/permissao.resolver';
 import { PermissaoService } from './permissao.service';
 
 @Module({

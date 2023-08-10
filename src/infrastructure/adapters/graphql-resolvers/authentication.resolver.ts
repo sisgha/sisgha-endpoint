@@ -24,7 +24,7 @@ export class AuthenticationResolver {
 
   // END: mutations
 
-  // START: fields resolvers
+  // START: fields graphql-resolvers
 
-  // END: fields resolvers
+  // END: fields graphql-resolvers
 }

@@ -85,7 +85,7 @@ export class CargoPermissaoResolver {
 
   // END: mutations
 
-  // START: fields resolvers
+  // START: fields graphql-resolvers
 
   @ResolveField('cargo', () => CargoType)
   async cargo(
@@ -105,5 +105,5 @@ export class CargoPermissaoResolver {
     return this.cargoPermissaoService.getCargoPermissaoPermissao(actorContext, parent.id);
   }
 
-  // END: fields resolvers
+  // END: fields graphql-resolvers
 }

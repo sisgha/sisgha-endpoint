@@ -80,7 +80,7 @@ export class CargoResolver {
 
   // END: mutations
 
-  // START: fields resolvers
+  // START: fields graphql-resolvers
 
   @ResolveField('slug', () => String)
   async slug(
@@ -132,5 +132,5 @@ export class CargoResolver {
     return this.cargoService.getCargoDateSearchSync(actorContext, parent.id);
   }
 
-  // END: fields resolvers
+  // END: fields graphql-resolvers
 }

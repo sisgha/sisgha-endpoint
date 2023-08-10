@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { UsuarioCargoResolver } from '../../../adapters/resolvers/usuario_cargo.resolver';
+import { UsuarioCargoResolver } from '../../../adapters/graphql-resolvers/usuario_cargo.resolver';
 import { CargoModule } from '../cargo/cargo.module';
 import { UsuarioModule } from '../usuario/usuario.module';
 import { UsuarioCargoService } from './usuario_cargo.service';

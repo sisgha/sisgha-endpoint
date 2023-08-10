@@ -84,7 +84,7 @@ export class PermissaoResolver {
 
   // END: mutations
 
-  // START: fields resolvers
+  // START: fields graphql-resolvers
 
   @ResolveField('descricao', () => String)
   async descricao(
@@ -176,5 +176,5 @@ export class PermissaoResolver {
     return this.permissaoService.getPermissaoDateSearchSync(actorContext, parent.id);
   }
 
-  // END: fields resolvers
+  // END: fields graphql-resolvers
 }

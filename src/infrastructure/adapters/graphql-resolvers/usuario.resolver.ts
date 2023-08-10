@@ -84,7 +84,7 @@ export class UsuarioResolver {
 
   // END: mutations
 
-  // START: fields resolvers
+  // START: fields graphql-resolvers
 
   @ResolveField('nome', () => String, { nullable: true })
   async nome(
@@ -173,5 +173,5 @@ export class UsuarioResolver {
     return this.usuarioService.getUsuarioPermissoes(actorContext, parent.id);
   }
 
-  // END: fields resolvers
+  // END: fields graphql-resolvers
 }

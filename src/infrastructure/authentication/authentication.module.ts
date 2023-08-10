@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
-import { AuthenticationResolver } from '../adapters/resolvers/authentication.resolver';
+import { AuthenticationResolver } from '../adapters/graphql-resolvers/authentication.resolver';
 import { UsuarioModule } from '../application/resources/usuario/usuario.module';
 import { AuthenticatedGuard } from '../common/guards/authenticated.guard';
 import { SessionSerializer } from '../common/serializers/session.serializer';

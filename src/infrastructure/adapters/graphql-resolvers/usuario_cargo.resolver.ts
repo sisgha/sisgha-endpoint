@@ -82,7 +82,7 @@ export class UsuarioCargoResolver {
 
   // END: mutations
 
-  // START: fields resolvers
+  // START: fields graphql-resolvers
 
   @ResolveField('cargo', () => CargoType)
   async cargo(
@@ -102,5 +102,5 @@ export class UsuarioCargoResolver {
     return this.usuarioCargoService.getUsuarioCargoUsuario(actorContext, parent.id);
   }
 
-  // END: fields resolvers
+  // END: fields graphql-resolvers
 }

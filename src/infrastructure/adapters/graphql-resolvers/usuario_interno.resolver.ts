@@ -84,7 +84,7 @@ export class UsuarioInternoResolver {
 
   // END: mutations
 
-  // START: fields resolvers
+  // START: fields graphql-resolvers
 
   @ResolveField('tipoEntidade', () => String, { nullable: false })
   async tipoEntidade(
@@ -144,5 +144,5 @@ export class UsuarioInternoResolver {
     return this.usuarioInternoService.getUsuarioInternoPermissoes(actorContext, parent.id);
   }
 
-  // END: fields resolvers
+  // END: fields graphql-resolvers
 }
