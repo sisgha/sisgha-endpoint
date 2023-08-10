@@ -5,9 +5,14 @@ import { Actor } from './Actor';
 export class ActorUser extends Actor implements IActorUser {
   userRef: IUserRef;
 
+  readonly type: AuthenticatedEntityType.USER;
+
   constructor(user: IUserRef) {
-    super(AuthenticatedEntityType.USER);
+    super();
+
     this.userRef = user;
+
+    this.type = AuthenticatedEntityType.USER;
   }
 
   static forUserEntity(userId: number) {
