@@ -45,6 +45,22 @@ services:
     networks:
       - sisgha-net
 
+  sso:
+    build:
+      context: ./devops/docker/sso/image
+      args:
+        - KEYCLOAK_EXTRA_ARGS=-Dkeycloak.profile.feature.scripts=enabled
+    entrypoint: /opt/keycloak/bin/kc.sh
+    command: start-dev --import-realm
+    container_name: sisgha-sso
+    env_file:
+      - .kc.env
+    depends_on:
+      - endpoint-db
+    networks:
+      - sisgha-net
+    ports:
+      - 8080:8080
 
 networks:
   sisgha-net:
