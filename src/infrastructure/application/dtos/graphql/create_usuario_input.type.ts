@@ -10,5 +10,5 @@ export class CreateUsuarioInputType implements ICreateUsuarioInput {
   email!: string;
 
   @Field({ nullable: true })
-  matriculaSiape?: string;
+  matriculaSiape!: string;
 }

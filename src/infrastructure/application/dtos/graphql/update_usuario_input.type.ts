@@ -7,11 +7,11 @@ export class UpdateUsuarioInputType implements IUpdateUsuarioInput {
   id!: number;
 
   @Field(() => String, { nullable: true })
-  nome?: string | undefined;
+  nome?: string;
 
   @Field(() => String, { nullable: true })
-  email?: string | undefined;
+  email?: string;
 
   @Field(() => String, { nullable: true })
-  matriculaSiape?: string | undefined;
+  matriculaSiape?: string;
 }

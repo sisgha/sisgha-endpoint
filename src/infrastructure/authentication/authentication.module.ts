@@ -11,10 +11,10 @@ import { AuthenticationService } from './authentication.service';
 
 @Module({
   imports: [
-    UsuarioModule,
-    // ...
     OidcClientModule,
     PassportModule.register({ defaultStrategy: 'access-token' }),
+    // ...
+    UsuarioModule,
   ],
 
   providers: [

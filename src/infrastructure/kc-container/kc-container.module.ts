@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { OidcClientModule } from '../oidc-client/oidc-client.module';
+import { KCClientService } from './kc-client.service';
 import { KCContainerService } from './kc-container.service';
 
 @Module({
@@ -9,10 +10,12 @@ import { KCContainerService } from './kc-container.service';
   ],
   providers: [
     // ...
+    KCClientService,
     KCContainerService,
   ],
   exports: [
     // ...
+    KCClientService,
     KCContainerService,
   ],
 })

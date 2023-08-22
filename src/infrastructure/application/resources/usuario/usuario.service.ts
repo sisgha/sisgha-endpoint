@@ -1,17 +1,27 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { intersection, omit, pick } from 'lodash';
+import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { get, has, intersection, omit, pick } from 'lodash';
 import { FindOneOptions } from 'typeorm';
 import { ContextAction } from '../../../../domain/authorization-constraints';
-import { ICreateUsuarioInput, IDeleteUsuarioInput, IFindUsuarioByIdInput, IUpdateUsuarioInput } from '../../../../domain/dtos';
+import {
+  ICreateUsuarioInput,
+  IDeleteUsuarioInput,
+  IFindUsuarioByIdInput,
+  IUpdateUsuarioInput,
+  IUpdateUsuarioPasswordInput,
+} from '../../../../domain/dtos';
 import { IGenericListInput } from '../../../../domain/search/IGenericListInput';
 import { ActorContext } from '../../../actor-context/ActorContext';
+import { ActorUser } from '../../../actor-context/ActorUser';
 import { PermissaoDbEntity } from '../../../database/entities/permissao.db.entity';
 import { UsuarioDbEntity } from '../../../database/entities/usuario.db.entity';
 import { getCargoRepository } from '../../../database/repositories/cargo.repository';
 import { getPermissaoRepository } from '../../../database/repositories/permissao.repository';
 import { getUsuarioRepository } from '../../../database/repositories/usuario.repository';
 import { getUsuarioCargoRepository } from '../../../database/repositories/usuario_cargo.repository';
+import { ValidationErrorCodes, ValidationFailedException } from '../../../exceptions';
 import { extractIds } from '../../../helpers/extract-ids';
+import { KCClientService } from '../../../kc-container/kc-client.service';
+import { KCContainerService } from '../../../kc-container/kc-container.service';
 import { MeiliSearchService } from '../../../meilisearch/meilisearch.service';
 import { ListUsuarioResultType } from '../../dtos/graphql/list_usuario_result.type';
 import { UsuarioType } from '../../dtos/graphql/usuario.type';
@@ -20,7 +30,12 @@ import { APP_RESOURCE_USUARIO } from './usuario.resource';
 
 @Injectable()
 export class UsuarioService {
-  constructor(private meilisearchService: MeiliSearchService) {}
+  constructor(
+    // ...
+    private meilisearchService: MeiliSearchService,
+    private kcContainerService: KCContainerService,
+    private kcClientService: KCClientService,
+  ) {}
 
   async findUsuarioById(actorContext: ActorContext, dto: IFindUsuarioByIdInput, options?: FindOneOptions<UsuarioDbEntity>) {
     const targetUsuario = await actorContext.databaseRun(async ({ entityManager }) => {
@@ -111,6 +126,47 @@ export class UsuarioService {
     return <UsuarioDbEntity[K]>usuario[field];
   }
 
+  //
+
+  async findUsuarioByEmail(actorContext: ActorContext, email: string) {
+    const kcUser = await this.kcClientService.findUserByEmail(actorContext, email);
+
+    if (kcUser) {
+      const id = get(kcUser, 'id');
+
+      if (typeof id === 'string') {
+        return this.loadUsuarioFromKeycloakId(actorContext, id);
+      }
+    }
+
+    // const usuario = await actorContext.databaseRun(async ({ entityManager }) => {
+    //   const usuarioRepository = getUsuarioRepository(entityManager);
+
+    //   return await usuarioRepository.findOne({
+    //     where: { email },
+    //     select: ['id'],
+    //   });
+    // });
+
+    // return usuario;
+
+    return null;
+  }
+
+  async findUsuarioByMatriculaSiape(actorContext: ActorContext, matriculaSiape: string) {
+    const kcUser = await this.kcClientService.findUserByUsername(actorContext, matriculaSiape);
+
+    if (kcUser) {
+      const id = get(kcUser, 'id');
+
+      if (typeof id === 'string') {
+        return this.loadUsuarioFromKeycloakId(actorContext, id);
+      }
+    }
+
+    return null;
+  }
+
   // ...
 
   async getUsuarioNome(actorContext: ActorContext, usuarioId: number) {
@@ -182,9 +238,53 @@ export class UsuarioService {
   // ...
 
   async loadUsuarioFromKeycloakId(actorContext: ActorContext, keycloakId: string) {
-    const usuarioExists = await this.findUsuarioByKeycloakId(actorContext, keycloakId);
+    const kcUser = await this.kcClientService.findUserByKeycloakIdStrict(actorContext, keycloakId);
+
+    const kcUserId = kcUser.id;
+
+    if (!kcUserId) {
+      throw new InternalServerErrorException();
+    }
+
+    const usuarioExists = await this.findUsuarioByKeycloakId(actorContext, kcUserId);
 
     if (usuarioExists) {
+      const email = kcUser.email;
+
+      if (email) {
+        await actorContext.databaseRun(async ({ entityManager }) => {
+          const usuarioRepository = getUsuarioRepository(entityManager);
+
+          await usuarioRepository
+            .createQueryBuilder('usuario')
+            .update()
+            .set({
+              email: null,
+            })
+            .where('email = :email', { email })
+            .andWhere('id != :id', { id: usuarioExists.id })
+            .execute();
+        });
+      }
+
+      const username = kcUser.username;
+
+      if (username) {
+        await actorContext.databaseRun(async ({ entityManager }) => {
+          const usuarioRepository = getUsuarioRepository(entityManager);
+
+          await usuarioRepository
+            .createQueryBuilder('usuario')
+            .update()
+            .set({
+              matriculaSiape: null,
+            })
+            .where('matriculaSiape = :matriculaSiape', { matriculaSiape: username })
+            .andWhere('id != :id', { id: usuarioExists.id })
+            .execute();
+        });
+      }
+
       return this.findUsuarioByIdStrictSimple(actorContext, usuarioExists.id);
     }
 
@@ -193,13 +293,17 @@ export class UsuarioService {
       const usuarioRepository = getUsuarioRepository(entityManager);
       const usuarioCargoRepository = getUsuarioCargoRepository(entityManager);
 
-      const newUser = usuarioRepository.create();
-      newUser.keycloakId = keycloakId;
+      const newUsuario = usuarioRepository.create();
+
+      newUsuario.keycloakId = keycloakId;
+      newUsuario.nome = KCClientService.buildUserFullName(kcUser);
+      newUsuario.email = kcUser.email ?? null;
+      newUsuario.matriculaSiape = kcUser.username ?? null;
 
       const usersCount = await usuarioRepository.count();
       const hasUsers = usersCount > 0;
 
-      await usuarioRepository.save(newUser);
+      await usuarioRepository.save(newUsuario);
 
       if (!hasUsers) {
         const cargoDape = await cargoRepository.findOne({
@@ -208,7 +312,7 @@ export class UsuarioService {
 
         if (cargoDape) {
           const usuarioHasCargo = usuarioCargoRepository.create();
-          usuarioHasCargo.usuario = newUser;
+          usuarioHasCargo.usuario = newUsuario;
           usuarioHasCargo.cargo = cargoDape;
           await usuarioCargoRepository.save(usuarioHasCargo);
         }
@@ -223,8 +327,68 @@ export class UsuarioService {
     return this.findUsuarioByIdStrictSimple(actorContext, newUsuario.id);
   }
 
+  async isEmailAvailable(actorContext: ActorContext, email: string) {
+    return this.kcClientService.isEmailAvailable(actorContext, email);
+  }
+
+  async isEmailAvailableForUser(actorContext: ActorContext, email: string, usuarioId: UsuarioDbEntity['id']) {
+    const keycloakId = await this.getUsuarioKeycloakId(actorContext, usuarioId);
+
+    if (!keycloakId) {
+      return false;
+    }
+
+    return this.kcClientService.isEmailAvailableForUser(actorContext, email, keycloakId);
+  }
+
+  async isUsernameAvailable(actorContext: ActorContext, username: string) {
+    return this.kcClientService.isUsernameAvailable(actorContext, username);
+  }
+
+  async isUsernameAvailableForUser(actorContext: ActorContext, matriculaSiape: string, usuarioId: UsuarioDbEntity['id']) {
+    const keycloakId = await this.getUsuarioKeycloakId(actorContext, usuarioId);
+
+    if (!keycloakId) {
+      return false;
+    }
+
+    return this.kcClientService.isUsernameAvailableForUser(actorContext, matriculaSiape, keycloakId);
+  }
+
   async createUsuario(actorContext: ActorContext, dto: ICreateUsuarioInput) {
-    const fieldsData = pick(dto, ['email', 'nome']);
+    const fieldsData = pick(dto, ['email', 'nome', 'matriculaSiape']);
+
+    if (has(fieldsData, 'email')) {
+      const email = get(fieldsData, 'email')!;
+
+      const isEmailAvailable = await this.isEmailAvailable(actorContext, email);
+
+      if (!isEmailAvailable) {
+        throw new ValidationFailedException([
+          {
+            code: ValidationErrorCodes.USUARIO_EMAIL_ALREADY_IN_USE,
+            message: 'Já existe um usuário com o mesmo email.',
+            path: ['email'],
+          },
+        ]);
+      }
+    }
+
+    if (has(fieldsData, 'matriculaSiape')) {
+      const matriculaSiape = get(fieldsData, 'matriculaSiape')!;
+
+      const isMatriculaSiapeAvailable = await this.isUsernameAvailable(actorContext, matriculaSiape);
+
+      if (!isMatriculaSiapeAvailable) {
+        throw new ValidationFailedException([
+          {
+            code: ValidationErrorCodes.USUARIO_MATRICULA_SIAPE_ALREADY_IN_USE,
+            message: 'Já existe um usuário com a mesma Matrícula Siape.',
+            path: ['matriculaSiape'],
+          },
+        ]);
+      }
+    }
 
     const usuario = <UsuarioDbEntity>{
       ...fieldsData,
@@ -238,6 +402,24 @@ export class UsuarioService {
       return <UsuarioDbEntity>usuario;
     });
 
+    if (dbUsuario) {
+      const kcUser = await this.kcClientService.createUser(actorContext, dto);
+
+      await actorContext.databaseRun(async ({ entityManager }) => {
+        const usuarioRepository = getUsuarioRepository(entityManager);
+
+        const updatedUser = <UsuarioDbEntity>{
+          id: dbUsuario.id,
+        };
+
+        updatedUser.keycloakId = kcUser.id;
+
+        await usuarioRepository.save(updatedUser);
+
+        return updatedUser;
+      });
+    }
+
     return this.findUsuarioByIdStrictSimple(actorContext, dbUsuario.id);
   }
 
@@ -246,20 +428,107 @@ export class UsuarioService {
 
     const fieldsData = omit(dto, ['id']);
 
-    const updatedUsuario = <UsuarioDbEntity>{
+    if (has(fieldsData, 'email')) {
+      const email = get(fieldsData, 'email')!;
+
+      const isEmailAvailable = await this.isEmailAvailableForUser(actorContext, email, usuario.id);
+
+      if (!isEmailAvailable) {
+        throw new ValidationFailedException([
+          {
+            code: ValidationErrorCodes.USUARIO_EMAIL_ALREADY_IN_USE,
+            message: 'Já existe um usuário com o mesmo email.',
+            path: ['email'],
+          },
+        ]);
+      }
+    }
+
+    if (has(fieldsData, 'matriculaSiape')) {
+      const matriculaSiape = get(fieldsData, 'matriculaSiape')!;
+
+      const isMatriculaSiapeAvailable = await this.isUsernameAvailableForUser(actorContext, matriculaSiape, usuario.id);
+
+      if (!isMatriculaSiapeAvailable) {
+        throw new ValidationFailedException([
+          {
+            code: ValidationErrorCodes.USUARIO_EMAIL_ALREADY_IN_USE,
+            message: 'Já existe um usuário com o mesmo email.',
+            path: ['matriculaSiape'],
+          },
+        ]);
+      }
+    }
+
+    const updatedUsuario = {
       ...usuario,
       ...fieldsData,
     };
 
     await actorContext.ensurePermission(APP_RESOURCE_USUARIO, ContextAction.UPDATE, updatedUsuario);
 
-    await actorContext.databaseRun(async ({ entityManager }) => {
+    // await actorContext.databaseRun(async ({ entityManager }) => {
+    //   const usuarioRepository = getUsuarioRepository(entityManager);
+    //   await usuarioRepository.save(updatedUsuario);
+    //   return <UsuarioDbEntity>updatedUsuario;
+    // });
+
+    const result = await actorContext.databaseRun(async ({ entityManager }) => {
       const usuarioRepository = getUsuarioRepository(entityManager);
-      await usuarioRepository.save(updatedUsuario);
-      return <UsuarioDbEntity>updatedUsuario;
+
+      const result = await usuarioRepository
+        .createQueryBuilder('user')
+        .update()
+        .set(updatedUsuario)
+        .where('id = :id', { id: usuario.id })
+        .execute();
+
+      return result;
     });
 
+    const rowsAffected = result.affected ?? 0;
+
+    if (rowsAffected > 0) {
+      const keycloakId = await this.getUsuarioKeycloakId(actorContext, usuario.id);
+
+      if (keycloakId) {
+        await this.kcClientService.updateUser(actorContext, keycloakId, dto);
+      }
+    }
+
     return this.findUsuarioByIdStrictSimple(actorContext, usuario.id);
+  }
+
+  async updateUsuarioPassword(actorContext: ActorContext, dto: IUpdateUsuarioPasswordInput) {
+    const usuario = await this.findUsuarioByIdStrictSimple(actorContext, dto.id);
+
+    const invokeContextUserRef = actorContext.actor instanceof ActorUser && actorContext.actor.userRef;
+
+    if (!invokeContextUserRef || invokeContextUserRef.id !== usuario.id) {
+      throw new ForbiddenException("You can't change other user password.");
+    }
+
+    const usuarioKeycloakId = await this.getUsuarioKeycloakId(actorContext, usuario.id);
+
+    if (!usuarioKeycloakId) {
+      throw new InternalServerErrorException('User without keycloakId');
+    }
+
+    const isPasswordCorrect = await this.kcClientService.checkUserPassword(actorContext, usuarioKeycloakId, dto.currentPassword);
+
+    if (!isPasswordCorrect) {
+      throw new ValidationFailedException([
+        {
+          code: ValidationErrorCodes.AUTH_PASSWORD_INVALID,
+          message: 'Senha atual inválida.',
+          path: ['currentPassword'],
+        },
+      ]);
+    }
+
+    const updated = await this.kcClientService.updateUserPassword(actorContext, usuarioKeycloakId, dto, false);
+
+    return updated;
   }
 
   async deleteUsuario(actorContext: ActorContext, dto: IDeleteUsuarioInput) {
@@ -270,7 +539,7 @@ export class UsuarioService {
     await actorContext.databaseRun(async ({ entityManager }) => {
       const usuarioRepository = getUsuarioRepository(entityManager);
 
-      await usuarioRepository
+      const result = await usuarioRepository
         .createQueryBuilder('usuario')
         .update()
         .set({
@@ -278,6 +547,8 @@ export class UsuarioService {
         })
         .where('id = :id', { id: usuario.id })
         .execute();
+
+      return result;
     });
 
     return true;

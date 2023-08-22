@@ -50,7 +50,9 @@ export class AuthenticationService {
         console.error('auth err:', { err });
       }
 
-      throw err;
+      // throw err;
     }
+
+    return null;
   }
 }

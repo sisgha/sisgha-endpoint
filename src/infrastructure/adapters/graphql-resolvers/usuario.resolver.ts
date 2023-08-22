@@ -15,6 +15,8 @@ import {
   UpdateUsuarioInputZod,
   UsuarioType,
 } from '../../application/dtos';
+import { UpdateUsuarioPasswordInputType } from '../../application/dtos/graphql/update_usuario_password_input.type';
+import { UpdateUsuarioPasswordInputZod } from '../../application/dtos/zod/update_usuario_password_input.zod';
 import { UsuarioService } from '../../application/resources/usuario/usuario.service';
 import { ResolveActorContext } from '../../common/decorators';
 import { ValidatedArgs } from '../../validation/ValidatedArgs.decorator';
@@ -70,6 +72,17 @@ export class UsuarioResolver {
     dto: UpdateUsuarioInputType,
   ) {
     return this.usuarioService.updateUsuario(actorContext, dto);
+  }
+
+  @Mutation(() => Boolean)
+  async updateUsuarioPassword(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+
+    @ValidatedArgs('dto', UpdateUsuarioPasswordInputZod)
+    dto: UpdateUsuarioPasswordInputType,
+  ) {
+    return this.usuarioService.updateUsuarioPassword(actorContext, dto);
   }
 
   @Mutation(() => Boolean)
