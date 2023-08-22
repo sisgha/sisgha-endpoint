@@ -311,7 +311,7 @@ export class ActorContext {
     const isAllowed = await this.can(recurso, verbo, entidade);
 
     if (!isAllowed) {
-      throw new ForbiddenException();
+      throw new ForbiddenException(`Actor is not allowed to perform "${verbo}" on resource "${recurso}".`);
     }
   }
 
