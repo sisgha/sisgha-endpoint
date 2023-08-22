@@ -17,6 +17,7 @@ import { DatabaseModule } from '../database/database.module';
 import { EventsModule } from '../events/events.module';
 import { IValidationFailedExceptionResponse, ValidationFailedException } from '../exceptions';
 import { DateScalar } from '../graphql/DateScalar';
+import { KcContainerModule } from '../kc-container/kc-container.module';
 import { MeiliSearchModule } from '../meilisearch/meilisearch.module';
 import { OidcClientModule } from '../oidc-client/oidc-client.module';
 import { CargoModule } from './resources/cargo/cargo.module';
@@ -102,6 +103,7 @@ import { UsuarioInternoCargoModule } from './resources/usuario_interno_cargo/usu
     // AUTHENTICATION MODULES
     OidcClientModule,
     AuthenticationModule,
+    KcContainerModule,
 
     // APPLICATION RESOURCES
 

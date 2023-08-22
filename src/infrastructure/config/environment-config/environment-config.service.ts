@@ -2,21 +2,60 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { DataSourceOptions } from 'typeorm';
-import {
-  IMeiliSearchConfig,
-  IMeiliSearchConfigCredentials,
-  IOIDCClientConfig,
-  IOIDCClientConfigCredentials,
-  ITypeORMConfig,
-  ITypeORMDataSourceConfig,
-} from '../../../domain/config';
+import { IConfig, IKeyCloakConfigCredentials, IMeiliSearchConfigCredentials, IOIDCClientConfigCredentials } from '../../../domain/config';
 
 @Injectable()
-export class EnvironmentConfigService implements IMeiliSearchConfig, ITypeORMConfig, IOIDCClientConfig, ITypeORMDataSourceConfig {
+export class EnvironmentConfigService implements IConfig {
   constructor(
     // ...
     private configService: ConfigService,
   ) {}
+
+  getKeyCloakBaseUrl(): string | undefined {
+    return this.configService.get<string>('KC_BASE_URL');
+  }
+
+  getKeyCloakRealm(): string | undefined {
+    return this.configService.get<string>('KC_REALM');
+  }
+
+  getKeyCloakClientId(): string | undefined {
+    return this.configService.get<string>('KC_CLIENT_ID');
+  }
+
+  getKeyCloakClientSecret(): string | undefined {
+    return this.configService.get<string>('KC_CLIENT_SECRET');
+  }
+
+  getKeyCloakConfigCredentials(): IKeyCloakConfigCredentials {
+    const baseUrl = this.getKeyCloakBaseUrl();
+    const realm = this.getKeyCloakRealm();
+    const clientId = this.getKeyCloakClientId();
+    const clientSecret = this.getKeyCloakClientSecret();
+
+    if (!baseUrl) {
+      throw new Error('KeyCloak baseUrl config not provided.');
+    }
+
+    if (!realm) {
+      throw new Error('KeyCloak realm config not provided.');
+    }
+
+    if (!clientId) {
+      throw new Error('KeyCloak clientId config not provided.');
+    }
+
+    if (!clientSecret) {
+      throw new Error('KeyCloak clientSecret config not provided.');
+    }
+
+    return {
+      baseUrl,
+      realm,
+      clientId,
+      clientSecret,
+    };
+  }
 
   // ...
 
