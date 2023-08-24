@@ -13,6 +13,7 @@ services:
       - .env
     ports:
       - ${PORT}:${PORT}
+      - 9229:9229
     volumes:
       - .:/code
     networks:
