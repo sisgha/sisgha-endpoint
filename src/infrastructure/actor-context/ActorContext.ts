@@ -2,8 +2,8 @@ import { AbilityBuilder, AnyAbility, subject as castSubject, createMongoAbility 
 import { ForbiddenException, InternalServerErrorException } from '@nestjs/common';
 import { get, has, intersection, union, without } from 'lodash';
 import { DataSource } from 'typeorm';
-import { CASL_RECURSO_WILDCARD } from '../../domain/CASL_RECURSO_WILDCARD';
-import { CASL_VERBO_WILDCARD } from '../../domain/CASL_VERBO_WILDCARD';
+import { CASL_RECURSO_WILDCARD } from './interfaces/CASL_RECURSO_WILDCARD';
+import { CASL_VERBO_WILDCARD } from './interfaces/CASL_VERBO_WILDCARD';
 import { IAppResource } from '../../domain/application-resources';
 import { AuthenticatedEntityType } from '../../domain/authentication';
 import {
