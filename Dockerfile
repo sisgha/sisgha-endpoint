@@ -3,7 +3,7 @@ RUN apk update && apk add git
 WORKDIR /app
 
 FROM base as prod-deps
-COPY package.json package-lock.json ./
+COPY package.json yarn.lock ./
 RUN yarn install --production
 
 FROM prod-deps as dev-deps
