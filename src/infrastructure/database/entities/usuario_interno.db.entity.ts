@@ -14,18 +14,10 @@ export class UsuarioInternoDbEntity implements UsuarioInternoModel {
 
   // ...
 
-  @CreateDateColumn({
-    name: 'date_created',
-    type: 'timestamptz',
-    nullable: false,
-  })
+  @CreateDateColumn({ name: 'date_created', type: 'timestamptz', nullable: false })
   dateCreated!: Date;
 
-  @UpdateDateColumn({
-    name: 'date_updated',
-    type: 'timestamptz',
-    nullable: false,
-  })
+  @UpdateDateColumn({ name: 'date_updated', type: 'timestamptz', nullable: false })
   dateUpdated!: Date;
 
   @Column({ name: 'date_deleted', type: 'timestamptz', nullable: true })

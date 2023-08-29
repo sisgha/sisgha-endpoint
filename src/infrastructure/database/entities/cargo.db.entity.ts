@@ -1,8 +1,8 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { CargoModel } from '../../../domain/models';
 import { CargoPermissaoDbEntity } from './cargo_permissao.db.entity';
 import { UsuarioCargoDbEntity } from './usuario_cargo.db.entity';
 import { UsuarioInternoCargoDbEntity } from './usuario_interno_cargo.db.entity';
-import { CargoModel } from '../../../domain/models';
 
 @Entity('cargo')
 export class CargoDbEntity implements CargoModel {
@@ -16,18 +16,10 @@ export class CargoDbEntity implements CargoModel {
 
   //
 
-  @CreateDateColumn({
-    name: 'date_created',
-    type: 'timestamptz',
-    nullable: false,
-  })
+  @CreateDateColumn({ name: 'date_created', type: 'timestamptz', nullable: false })
   dateCreated!: Date;
 
-  @UpdateDateColumn({
-    name: 'date_updated',
-    type: 'timestamptz',
-    nullable: false,
-  })
+  @UpdateDateColumn({ name: 'date_updated', type: 'timestamptz', nullable: false })
   dateUpdated!: Date;
 
   @Column({ name: 'date_deleted', type: 'timestamptz', nullable: true })
