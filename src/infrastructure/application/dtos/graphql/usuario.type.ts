@@ -1,5 +1,6 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { UsuarioModel } from '../../../../domain/models/usuario.model';
+import { CargoType } from './cargo.type';
 import { PermissaoType } from './permissao.type';
 
 @ObjectType('Usuario')
@@ -41,4 +42,7 @@ export class UsuarioType implements UsuarioModel {
 
   @Field(() => [PermissaoType])
   permissoes!: PermissaoType[];
+
+  @Field(() => [CargoType])
+  cargos!: CargoType[];
 }

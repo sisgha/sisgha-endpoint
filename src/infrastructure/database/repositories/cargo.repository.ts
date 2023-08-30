@@ -1,4 +1,4 @@
-import { DataSource, EntityManager } from 'typeorm';
+import { DataSource, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { CargoDbEntity } from '../entities/cargo.db.entity';
 import { UsuarioDbEntity } from '../entities/usuario.db.entity';
 import { UsuarioInternoDbEntity } from '../entities/usuario_interno.db.entity';
@@ -30,6 +30,31 @@ export const getCargoRepository = (dataSource: DataSource | EntityManager) =>
 
       qb.cache(30);
 
+      return qb;
+    },
+
+    //
+
+    async initQueryBuilder() {
+      const qb = this.createQueryBuilder('cargo').select(['cargo']);
+      return qb;
+    },
+
+    async filterQueryByUsuarioId(qb: SelectQueryBuilder<CargoDbEntity>, usuarioId: number) {
+      qb.innerJoin('cargo.usuarioCargo', 'usuario_cargo');
+      qb.innerJoin('usuario_cargo.usuario', 'usuario');
+
+      qb.andWhere('usuario.id = :usuarioId', { usuarioId: usuarioId });
+
+      qb.andWhere('usuario.dateDeleted IS NULL');
+      qb.andWhere('cargo.dateDeleted IS NULL');
+
+      return qb;
+    },
+
+    async createQueryBuilderByUsuarioId(usuarioId: number) {
+      const qb = await this.initQueryBuilder();
+      await this.filterQueryByUsuarioId(qb, usuarioId);
       return qb;
     },
   });

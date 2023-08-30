@@ -1,6 +1,7 @@
 import { Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { ActorContext } from '../../actor-context/ActorContext';
 import {
+  CargoType,
   CreateUsuarioInputType,
   CreateUsuarioInputZod,
   DeleteUsuarioInputType,
@@ -184,6 +185,15 @@ export class UsuarioResolver {
     @Parent() parent: UsuarioType,
   ) {
     return this.usuarioService.getUsuarioPermissoes(actorContext, parent.id);
+  }
+
+  @ResolveField('cargos', () => [CargoType])
+  async cargos(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent() parent: UsuarioType,
+  ) {
+    return this.usuarioService.getUsuarioCargos(actorContext, parent.id);
   }
 
   // END: fields graphql-resolvers

@@ -12,6 +12,7 @@ import {
 import { IGenericListInput } from '../../../../domain/search/IGenericListInput';
 import { ActorContext } from '../../../actor-context/ActorContext';
 import { ActorUser } from '../../../actor-context/ActorUser';
+import { CargoDbEntity } from '../../../database/entities/cargo.db.entity';
 import { PermissaoDbEntity } from '../../../database/entities/permissao.db.entity';
 import { UsuarioDbEntity } from '../../../database/entities/usuario.db.entity';
 import { getCargoRepository } from '../../../database/repositories/cargo.repository';
@@ -25,6 +26,7 @@ import { KCContainerService } from '../../../kc-container/kc-container.service';
 import { MeiliSearchService } from '../../../meilisearch/meilisearch.service';
 import { ListUsuarioResultType } from '../../dtos/graphql/list_usuario_result.type';
 import { UsuarioType } from '../../dtos/graphql/usuario.type';
+import { APP_RESOURCE_CARGO } from '../cargo/cargo.resource';
 import { APP_RESOURCE_PERMISSAO } from '../permissao/permissao.resource';
 import { APP_RESOURCE_USUARIO } from './usuario.resource';
 
@@ -233,6 +235,34 @@ export class UsuarioService {
     const permissoes = targetPermissaoIds.map((id) => <PermissaoDbEntity>{ id: id });
 
     return permissoes;
+  }
+
+  async getUsuarioCargos(actorContext: ActorContext, usuarioId: number) {
+    const usuario = await this.findUsuarioByIdStrictSimple(actorContext, usuarioId);
+
+    const allowedCargoIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_CARGO, ContextAction.READ);
+
+    const allUsuarioCargoIds = await actorContext.databaseRun(async ({ entityManager }) => {
+      const cargoRepository = getCargoRepository(entityManager);
+
+      const qb = await cargoRepository.initQueryBuilder();
+
+      await cargoRepository.filterQueryByUsuarioId(qb, usuario.id);
+
+      qb.select(['cargo.id']);
+
+      const cargos = await qb.getMany();
+
+      const ids = extractIds(cargos);
+
+      return ids;
+    });
+
+    const targetCargoIds = intersection(allowedCargoIds, allUsuarioCargoIds);
+
+    const cargos = targetCargoIds.map((id) => <CargoDbEntity>{ id: id });
+
+    return cargos;
   }
 
   // ...
