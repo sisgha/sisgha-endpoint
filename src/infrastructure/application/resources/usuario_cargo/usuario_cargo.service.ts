@@ -4,6 +4,7 @@ import { FindOneOptions } from 'typeorm';
 import { ContextAction } from '../../../../domain/authorization-constraints';
 import {
   IAddCargoToUsuarioInput,
+  IChecarUsuarioPossuiCargoByUsuarioidAndCargoSlugInput,
   IFindUsuarioCargoByIdInput,
   IFindUsuarioCargoByUsuarioIdAndCargoIdInput,
   IListCargoFromUsuarioInput,
@@ -161,6 +162,27 @@ export class UsuarioCargoService {
     };
   }
 
+  async checarUsuarioPossuiCargoByUsuarioIdAndCargoSlug(
+    actorContext: ActorContext,
+    dto: IChecarUsuarioPossuiCargoByUsuarioidAndCargoSlugInput,
+  ) {
+    const usuario = await this.usuarioService.findUsuarioByIdStrictSimple(actorContext, dto.usuarioId);
+
+    const cargo = await this.cargoService.findCargoBySlugStrictSimple(actorContext, dto.cargoSlug);
+
+    const usuarioDateDeleted = await this.usuarioService.getUsuarioDateDeleted(actorContext, usuario.id);
+    const cargoDateDeleted = await this.cargoService.getCargoDateDeleted(actorContext, cargo.id);
+
+    if (!usuarioDateDeleted && !cargoDateDeleted) {
+      const usuarioCargo = await this.findUsuarioCargoByUsuarioIdAndCargoId(actorContext, { usuarioId: usuario.id, cargoId: cargo.id });
+
+      if (usuarioCargo) {
+        return true;
+      }
+    }
+
+    return false;
+  }
   async getUsuarioCargoStrictGenericField<K extends keyof UsuarioCargoDbEntity>(
     actorContext: ActorContext,
     usuarioCargoId: number,

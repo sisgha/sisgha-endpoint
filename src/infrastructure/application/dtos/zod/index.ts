@@ -1,6 +1,7 @@
 export * from './add_cargo_to_usuario_input.zod';
 export * from './add_cargo_to_usuario_interno_input.zod';
 export * from './add_permissao_to_cargo_input.zod';
+export * from './checar_usuario_possui_cargo_by_usuario_id_and_cargo_slug_input.zod';
 export * from './create_cargo_input.zod';
 export * from './create_permissao_input.zod';
 export * from './create_usuario_input.zod';

@@ -4,6 +4,8 @@ import {
   AddCargoToUsuarioInputType,
   AddCargoToUsuarioInputZod,
   CargoType,
+  ChecarUsuarioPossuiCargoByUsuarioIdAndCargoSlugInputZod,
+  ChecarUsuarioPossuiCargoByUsuarioidAndCargoSlugInputType,
   FindUsuarioCargoByIdInputType,
   FindUsuarioCargoByIdInputZod,
   FindUsuarioCargoByUsuarioIdAndCargoIdInputType,
@@ -54,6 +56,16 @@ export class UsuarioCargoResolver {
     dto: ListCargoFromUsuarioInputType,
   ) {
     return this.usuarioCargoService.listCargoFromUsuario(actorContext, dto);
+  }
+
+  @Query(() => Boolean)
+  async checarUsuarioPossuiCargoByUsuarioIdAndCargoSlug(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @ValidatedArgs('dto', ChecarUsuarioPossuiCargoByUsuarioIdAndCargoSlugInputZod)
+    dto: ChecarUsuarioPossuiCargoByUsuarioidAndCargoSlugInputType,
+  ) {
+    return this.usuarioCargoService.checarUsuarioPossuiCargoByUsuarioIdAndCargoSlug(actorContext, dto);
   }
 
   // END: queries
