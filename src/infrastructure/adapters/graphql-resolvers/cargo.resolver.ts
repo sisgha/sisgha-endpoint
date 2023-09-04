@@ -8,6 +8,8 @@ import {
   DeleteCargoInputZod,
   FindCargoByIdInputType,
   FindCargoByIdInputZod,
+  FindCargoBySlugInputType,
+  FindCargoBySlugInputZod,
   GenericListInputType,
   GenericListInputZod,
   ListCargoResultType,
@@ -32,6 +34,16 @@ export class CargoResolver {
     dto: FindCargoByIdInputType,
   ) {
     return this.cargoService.findCargoByIdStrict(actorContext, dto);
+  }
+
+  @Query(() => CargoType)
+  async findCargoBySlug(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @ValidatedArgs('dto', FindCargoBySlugInputZod)
+    dto: FindCargoBySlugInputType,
+  ) {
+    return this.cargoService.findCargoBySlugStrict(actorContext, dto);
   }
 
   @Query(() => ListCargoResultType)

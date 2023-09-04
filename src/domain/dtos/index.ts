@@ -10,6 +10,7 @@ export * from './IDeletePermissaoInput';
 export * from './IDeleteUsuarioInput';
 export * from './IDeleteUsuarioInternoInput';
 export * from './IFindCargoByIdInput';
+export * from './IFindCargoBySlugInput';
 export * from './IFindCargoPermissaoByCargoIdAndPermissaoIdInput';
 export * from './IFindCargoPermissaoByIdInput';
 export * from './IFindPermissaoByIdInput';

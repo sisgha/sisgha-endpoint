@@ -2,7 +2,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { omit } from 'lodash';
 import { FindOneOptions } from 'typeorm';
 import { ContextAction } from '../../../../domain/authorization-constraints';
-import { ICreateCargoInput, IDeleteCargoInput, IFindCargoByIdInput, IUpdateCargoInput } from '../../../../domain/dtos';
+import {
+  ICreateCargoInput,
+  IDeleteCargoInput,
+  IFindCargoByIdInput,
+  IFindCargoBySlugInput,
+  IUpdateCargoInput,
+} from '../../../../domain/dtos';
 import { IGenericListInput } from '../../../../domain/search/IGenericListInput';
 import { ActorContext } from '../../../actor-context/ActorContext';
 import { CargoDbEntity } from '../../../database/entities/cargo.db.entity';
@@ -60,6 +66,46 @@ export class CargoService {
 
   async findCargoByIdStrictSimple<T = Pick<CargoDbEntity, 'id'>>(actorContext: ActorContext, cargoId: number): Promise<T> {
     const cargo = await this.findCargoByIdStrict(actorContext, { id: cargoId });
+    return <T>cargo;
+  }
+
+  async findCargoBySlug(actorContext: ActorContext, dto: IFindCargoBySlugInput, options: FindOneOptions<CargoDbEntity> | null = null) {
+    const targetCargo = await actorContext.databaseRun(async ({ entityManager }) => {
+      const cargoRepository = getCargoRepository(entityManager);
+
+      return cargoRepository.findOne({
+        where: { slug: dto.slug },
+        select: ['id'],
+        cache: 20,
+      });
+    });
+
+    if (targetCargo) {
+      return this.findCargoById(actorContext, { id: targetCargo.id }, options);
+    }
+
+    return null;
+  }
+
+  async findCargoBySlugStrict(
+    actorContext: ActorContext,
+    dto: IFindCargoBySlugInput,
+    options: FindOneOptions<CargoDbEntity> | null = null,
+  ) {
+    const cargo = await this.findCargoBySlug(actorContext, dto, options);
+
+    if (!cargo) {
+      throw new NotFoundException();
+    }
+
+    return cargo;
+  }
+
+  async findCargoBySlugStrictSimple<T = Pick<CargoDbEntity, 'id'>>(
+    actorContext: ActorContext,
+    cargoSlug: IFindCargoBySlugInput['slug'],
+  ): Promise<T> {
+    const cargo = await this.findCargoBySlugStrict(actorContext, { slug: cargoSlug });
     return <T>cargo;
   }
 

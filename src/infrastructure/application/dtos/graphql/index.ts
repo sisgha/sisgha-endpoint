@@ -12,6 +12,7 @@ export * from './delete_permissao_input.type';
 export * from './delete_usuario_input.type';
 export * from './delete_usuario_interno_input.type';
 export * from './find_cargo_by_id_input.type';
+export * from './find_cargo_by_slug_input.type';
 export * from './find_cargo_permissao_by_cargo_id_and_permissao_id_input.type';
 export * from './find_cargo_permissao_by_id_input.type';
 export * from './find_permissao_by_id_input.type';
