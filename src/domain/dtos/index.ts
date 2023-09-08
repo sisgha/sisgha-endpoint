@@ -2,6 +2,8 @@ export * from './IAddCargoToUsuarioInput';
 export * from './IAddCargoToUsuarioInternoInput';
 export * from './IAddPermissaoToCargoInput';
 export * from './IChecarUsuarioPossuiCargoByUsuarioIdAndCargoSlugInput';
+export * from './ICheckUsuarioEmailAvailabilityInput';
+export * from './ICheckUsuarioMatriculaSiapeAvailabilityInput';
 export * from './ICreateCargoInput';
 export * from './ICreatePermissaoInput';
 export * from './ICreateUsuarioInput';

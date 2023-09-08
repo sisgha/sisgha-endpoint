@@ -4,6 +4,8 @@ export * from './add_permissao_to_cargo_input.type';
 export * from './cargo.type';
 export * from './cargo_permissao.type';
 export * from './checar_usuario_possui_cargo_by_usuario_id_and_cargo_slug_input.type';
+export * from './check_usuario_email_availability_input.type';
+export * from './check_usuario_matricula_siape_availability_input.type';
 export * from './create_cargo_input.type';
 export * from './create_permissao_input.type';
 export * from './create_usuario_input.type';

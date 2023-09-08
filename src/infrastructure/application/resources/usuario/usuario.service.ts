@@ -1,8 +1,10 @@
 import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { get, has, intersection, omit, pick } from 'lodash';
-import { FindOneOptions } from 'typeorm';
+import { FindOneOptions, IsNull } from 'typeorm';
 import { ContextAction } from '../../../../domain/authorization-constraints';
 import {
+  ICheckUsuarioEmailAvailabilityInput,
+  ICheckUsuarioMatriculaSiapeAvailabilityInput,
   ICreateUsuarioInput,
   IDeleteUsuarioInput,
   IFindUsuarioByIdInput,
@@ -109,6 +111,60 @@ export class UsuarioService {
     return usuario;
   }
 
+  async findUsuarioByEmail(actorContext: ActorContext, email: string, options?: FindOneOptions<UsuarioDbEntity>) {
+    const targetUsuario = await actorContext.databaseRun(async ({ entityManager }) => {
+      const usuarioRepository = getUsuarioRepository(entityManager);
+
+      return await usuarioRepository.findOne({
+        where: { email: email },
+        select: ['id'],
+      });
+    });
+
+    if (!targetUsuario) {
+      return null;
+    }
+
+    return this.findUsuarioById(actorContext, { id: targetUsuario.id }, options);
+  }
+
+  async findUsuarioByEmailStrict(actorContext: ActorContext, email: string, options?: FindOneOptions<UsuarioDbEntity>) {
+    const usuario = await this.findUsuarioByEmail(actorContext, email, options);
+
+    if (!usuario) {
+      throw new NotFoundException();
+    }
+
+    return usuario;
+  }
+
+  async findUsuarioByMatriculaSiape(actorContext: ActorContext, matriculaSiape: string, options?: FindOneOptions<UsuarioDbEntity>) {
+    const targetUsuario = await actorContext.databaseRun(async ({ entityManager }) => {
+      const usuarioRepository = getUsuarioRepository(entityManager);
+
+      return await usuarioRepository.findOne({
+        where: { matriculaSiape: matriculaSiape },
+        select: ['id'],
+      });
+    });
+
+    if (!targetUsuario) {
+      return null;
+    }
+
+    return this.findUsuarioById(actorContext, { id: targetUsuario.id }, options);
+  }
+
+  async findUsuarioByMatriculaSiapeStrict(actorContext: ActorContext, matriculaSiape: string, options?: FindOneOptions<UsuarioDbEntity>) {
+    const usuario = await this.findUsuarioByEmail(actorContext, matriculaSiape, options);
+
+    if (!usuario) {
+      throw new NotFoundException();
+    }
+
+    return usuario;
+  }
+
   async listUsuario(actorContext: ActorContext, dto: IGenericListInput): Promise<ListUsuarioResultType> {
     const allowedUsuarioIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_USUARIO, ContextAction.READ);
 
@@ -119,6 +175,79 @@ export class UsuarioService {
     };
   }
 
+  async checkUsuarioEmailAvailability(actorContext: ActorContext, dto: ICheckUsuarioEmailAvailabilityInput) {
+    const isEmailBeingUsedByOtherUsuario = await actorContext.databaseRun(async ({ entityManager }) => {
+      const usuarioRepository = getUsuarioRepository(entityManager);
+
+      const qb = usuarioRepository.createQueryBuilder('usuario');
+
+      qb.select('usuario.id');
+
+      qb.where('usuario.email = :email', { email: dto.email });
+
+      qb.andWhere('usuario.dateDeleted is NULL');
+
+      if (dto.usuarioId) {
+        qb.andWhere('usuario.id != :usuarioId', { usuarioId: dto.usuarioId });
+      }
+
+      const count = await qb.getCount();
+
+      return count === 0;
+    });
+
+    return isEmailBeingUsedByOtherUsuario;
+  }
+
+  async checkUsuarioMatriculaSiapeAvailability(actorContext: ActorContext, dto: ICheckUsuarioMatriculaSiapeAvailabilityInput) {
+    const isMatriculaSiapeBeingUsedByOtherUsuario = await actorContext.databaseRun(async ({ entityManager }) => {
+      const usuarioRepository = getUsuarioRepository(entityManager);
+
+      const qb = usuarioRepository.createQueryBuilder('usuario');
+
+      qb.select('usuario.id');
+
+      qb.where('usuario.matriculaSiape = :matriculaSiape', { matriculaSiape: dto.matriculaSiape });
+
+      qb.andWhere('usuario.dateDeleted is NULL');
+
+      if (dto.usuarioId) {
+        qb.andWhere('usuario.id != :usuarioId', { usuarioId: dto.usuarioId });
+      }
+
+      const count = await qb.getCount();
+
+      return count === 0;
+    });
+
+    return isMatriculaSiapeBeingUsedByOtherUsuario;
+  }
+
+  async getUsuariosCount(actorContext: ActorContext, includeDeleted = false) {
+    return actorContext.databaseRun(async ({ entityManager }) => {
+      const usuarioRepository = getUsuarioRepository(entityManager);
+
+      const qb = usuarioRepository.createQueryBuilder('usuario');
+
+      qb.select('usuario.id');
+
+      if (!includeDeleted) {
+        qb.where('usuario.dateDeleted IS NULL');
+      }
+
+      const usersCount = await qb.getCount();
+
+      return usersCount;
+    });
+  }
+
+  async getHasUsuarios(actorContext: ActorContext, includeDeleted = false) {
+    const usersCount = await this.getUsuariosCount(actorContext, includeDeleted);
+    return usersCount > 0;
+  }
+
+  //
+
   async getUsuarioStrictGenericField<K extends keyof UsuarioDbEntity>(
     actorContext: ActorContext,
     usuarioId: number,
@@ -126,47 +255,6 @@ export class UsuarioService {
   ): Promise<UsuarioDbEntity[K]> {
     const usuario = await this.findUsuarioByIdStrict(actorContext, { id: usuarioId }, { select: ['id', field] });
     return <UsuarioDbEntity[K]>usuario[field];
-  }
-
-  //
-
-  async findUsuarioByEmail(actorContext: ActorContext, email: string) {
-    const kcUser = await this.kcClientService.findUserByEmail(actorContext, email);
-
-    if (kcUser) {
-      const id = get(kcUser, 'id');
-
-      if (typeof id === 'string') {
-        return this.loadUsuarioFromKeycloakId(actorContext, id);
-      }
-    }
-
-    // const usuario = await actorContext.databaseRun(async ({ entityManager }) => {
-    //   const usuarioRepository = getUsuarioRepository(entityManager);
-
-    //   return await usuarioRepository.findOne({
-    //     where: { email },
-    //     select: ['id'],
-    //   });
-    // });
-
-    // return usuario;
-
-    return null;
-  }
-
-  async findUsuarioByMatriculaSiape(actorContext: ActorContext, matriculaSiape: string) {
-    const kcUser = await this.kcClientService.findUserByUsername(actorContext, matriculaSiape);
-
-    if (kcUser) {
-      const id = get(kcUser, 'id');
-
-      if (typeof id === 'string') {
-        return this.loadUsuarioFromKeycloakId(actorContext, id);
-      }
-    }
-
-    return null;
   }
 
   // ...
@@ -273,55 +361,37 @@ export class UsuarioService {
     const kcUserId = kcUser.id;
 
     if (!kcUserId) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException('The provided user was not found by keycloakId on the KeyCloak repository.');
     }
 
-    const usuarioExists = await this.findUsuarioByKeycloakId(actorContext, kcUserId);
+    const dbUsuarioByKeycloakId = await this.findUsuarioByKeycloakId(actorContext, keycloakId, {
+      where: {
+        dateDeleted: IsNull(),
+      },
+    });
 
-    if (usuarioExists) {
-      const email = kcUser.email;
-
-      if (email) {
-        await actorContext.databaseRun(async ({ entityManager }) => {
-          const usuarioRepository = getUsuarioRepository(entityManager);
-
-          await usuarioRepository
-            .createQueryBuilder('usuario')
-            .update()
-            .set({
-              email: null,
-            })
-            .where('email = :email', { email })
-            .andWhere('id != :id', { id: usuarioExists.id })
-            .execute();
-        });
-      }
-
-      const username = kcUser.username;
-
-      if (username) {
-        await actorContext.databaseRun(async ({ entityManager }) => {
-          const usuarioRepository = getUsuarioRepository(entityManager);
-
-          await usuarioRepository
-            .createQueryBuilder('usuario')
-            .update()
-            .set({
-              matriculaSiape: null,
-            })
-            .where('matriculaSiape = :matriculaSiape', { matriculaSiape: username })
-            .andWhere('id != :id', { id: usuarioExists.id })
-            .execute();
-        });
-      }
-
-      return this.findUsuarioByIdStrictSimple(actorContext, usuarioExists.id);
+    if (dbUsuarioByKeycloakId) {
+      return this.findUsuarioByIdStrictSimple(actorContext, dbUsuarioByKeycloakId.id);
     }
+
+    const username = kcUser.username;
+
+    if (username) {
+      const dbUsuarioByKeycloakUsername = await this.findUsuarioByMatriculaSiape(actorContext, username, {
+        where: {
+          dateDeleted: IsNull(),
+        },
+      });
+
+      if (dbUsuarioByKeycloakUsername) {
+        return this.findUsuarioByIdStrictSimple(actorContext, dbUsuarioByKeycloakUsername.id);
+      }
+    }
+
+    const hasUsuarios = await this.getHasUsuarios(actorContext, false);
 
     const newUsuario = await actorContext.databaseRun(async ({ entityManager }) => {
-      const cargoRepository = getCargoRepository(entityManager);
       const usuarioRepository = getUsuarioRepository(entityManager);
-      const usuarioCargoRepository = getUsuarioCargoRepository(entityManager);
 
       const newUsuario = usuarioRepository.create();
 
@@ -330,12 +400,16 @@ export class UsuarioService {
       newUsuario.email = kcUser.email ?? null;
       newUsuario.matriculaSiape = kcUser.username ?? null;
 
-      const usersCount = await usuarioRepository.count();
-      const hasUsers = usersCount > 0;
-
       await usuarioRepository.save(newUsuario);
 
-      if (!hasUsers) {
+      return newUsuario;
+    });
+
+    if (!hasUsuarios) {
+      await actorContext.databaseRun(async ({ entityManager }) => {
+        const cargoRepository = getCargoRepository(entityManager);
+        const usuarioCargoRepository = getUsuarioCargoRepository(entityManager);
+
         const cargoDape = await cargoRepository.findOne({
           where: { slug: 'dape' },
         });
@@ -346,43 +420,10 @@ export class UsuarioService {
           usuarioHasCargo.cargo = cargoDape;
           await usuarioCargoRepository.save(usuarioHasCargo);
         }
-      }
-
-      return await usuarioRepository.findOneOrFail({
-        where: { keycloakId: keycloakId },
-        select: ['id'],
       });
-    });
+    }
 
     return this.findUsuarioByIdStrictSimple(actorContext, newUsuario.id);
-  }
-
-  async isEmailAvailable(actorContext: ActorContext, email: string) {
-    return this.kcClientService.isEmailAvailable(actorContext, email);
-  }
-
-  async isEmailAvailableForUser(actorContext: ActorContext, email: string, usuarioId: UsuarioDbEntity['id']) {
-    const keycloakId = await this.getUsuarioKeycloakId(actorContext, usuarioId);
-
-    if (!keycloakId) {
-      return false;
-    }
-
-    return this.kcClientService.isEmailAvailableForUser(actorContext, email, keycloakId);
-  }
-
-  async isUsernameAvailable(actorContext: ActorContext, username: string) {
-    return this.kcClientService.isUsernameAvailable(actorContext, username);
-  }
-
-  async isUsernameAvailableForUser(actorContext: ActorContext, matriculaSiape: string, usuarioId: UsuarioDbEntity['id']) {
-    const keycloakId = await this.getUsuarioKeycloakId(actorContext, usuarioId);
-
-    if (!keycloakId) {
-      return false;
-    }
-
-    return this.kcClientService.isUsernameAvailableForUser(actorContext, matriculaSiape, keycloakId);
   }
 
   async createUsuario(actorContext: ActorContext, dto: ICreateUsuarioInput) {
@@ -391,7 +432,7 @@ export class UsuarioService {
     if (has(fieldsData, 'email')) {
       const email = get(fieldsData, 'email')!;
 
-      const isEmailAvailable = await this.isEmailAvailable(actorContext, email);
+      const isEmailAvailable = await this.checkUsuarioEmailAvailability(actorContext, { email: email, usuarioId: null });
 
       if (!isEmailAvailable) {
         throw new ValidationFailedException([
@@ -407,7 +448,10 @@ export class UsuarioService {
     if (has(fieldsData, 'matriculaSiape')) {
       const matriculaSiape = get(fieldsData, 'matriculaSiape')!;
 
-      const isMatriculaSiapeAvailable = await this.isUsernameAvailable(actorContext, matriculaSiape);
+      const isMatriculaSiapeAvailable = await this.checkUsuarioMatriculaSiapeAvailability(actorContext, {
+        matriculaSiape: matriculaSiape,
+        usuarioId: null,
+      });
 
       if (!isMatriculaSiapeAvailable) {
         throw new ValidationFailedException([
@@ -461,7 +505,7 @@ export class UsuarioService {
     if (has(fieldsData, 'email')) {
       const email = get(fieldsData, 'email')!;
 
-      const isEmailAvailable = await this.isEmailAvailableForUser(actorContext, email, usuario.id);
+      const isEmailAvailable = await this.checkUsuarioEmailAvailability(actorContext, { email: email, usuarioId: usuario.id });
 
       if (!isEmailAvailable) {
         throw new ValidationFailedException([
@@ -477,7 +521,10 @@ export class UsuarioService {
     if (has(fieldsData, 'matriculaSiape')) {
       const matriculaSiape = get(fieldsData, 'matriculaSiape')!;
 
-      const isMatriculaSiapeAvailable = await this.isUsernameAvailableForUser(actorContext, matriculaSiape, usuario.id);
+      const isMatriculaSiapeAvailable = await this.checkUsuarioMatriculaSiapeAvailability(actorContext, {
+        matriculaSiape: matriculaSiape,
+        usuarioId: usuario.id,
+      });
 
       if (!isMatriculaSiapeAvailable) {
         throw new ValidationFailedException([

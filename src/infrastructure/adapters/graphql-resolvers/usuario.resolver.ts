@@ -2,6 +2,10 @@ import { Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql
 import { ActorContext } from '../../actor-context/ActorContext';
 import {
   CargoType,
+  CheckUsuarioEmailAvailabilityInputType,
+  CheckUsuarioEmailAvailabilityInputZod,
+  CheckUsuarioMatriculaSiapeAvailabilityInputType,
+  CheckUsuarioMatriculaSiapeAvailabilityInputZod,
   CreateUsuarioInputType,
   CreateUsuarioInputZod,
   DeleteUsuarioInputType,
@@ -49,6 +53,30 @@ export class UsuarioResolver {
     dto: GenericListInputType,
   ) {
     return this.usuarioService.listUsuario(actorContext, dto);
+  }
+
+  //
+
+  @Query(() => Boolean)
+  async checkUsuarioEmailAvailability(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+
+    @ValidatedArgs('dto', CheckUsuarioEmailAvailabilityInputZod)
+    dto: CheckUsuarioEmailAvailabilityInputType,
+  ) {
+    return this.usuarioService.checkUsuarioEmailAvailability(actorContext, dto);
+  }
+
+  @Query(() => Boolean)
+  async checkUsuarioMatriculaSiapeAvailability(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+
+    @ValidatedArgs('dto', CheckUsuarioMatriculaSiapeAvailabilityInputZod)
+    dto: CheckUsuarioMatriculaSiapeAvailabilityInputType,
+  ) {
+    return this.usuarioService.checkUsuarioMatriculaSiapeAvailability(actorContext, dto);
   }
 
   // END: queries

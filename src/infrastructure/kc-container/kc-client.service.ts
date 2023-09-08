@@ -76,7 +76,55 @@ export class KCClientService {
     return user;
   }
 
+  async cleanupEmailUsage(actorContext: ActorContext, keycloakId: string | null, email: string) {
+    const kcAdminClient = await this.getKcAdminClient();
+
+    const users = await kcAdminClient.users.find({ email });
+
+    for (const user of users) {
+      const id = user.id;
+
+      if (id && id !== keycloakId) {
+        await kcAdminClient.users.update({ id }, { email: '' });
+      }
+    }
+  }
+
+  async cleanupUsernameUsage(actorContext: ActorContext, keycloakId: string | null = null, username: string) {
+    const kcAdminClient = await this.getKcAdminClient();
+
+    const users = await kcAdminClient.users.find({ username });
+
+    for (const user of users) {
+      const id = user.id;
+
+      if (id && id !== keycloakId) {
+        await kcAdminClient.users.update({ id }, { username: '' });
+      }
+    }
+  }
+
+  async cleanupUsage(
+    actorContext: ActorContext,
+    keycloakId: string | null,
+    dto: { email?: string | undefined | null; username?: string | undefined | null },
+  ) {
+    const email = dto.email;
+
+    if (email) {
+      await this.cleanupEmailUsage(actorContext, keycloakId, email);
+    }
+
+    const username = dto.username;
+
+    if (username) {
+      await this.cleanupUsernameUsage(actorContext, keycloakId, username);
+    }
+  }
+
   async createUser(actorContext: ActorContext, dto: ICreateUsuarioInput) {
+    await this.cleanupUsage(actorContext, null, { email: dto.email, username: dto.matriculaSiape });
+
     const kcAdminClient = await this.getKcAdminClient();
 
     const user: UserRepresentation = {
@@ -92,6 +140,8 @@ export class KCClientService {
   }
 
   async updateUser(actorContext: ActorContext, keycloakId: string, dto: IUpdateUsuarioInput) {
+    await this.cleanupUsage(actorContext, keycloakId, { email: dto.email, username: dto.matriculaSiape });
+
     const kcAdminClient = await this.getKcAdminClient();
 
     const user: UserRepresentation = {
