@@ -6,6 +6,11 @@ export class CargoPresenter implements IAppResourcePresenter<CargoModel> {
     return {
       id: cargoModel.id,
       slug: cargoModel.slug,
+
+      dateCreated: cargoModel.dateCreated,
+      dateUpdated: cargoModel.dateUpdated,
+      dateDeleted: cargoModel.dateDeleted,
+      dateSearchSync: cargoModel.dateSearchSync,
     };
   }
 }

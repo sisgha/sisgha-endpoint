@@ -21,9 +21,9 @@ export const PermissaoResource: IPermissaoResource = {
 
   search: {
     meiliSearchIndex: 'permissao',
-    searchable: ['id', 'descricao', 'acao', 'recurso'],
-    filterable: ['id', 'acao', 'recurso'],
-    sortable: ['id', 'acao', 'recurso'],
+    searchable: ['id', 'descricao', 'acao', 'recurso', 'dateCreated', 'dateUpdated', 'dateDeleted', 'dateSearchSync'],
+    filterable: ['id', 'acao', 'recurso', 'dateCreated', 'dateUpdated', 'dateDeleted', 'dateSearchSync'],
+    sortable: ['id', 'acao', 'recurso', 'dateCreated', 'dateUpdated', 'dateDeleted', 'dateSearchSync'],
   },
 
   presenter: () => new PermissaoPresenter(),

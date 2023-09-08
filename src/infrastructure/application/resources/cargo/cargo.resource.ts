@@ -21,9 +21,9 @@ export const CargoResource: ICargoResource = {
 
   search: {
     meiliSearchIndex: 'cargo',
-    searchable: ['id', 'slug'],
-    filterable: ['id', 'slug'],
-    sortable: ['id', 'slug'],
+    searchable: ['id', 'slug', 'dateCreated', 'dateUpdated', 'dateDeleted', 'dateSearchSync'],
+    filterable: ['id', 'slug', 'dateCreated', 'dateUpdated', 'dateDeleted', 'dateSearchSync'],
+    sortable: ['id', 'slug', 'dateCreated', 'dateUpdated', 'dateDeleted', 'dateSearchSync'],
   },
 
   presenter: () => new CargoPresenter(),

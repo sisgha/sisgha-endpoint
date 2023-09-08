@@ -21,9 +21,9 @@ export const UsuarioResource: IUsuarioResource = {
 
   search: {
     meiliSearchIndex: 'usuario',
-    searchable: ['id', 'nome', 'email', 'matriculaSiape'],
-    filterable: ['id', 'nome', 'email', 'matriculaSiape'],
-    sortable: ['id', 'nome', 'email', 'matriculaSiape'],
+    searchable: ['id', 'nome', 'email', 'matriculaSiape', 'dateCreated', 'dateUpdated', 'dateDeleted', 'dateSearchSync'],
+    filterable: ['id', 'nome', 'email', 'matriculaSiape', 'dateCreated', 'dateUpdated', 'dateDeleted', 'dateSearchSync'],
+    sortable: ['id', 'nome', 'email', 'matriculaSiape', 'dateCreated', 'dateUpdated', 'dateDeleted', 'dateSearchSync'],
   },
 
   presenter: () => new UsuarioPresenter(),

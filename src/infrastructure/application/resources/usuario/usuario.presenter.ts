@@ -2,11 +2,16 @@ import { IAppResourcePresenter } from '../../../../domain/application-resources'
 import { UsuarioModel } from '../../../../domain/models/usuario.model';
 
 export class UsuarioPresenter implements IAppResourcePresenter<UsuarioModel> {
-  async getSearchData(data: UsuarioModel) {
+  async getSearchData(usuarioModel: UsuarioModel) {
     return {
-      id: data.id,
-      email: data.email,
-      matriculaSiape: data.matriculaSiape,
+      id: usuarioModel.id,
+      email: usuarioModel.email,
+      matriculaSiape: usuarioModel.matriculaSiape,
+
+      dateCreated: usuarioModel.dateCreated,
+      dateUpdated: usuarioModel.dateUpdated,
+      dateDeleted: usuarioModel.dateDeleted,
+      dateSearchSync: usuarioModel.dateSearchSync,
     };
   }
 }
