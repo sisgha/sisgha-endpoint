@@ -8,7 +8,7 @@ export type IAppResource<
 > = {
   key: string;
 
-  search: IAppResourceSearchOptions;
+  search: IAppResourceSearchOptions<IResourceModel>;
 
   presenter: () => IAppResourcePresenter<IResourceModel>;
 

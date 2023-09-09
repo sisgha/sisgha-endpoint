@@ -18,7 +18,7 @@ export class SetupMeiliSearchUtil {
     console.info('[INFO] done');
   }
 
-  async ensureSearchable(client: MeiliSearch, index: string, searchable: string[]) {
+  async ensureSearchable<T extends string>(client: MeiliSearch, index: string, searchable: T[]) {
     const currentSearchable = await client.index(index).getSearchableAttributes();
 
     if (!isEqual(currentSearchable, searchable)) {
@@ -33,7 +33,7 @@ export class SetupMeiliSearchUtil {
     }
   }
 
-  async ensureFilterable(client: MeiliSearch, index: string, filterable: string[]) {
+  async ensureFilterable<T extends string>(client: MeiliSearch, index: string, filterable: T[]) {
     const currentFilterable = await client.index(index).getFilterableAttributes();
 
     if (!isEqual(currentFilterable, filterable)) {
@@ -48,7 +48,7 @@ export class SetupMeiliSearchUtil {
     }
   }
 
-  async ensureSortable(client: MeiliSearch, index: string, sortable: string[]) {
+  async ensureSortable<T extends string>(client: MeiliSearch, index: string, sortable: T[]) {
     const currentSortable = await client.index(index).getSortableAttributes();
 
     if (!isEqual(currentSortable, sortable)) {
@@ -70,9 +70,9 @@ export class SetupMeiliSearchUtil {
       const { filterable, meiliSearchIndex: index, searchable, sortable } = appResourceSearchOptions;
 
       await this.ensureIndexExists(client, index);
-      await this.ensureSearchable(client, index, searchable);
-      await this.ensureFilterable(client, index, filterable);
-      await this.ensureSortable(client, index, sortable);
+      await this.ensureSearchable(client, index, <any>searchable);
+      await this.ensureFilterable(client, index, <any>filterable);
+      await this.ensureSortable(client, index, <any>sortable);
     }
   }
 

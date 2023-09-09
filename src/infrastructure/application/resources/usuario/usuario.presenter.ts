@@ -5,6 +5,9 @@ export class UsuarioPresenter implements IAppResourcePresenter<UsuarioModel> {
   async getSearchData(usuarioModel: UsuarioModel) {
     return {
       id: usuarioModel.id,
+
+      nome: usuarioModel.nome,
+
       email: usuarioModel.email,
       matriculaSiape: usuarioModel.matriculaSiape,
 

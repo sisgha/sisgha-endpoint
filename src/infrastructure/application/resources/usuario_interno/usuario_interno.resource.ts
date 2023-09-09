@@ -25,9 +25,39 @@ export const UsuarioInternoResource: IUsuarioInternoResource = {
 
   search: {
     meiliSearchIndex: 'usuario_interno',
-    searchable: ['id', 'tipoEntidade', 'dateCreated', 'dateUpdated', 'dateDeleted', 'dateSearchSync'],
-    filterable: ['id', 'tipoEntidade', 'dateCreated', 'dateUpdated', 'dateDeleted', 'dateSearchSync'],
-    sortable: ['id', 'tipoEntidade', 'dateCreated', 'dateUpdated', 'dateDeleted', 'dateSearchSync'],
+    searchable: [
+      // ...
+      'id',
+
+      'tipoEntidade',
+
+      'dateCreated',
+      'dateUpdated',
+      'dateDeleted',
+      'dateSearchSync',
+    ],
+    filterable: [
+      // ...
+      'id',
+
+      'tipoEntidade',
+
+      'dateCreated',
+      'dateUpdated',
+      'dateDeleted',
+      'dateSearchSync',
+    ],
+    sortable: [
+      // ...
+      'id',
+
+      'tipoEntidade',
+
+      'dateCreated',
+      'dateUpdated',
+      'dateDeleted',
+      'dateSearchSync',
+    ],
   },
 
   presenter: () => new UsuarioInternoPresenter(),

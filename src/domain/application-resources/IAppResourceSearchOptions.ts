@@ -1,6 +1,6 @@
-export type IAppResourceSearchOptions = null | {
+export type IAppResourceSearchOptions<IResourceModel = unknown> = null | {
   meiliSearchIndex: string;
-  searchable: string[];
-  filterable: string[];
-  sortable: string[];
+  searchable: readonly (keyof IResourceModel)[];
+  filterable: readonly (keyof IResourceModel)[];
+  sortable: readonly (keyof IResourceModel)[];
 };

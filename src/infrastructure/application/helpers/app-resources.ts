@@ -7,7 +7,7 @@ import { UsuarioCargoResource } from '../resources/usuario_cargo/usuario_cargo.r
 import { UsuarioInternoResource } from '../resources/usuario_interno/usuario_interno.resource';
 import { UsuarioInternoCargoResource } from '../resources/usuario_interno_cargo/usuario_interno_cargo.resource';
 
-export const APP_RESOURCES: IAppResource[] = [
+export const APP_RESOURCES: IAppResource<any>[] = [
   // ...
   CargoResource,
   CargoPermissaoResource,

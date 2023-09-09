@@ -325,7 +325,7 @@ export class UsuarioService {
     return permissoes;
   }
 
-  async getUsuarioCargos(actorContext: ActorContext, usuarioId: number) {
+  async getUsuarioCargos(actorContext: ActorContext, usuarioId: number, includeDeleted = false) {
     const usuario = await this.findUsuarioByIdStrictSimple(actorContext, usuarioId);
 
     const allowedCargoIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_CARGO, ContextAction.READ);
@@ -338,6 +338,10 @@ export class UsuarioService {
       await cargoRepository.filterQueryByUsuarioId(qb, usuario.id);
 
       qb.select(['cargo.id']);
+
+      if (!includeDeleted) {
+        qb.andWhere('cargo.dateDeleted IS NULL');
+      }
 
       const cargos = await qb.getMany();
 
