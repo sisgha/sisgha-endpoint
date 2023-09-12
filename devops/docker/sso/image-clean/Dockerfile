@@ -8,6 +8,5 @@ RUN /opt/keycloak/bin/kc.sh build
 
 FROM quay.io/keycloak/keycloak:21.1.2
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
-COPY ./data/import /opt/keycloak/data/import/
 WORKDIR /opt/keycloak
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start", "--import-realm", "--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true", "--optimized", "--proxy=edge"]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start", "--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true", "--optimized", "--proxy=edge"]
