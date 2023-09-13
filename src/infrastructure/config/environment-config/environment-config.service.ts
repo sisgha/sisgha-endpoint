@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { DataSourceOptions } from 'typeorm';
 import { IConfig, IKeyCloakConfigCredentials, IMeiliSearchConfigCredentials, IOIDCClientConfigCredentials } from '../../../domain/config';
+import { IConfigSeedSuperUsuarioData } from '../../../domain/config/IConfigSeedSuperUsuario';
 
 @Injectable()
 export class EnvironmentConfigService implements IConfig {
@@ -10,6 +11,42 @@ export class EnvironmentConfigService implements IConfig {
     // ...
     private configService: ConfigService,
   ) {}
+
+  getSeedSuperUsuarioEmail(): string | undefined {
+    return this.configService.get<string>('SEED_SUPER_USUARIO_EMAIL');
+  }
+
+  getSeedSuperUsuarioMatriculaSiape(): string | undefined {
+    return this.configService.get<string>('SEED_SUPER_USUARIO_MATRICULA_SIAPE');
+  }
+
+  getSeedSuperUsuarioPassword(): string | undefined {
+    return this.configService.get<string>('SEED_SUPER_USUARIO_PASSWORD');
+  }
+
+  getSeedSuperUsuario(): IConfigSeedSuperUsuarioData {
+    const email = this.getSeedSuperUsuarioEmail();
+    const matriculaSiape = this.getSeedSuperUsuarioMatriculaSiape();
+    const password = this.getSeedSuperUsuarioPassword();
+
+    if (!email) {
+      throw new Error('Seed super usuario "SEED_SUPER_USUARIO_EMAIL" config not provided.');
+    }
+
+    if (!matriculaSiape) {
+      throw new Error('Seed super usuario "SEED_SUPER_USUARIO_MATRICULA_SIAPE" config not provided.');
+    }
+
+    if (!password) {
+      throw new Error('Seed super usuario "SEED_SUPER_USUARIO_PASSWORD" config not provided.');
+    }
+
+    return {
+      email,
+      matriculaSiape,
+      password,
+    };
+  }
 
   getKeyCloakBaseUrl(): string | undefined {
     return this.configService.get<string>('KC_BASE_URL');

@@ -3,15 +3,15 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Interval } from '@nestjs/schedule';
 import { has } from 'lodash';
 import MeiliSearch from 'meilisearch';
-import { ActorContext } from 'src/infrastructure/actor-context/ActorContext';
-import { APP_DATA_SOURCE_TOKEN } from 'src/infrastructure/database/tokens/APP_DATA_SOURCE_TOKEN';
 import { DataSource, ObjectLiteral, Repository } from 'typeorm';
 import { IAppResource } from '../../domain/application-resources';
 import { IGenericSearchResult } from '../../domain/dtos';
 import { IGenericListInput } from '../../domain/search/IGenericListInput';
+import { ActorContext } from '../actor-context/ActorContext';
 import { APP_RESOURCES } from '../application/helpers';
 import { MEILISEARCH_PRIMARY_KEY } from '../config/MEILISEARCH_PRIMARY_KEY';
 import { MEILISEARCH_SYNC_RECORDS_INTERVAL } from '../config/MEILISEARCH_SYNC_RECORDS_INTERVAL';
+import { APP_DATA_SOURCE_TOKEN } from '../database/tokens/APP_DATA_SOURCE_TOKEN';
 import { parralelMap } from '../helpers/parralel-map';
 import { MEILISEARCH_CLIENT_TOKEN } from './tokens/MEILISEARCH_CLIENT_TOKEN';
 

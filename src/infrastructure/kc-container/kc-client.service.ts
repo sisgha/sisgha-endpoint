@@ -1,11 +1,15 @@
 import UserRepresentation from '@keycloak/keycloak-admin-client/lib/defs/userRepresentation';
-import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { has } from 'lodash';
 import { BaseClient } from 'openid-client';
 import { ICreateUsuarioInput, IUpdateUsuarioInput, IUpdateUsuarioPasswordInput } from '../../domain/dtos';
 import { ActorContext } from '../actor-context/ActorContext';
 import { OPENID_CLIENT_TOKEN } from '../oidc-client/tokens/OPENID_CLIENT_TOKEN';
 import { KCContainerService } from './kc-container.service';
+
+type IKCClientServiceCreateUserInput = Omit<ICreateUsuarioInput, 'nome'> & Partial<Pick<ICreateUsuarioInput, 'nome'>>;
+
+type IKCClientServiceUpdateUserPasswordInput = Omit<IUpdateUsuarioPasswordInput, 'id'>;
 
 @Injectable()
 export class KCClientService {
@@ -79,7 +83,7 @@ export class KCClientService {
   async cleanupEmailUsage(actorContext: ActorContext, keycloakId: string | null, email: string) {
     const kcAdminClient = await this.getKcAdminClient();
 
-    const users = await kcAdminClient.users.find({ email });
+    const users = await kcAdminClient.users.find({ email }, { catchNotFound: false });
 
     for (const user of users) {
       const id = user.id;
@@ -93,15 +97,19 @@ export class KCClientService {
   async cleanupUsernameUsage(actorContext: ActorContext, keycloakId: string | null = null, username: string) {
     const kcAdminClient = await this.getKcAdminClient();
 
-    const users = await kcAdminClient.users.find({ username });
+    const users = await kcAdminClient.users.find({ username }, { catchNotFound: false });
 
-    for (const user of users) {
-      const id = user.id;
-
-      if (id && id !== keycloakId) {
-        await kcAdminClient.users.update({ id }, { username: '' });
-      }
+    if (users.length > 0) {
+      throw new Error('Username already taken');
     }
+
+    // for (const user of users) {
+    //   const id = user.id;
+
+    //   if (id && id !== keycloakId) {
+    //     await kcAdminClient.users.update({ id }, { username: '' });
+    //   }
+    // }
   }
 
   async cleanupUsage(
@@ -122,7 +130,7 @@ export class KCClientService {
     }
   }
 
-  async createUser(actorContext: ActorContext, dto: ICreateUsuarioInput) {
+  async createUser(actorContext: ActorContext, dto: IKCClientServiceCreateUserInput) {
     await this.cleanupUsage(actorContext, null, { email: dto.email, username: dto.matriculaSiape });
 
     const kcAdminClient = await this.getKcAdminClient();
@@ -175,6 +183,16 @@ export class KCClientService {
     );
   }
 
+  async deleteUser(actorContext: ActorContext, keycloakId: string) {
+    const kcAdminClient = await this.getKcAdminClient();
+
+    const user = await this.findUserByKeycloakId(actorContext, keycloakId);
+
+    if (user) {
+      await kcAdminClient.users.del({ id: keycloakId });
+    }
+  }
+
   async isEmailAvailable(actorContext: ActorContext, email: string) {
     const currentUserWithEmail = await this.findUserByEmail(actorContext, email);
     return currentUserWithEmail === null;
@@ -221,7 +239,12 @@ export class KCClientService {
     }
   }
 
-  async updateUserPassword(actorContext: ActorContext, keycloakId: string, dto: IUpdateUsuarioPasswordInput, checkCurrentPassword = true) {
+  async updateUserPassword(
+    actorContext: ActorContext,
+    keycloakId: string,
+    dto: IKCClientServiceUpdateUserPasswordInput,
+    checkCurrentPassword = true,
+  ) {
     const kcAdminClient = await this.getKcAdminClient();
 
     const user = await this.findUserByKeycloakId(actorContext, keycloakId);
@@ -233,6 +256,10 @@ export class KCClientService {
         if (!isPasswordCorrect) {
           throw new ForbiddenException('Invalid current password.');
         }
+      }
+
+      if (dto.newPassword !== dto.confirmNewPassword) {
+        throw new UnprocessableEntityException('Invalid confirmNewPassword');
       }
 
       await kcAdminClient.users.resetPassword({

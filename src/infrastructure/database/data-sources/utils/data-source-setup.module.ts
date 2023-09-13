@@ -8,6 +8,8 @@ import { EnvironmentConfigModule } from '../../../config/environment-config/envi
     ConfigModule.forRoot({ isGlobal: true }),
     EnvironmentConfigModule,
   ],
-  providers: [],
+  providers: [
+    // ...
+  ],
 })
 export class DataSourceSetupModule {}

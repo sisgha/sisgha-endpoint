@@ -23,6 +23,11 @@ export class UsuarioDbEntity implements UsuarioModel {
 
   // ...
 
+  @Column({ name: 'flag_seed_super_usuario', nullable: false, type: 'boolean' })
+  flagSeedSuperUsuario!: boolean;
+
+  // ...
+
   @CreateDateColumn({ name: 'date_created', type: 'timestamptz', nullable: false })
   dateCreated!: Date;
 

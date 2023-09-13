@@ -101,6 +101,7 @@ import { UsuarioInternoCargoModule } from './resources/usuario_interno_cargo/usu
     MeiliSearchModule,
 
     // AUTHENTICATION MODULES
+
     OidcClientModule,
     AuthenticationModule,
     KcContainerModule,

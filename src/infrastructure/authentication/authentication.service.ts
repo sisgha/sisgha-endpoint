@@ -1,9 +1,9 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { Client } from 'openid-client';
-import { ActorUser } from 'src/infrastructure/actor-context/ActorUser';
 import { DataSource } from 'typeorm';
 import { Actor } from '../actor-context/Actor';
 import { ActorContext } from '../actor-context/ActorContext';
+import { ActorUser } from '../actor-context/ActorUser';
 import { UsuarioService } from '../application/resources/usuario/usuario.service';
 import { IS_PRODUCTION_MODE_TOKEN } from '../config/IS_PRODUCTION_MODE_TOKEN';
 import { APP_DATA_SOURCE_TOKEN } from '../database/tokens/APP_DATA_SOURCE_TOKEN';
