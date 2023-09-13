@@ -4,8 +4,8 @@ import {
   AddCargoToUsuarioInputType,
   AddCargoToUsuarioInputZod,
   CargoType,
-  ChecarUsuarioPossuiCargoByUsuarioIdAndCargoSlugInputZod,
-  ChecarUsuarioPossuiCargoByUsuarioidAndCargoSlugInputType,
+  CheckUsuarioHasCargoByUsuarioIdAndCargoSlugInputZod,
+  CheckUsuarioHasCargoByUsuarioidAndCargoSlugInputType,
   FindUsuarioCargoByIdInputType,
   FindUsuarioCargoByIdInputZod,
   FindUsuarioCargoByUsuarioIdAndCargoIdInputType,
@@ -59,13 +59,13 @@ export class UsuarioCargoResolver {
   }
 
   @Query(() => Boolean)
-  async checarUsuarioPossuiCargoByUsuarioIdAndCargoSlug(
+  async checkUsuarioHasCargoByUsuarioIdAndCargoSlug(
     @ResolveActorContext()
     actorContext: ActorContext,
-    @ValidatedArgs('dto', ChecarUsuarioPossuiCargoByUsuarioIdAndCargoSlugInputZod)
-    dto: ChecarUsuarioPossuiCargoByUsuarioidAndCargoSlugInputType,
+    @ValidatedArgs('dto', CheckUsuarioHasCargoByUsuarioIdAndCargoSlugInputZod)
+    dto: CheckUsuarioHasCargoByUsuarioidAndCargoSlugInputType,
   ) {
-    return this.usuarioCargoService.checarUsuarioPossuiCargoByUsuarioIdAndCargoSlug(actorContext, dto);
+    return this.usuarioCargoService.checkUsuarioHasCargoByUsuarioIdAndCargoSlug(actorContext, dto);
   }
 
   // END: queries

@@ -4,7 +4,7 @@ import { FindOneOptions } from 'typeorm';
 import { ContextAction } from '../../../../domain/authorization-constraints';
 import {
   IAddCargoToUsuarioInput,
-  IChecarUsuarioPossuiCargoByUsuarioidAndCargoSlugInput,
+  ICheckUsuarioHasCargoByUsuarioidAndCargoSlugInput,
   IFindUsuarioCargoByIdInput,
   IFindUsuarioCargoByUsuarioIdAndCargoIdInput,
   IListCargoFromUsuarioInput,
@@ -162,10 +162,7 @@ export class UsuarioCargoService {
     };
   }
 
-  async checarUsuarioPossuiCargoByUsuarioIdAndCargoSlug(
-    actorContext: ActorContext,
-    dto: IChecarUsuarioPossuiCargoByUsuarioidAndCargoSlugInput,
-  ) {
+  async checkUsuarioHasCargoByUsuarioIdAndCargoSlug(actorContext: ActorContext, dto: ICheckUsuarioHasCargoByUsuarioidAndCargoSlugInput) {
     const usuario = await this.usuarioService.findUsuarioByIdStrictSimple(actorContext, dto.usuarioId);
 
     const cargo = await this.cargoService.findCargoBySlugStrictSimple(actorContext, dto.cargoSlug);
