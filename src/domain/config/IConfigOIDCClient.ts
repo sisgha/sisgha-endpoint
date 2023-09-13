@@ -1,15 +1,15 @@
-export interface IOIDCClientConfigCredentials {
+export interface IConfigOIDCClientCredentials {
   issuer: string;
   clientId: string;
   clientSecret: string;
 }
 
-export interface IOIDCClientConfig {
+export interface IConfigOIDCClient {
   getOIDCClientIssuer(): string | undefined;
 
   getOIDCClientClientId(): string | undefined;
 
   getOIDCClientClientSecret(): string | undefined;
 
-  getOIDCClientCredentials(): IOIDCClientConfigCredentials;
+  getOIDCClientCredentials(): IConfigOIDCClientCredentials;
 }

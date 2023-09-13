@@ -1,6 +1,6 @@
 import { DataSourceOptions } from 'typeorm';
 
-export interface ITypeORMDataSourceConfig {
+export interface IConfigTypeORMDataSource {
   getTypeORMSharedDataSourceOptions(): Partial<DataSourceOptions>;
 
   getTypeORMAppDataSourceOptions(): DataSourceOptions;

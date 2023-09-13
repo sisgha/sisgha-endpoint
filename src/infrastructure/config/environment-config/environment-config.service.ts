@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { DataSourceOptions } from 'typeorm';
-import { IConfig, IKeyCloakConfigCredentials, IMeiliSearchConfigCredentials, IOIDCClientConfigCredentials } from '../../../domain/config';
+import { IConfig, IConfigKeyCloakCredentials, IConfigMeiliSearchCredentials, IConfigOIDCClientCredentials } from '../../../domain/config';
 import { IConfigSeedSuperUsuarioData } from '../../../domain/config/IConfigSeedSuperUsuario';
 
 @Injectable()
@@ -64,7 +64,7 @@ export class EnvironmentConfigService implements IConfig {
     return this.configService.get<string>('KC_CLIENT_SECRET');
   }
 
-  getKeyCloakConfigCredentials(): IKeyCloakConfigCredentials {
+  getKeyCloakConfigCredentials(): IConfigKeyCloakCredentials {
     const baseUrl = this.getKeyCloakBaseUrl();
     const realm = this.getKeyCloakRealm();
     const clientId = this.getKeyCloakClientId();
@@ -104,7 +104,7 @@ export class EnvironmentConfigService implements IConfig {
     return this.configService.get<string>('MEILISEARCH_API_KEY');
   }
 
-  getMeiliSearchConfig(): IMeiliSearchConfigCredentials {
+  getMeiliSearchConfig(): IConfigMeiliSearchCredentials {
     const host = this.getMeiliSearchHost();
     const apiKey = this.getMeiliSearchApiKey();
 
@@ -285,7 +285,7 @@ export class EnvironmentConfigService implements IConfig {
     return this.configService.get<string>('OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER');
   }
 
-  getOIDCClientCredentials(): IOIDCClientConfigCredentials {
+  getOIDCClientCredentials(): IConfigOIDCClientCredentials {
     const issuer = this.getOIDCClientIssuer();
     const clientId = this.getOIDCClientClientId();
     const clientSecret = this.getOIDCClientClientSecret();

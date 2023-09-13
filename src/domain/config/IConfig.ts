@@ -1,14 +1,14 @@
+import { IConfigKeyCloak } from './IConfigKeyCloak';
+import { IConfigMeiliSearch } from './IConfigMeiliSearch';
+import { IConfigOIDCClient } from './IConfigOIDCClient';
 import { IConfigSeedSuperUsuario } from './IConfigSeedSuperUsuario';
-import { IKeyCloakConfig } from './IKeyCloakConfig';
-import { IMeiliSearchConfig } from './IMeiliSearchConfig';
-import { IOIDCClientConfig } from './IOIDCClientConfig';
-import { ITypeORMConfig } from './ITypeORMConfig';
-import { ITypeORMDataSourceConfig } from './ITypeORMDataSourceConfig';
+import { IConfigTypeORM } from './IConfigTypeORM';
+import { IConfigTypeORMDataSource } from './IConfigTypeORMDataSource';
 
 export interface IConfig
-  extends IMeiliSearchConfig,
-    ITypeORMConfig,
-    IOIDCClientConfig,
-    ITypeORMDataSourceConfig,
-    IKeyCloakConfig,
+  extends IConfigMeiliSearch,
+    IConfigTypeORM,
+    IConfigOIDCClient,
+    IConfigTypeORMDataSource,
+    IConfigKeyCloak,
     IConfigSeedSuperUsuario {}

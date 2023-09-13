@@ -1,4 +1,4 @@
-export interface ITypeORMConfig {
+export interface IConfigTypeORM {
   getTypeORMBasePath(): string;
 
   getTypeORMPathEntities(): string;
