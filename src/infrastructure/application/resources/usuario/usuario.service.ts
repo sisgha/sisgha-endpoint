@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { get, has, intersection, omit, pick } from 'lodash';
 import { FindOneOptions, IsNull } from 'typeorm';
-import { ContextAction } from '../../../../domain/authorization-constraints';
+import { ContextAction } from '../../../../domain/authorization';
 import {
   ICheckUsuarioEmailAvailabilityInput,
   ICheckUsuarioMatriculaSiapeAvailabilityInput,

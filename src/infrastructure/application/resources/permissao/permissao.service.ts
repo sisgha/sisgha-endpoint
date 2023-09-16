@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { isEmpty, omit } from 'lodash';
 import { FindOneOptions } from 'typeorm';
-import { ContextAction } from '../../../../domain/authorization-constraints';
+import { ContextAction } from '../../../../domain/authorization';
 import { ICreatePermissaoInput, IDeletePermissaoInput, IFindPermissaoByIdInput } from '../../../../domain/dtos';
 import { IUpdatePermissaoInput } from '../../../../domain/dtos/IUpdatePermissaoInput';
 import { IGenericListInput } from '../../../../domain/search/IGenericListInput';

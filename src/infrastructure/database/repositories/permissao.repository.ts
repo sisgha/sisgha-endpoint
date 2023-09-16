@@ -1,16 +1,16 @@
 import { pg } from '@ucast/sql';
+import {
+  AuthorizationConstraintInterpreterSQL,
+  AuthorizationConstraintJoinMode,
+  AuthorizationConstraintRecipeType,
+  IAuthorizationConstraintRecipe,
+} from 'recipe-guard/packages/core';
 import { Brackets, DataSource, EntityManager, ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 import { IActor } from '../../../domain/actor';
 import { IAppResource } from '../../../domain/application-resources';
 import { AuthenticatedEntityType } from '../../../domain/authentication';
-import {
-  AuthorizationConstraintJoinMode,
-  IAuthorizationConstraintRecipe,
-  IAuthorizationConstraintRecipeType,
-} from '../../../domain/authorization-constraints';
 import { ActorUser } from '../../actor-context/ActorUser';
 import { getAppResource } from '../../application/helpers';
-import { AuthorizationConstraintInterpreterSQL } from '../../authorization/authorization-constraint-interpreter-sql';
 import { CargoDbEntity } from '../entities/cargo.db.entity';
 import { PermissaoDbEntity } from '../entities/permissao.db.entity';
 
@@ -183,7 +183,7 @@ export const getPermissaoRepository = (dataSource: DataSource | EntityManager) =
       const resourceRepository = getResourceRepository(dataSource) as Repository<Entity>;
 
       switch (authorizationConstraintRecipe.type) {
-        case IAuthorizationConstraintRecipeType.BOOLEAN: {
+        case AuthorizationConstraintRecipeType.BOOLEAN: {
           const qb = resourceRepository.createQueryBuilder('resource');
 
           qb.select(['resource.id']);
@@ -197,7 +197,7 @@ export const getPermissaoRepository = (dataSource: DataSource | EntityManager) =
           return qb;
         }
 
-        case IAuthorizationConstraintRecipeType.FILTER: {
+        case AuthorizationConstraintRecipeType.FILTER: {
           const authorizationConstraintInterpreterSQL = new AuthorizationConstraintInterpreterSQL({
             dbDialect: {
               ...pg,

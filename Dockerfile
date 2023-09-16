@@ -3,8 +3,8 @@ RUN apk update && apk add git
 WORKDIR /app
 
 FROM base as prod-deps
-COPY package.json package-lock.json ./
-RUN npm install --production
+COPY package.json .npmrc package-lock.json ./
+RUN npm install --omit=dev
 
 FROM prod-deps as dev-deps
 RUN npm install

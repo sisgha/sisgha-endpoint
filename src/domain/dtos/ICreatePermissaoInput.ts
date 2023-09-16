@@ -1,4 +1,4 @@
-import { IAuthorizationConstraintRecipe } from '../authorization-constraints';
+import { IAuthorizationConstraintRecipe } from 'recipe-guard/packages/core';
 
 export interface ICreatePermissaoInput {
   descricao: string;

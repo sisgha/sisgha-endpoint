@@ -1,4 +1,4 @@
-import { IAuthorizationConstraintRecipe } from '../authorization-constraints';
+import { IAuthorizationConstraintRecipe } from 'recipe-guard/packages/core';
 import { ISearchableEntity } from '../search/ISearchableEntity';
 
 export interface PermissaoModel extends ISearchableEntity {

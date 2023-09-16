@@ -1,8 +1,5 @@
+import { AuthorizationConstraintRecipeResolutionMode, IAuthorizationConstraintRecipeBoolean } from 'recipe-guard/packages/core';
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import {
-  IAuthorizationConstraintRecipeBoolean,
-  IAuthorizationConstraintRecipeResolutionMode,
-} from '../../../domain/authorization-constraints';
 import { PermissaoModel } from '../../../domain/models/permissao.model';
 import { getPermissaoRepository } from '../repositories/permissao.repository';
 
@@ -17,7 +14,7 @@ export class AutorizacaoSistemaPermissoes1686601303717 implements MigrationInter
       recursoGlobal: true,
 
       authorizationConstraintRecipe: <IAuthorizationConstraintRecipeBoolean>{
-        resolutionMode: IAuthorizationConstraintRecipeResolutionMode.MERGE,
+        resolutionMode: AuthorizationConstraintRecipeResolutionMode.RESOLVE_AND_MERGE,
         type: 'boolean',
         value: true,
       },

@@ -1,20 +1,18 @@
 import { AbilityBuilder, AnyAbility, subject as castSubject, createMongoAbility } from '@casl/ability';
 import { ForbiddenException, InternalServerErrorException } from '@nestjs/common';
 import { get, has, intersection, union, without } from 'lodash';
+import {
+  AuthorizationConstraintRecipeResolutionMode,
+  AuthorizationConstraintRecipeType,
+  AuthorizationConstraintRecipeZod,
+  IAuthorizationConstraintRecipe,
+} from 'recipe-guard/packages/core';
 import { DataSource } from 'typeorm';
-import { CASL_RECURSO_WILDCARD } from './interfaces/CASL_RECURSO_WILDCARD';
-import { CASL_VERBO_WILDCARD } from './interfaces/CASL_VERBO_WILDCARD';
 import { IAppResource } from '../../domain/application-resources';
 import { AuthenticatedEntityType } from '../../domain/authentication';
-import {
-  ContextAction,
-  IAuthorizationConstraintRecipe,
-  IAuthorizationConstraintRecipeResolutionMode,
-  IAuthorizationConstraintRecipeType,
-} from '../../domain/authorization-constraints';
+import { ContextAction } from '../../domain/authorization';
 import { PermissaoModel } from '../../domain/models';
 import { getAppResource } from '../application/helpers';
-import { AuthorizationConstraintRecipeZod } from '../authorization/zod';
 import { PermissaoDbEntity } from '../database/entities/permissao.db.entity';
 import { getPermissaoRepository } from '../database/repositories/permissao.repository';
 import { extractIds } from '../helpers/extract-ids';
@@ -22,6 +20,8 @@ import { Actor } from './Actor';
 import { ActorContextRepository } from './ActorContextRepository';
 import { ActorUser } from './ActorUser';
 import { IActorContextDatabaseRunCallback } from './interfaces';
+import { CASL_RECURSO_WILDCARD } from './interfaces/CASL_RECURSO_WILDCARD';
+import { CASL_VERBO_WILDCARD } from './interfaces/CASL_VERBO_WILDCARD';
 
 export class ActorContext {
   public actorContextRepository: ActorContextRepository;
@@ -62,7 +62,6 @@ export class ActorContext {
             const user = (<ActorUser>actor).userRef;
 
             if (user) {
-              // await queryRunner.query('set local "request.auth.role" to \'authenticated\';');
               await queryRunner.query(`set local "request.auth.user.id" to ${user.id};`);
             }
 
@@ -74,10 +73,6 @@ export class ActorContext {
             break;
           }
         }
-
-        // if (anonymous) {
-        //   await queryRunner.manager.query(`set local role ${DatabaseActorRole.ANON};`);
-        // }
 
         return callback({ entityManager, queryRunner });
       });
@@ -141,7 +136,7 @@ export class ActorContext {
       );
 
       switch (authorizationConstraintRecipe.resolutionMode) {
-        case IAuthorizationConstraintRecipeResolutionMode.INTERSECTION: {
+        case AuthorizationConstraintRecipeResolutionMode.RESOLVE_AND_INTERSECT: {
           if (allowedResources === null) {
             allowedResources = constraintAllowedResources;
           } else {
@@ -151,7 +146,7 @@ export class ActorContext {
           break;
         }
 
-        case IAuthorizationConstraintRecipeResolutionMode.MERGE: {
+        case AuthorizationConstraintRecipeResolutionMode.RESOLVE_AND_MERGE: {
           if (allowedResources === null) {
             allowedResources = constraintAllowedResources;
           } else {
@@ -161,7 +156,7 @@ export class ActorContext {
           break;
         }
 
-        case IAuthorizationConstraintRecipeResolutionMode.EXCLUDE: {
+        case AuthorizationConstraintRecipeResolutionMode.RESOLVE_AND_EXCLUDE: {
           if (allowedResources !== null) {
             allowedResources = without(allowedResources, ...constraintAllowedResources);
           }
@@ -217,9 +212,9 @@ export class ActorContext {
     }
 
     switch (authorizationConstraintRecipe.resolutionMode) {
-      case IAuthorizationConstraintRecipeResolutionMode.INTERSECTION:
-      case IAuthorizationConstraintRecipeResolutionMode.MERGE:
-      case IAuthorizationConstraintRecipeResolutionMode.EXCLUDE: {
+      case AuthorizationConstraintRecipeResolutionMode.RESOLVE_AND_INTERSECT:
+      case AuthorizationConstraintRecipeResolutionMode.RESOLVE_AND_MERGE:
+      case AuthorizationConstraintRecipeResolutionMode.RESOLVE_AND_EXCLUDE: {
         const appResource = getAppResource(recurso);
 
         if (appResource) {
@@ -233,14 +228,14 @@ export class ActorContext {
         }
       }
 
-      case IAuthorizationConstraintRecipeResolutionMode.CASL_ONLY: {
-        const forbidMode = authorizationConstraintRecipe.caslInverted;
-
+      case AuthorizationConstraintRecipeResolutionMode.CASL_ONLY: {
         const caslAction = verbo;
         const caslSubject = recurso;
 
         switch (authorizationConstraintRecipe.type) {
-          case IAuthorizationConstraintRecipeType.FILTER: {
+          case AuthorizationConstraintRecipeType.FILTER: {
+            const forbidMode = authorizationConstraintRecipe.resolutionModeCaslForbid;
+
             if (forbidMode) {
               forbid(caslAction, caslSubject, authorizationConstraintRecipe.condition);
             } else {
@@ -250,19 +245,11 @@ export class ActorContext {
             break;
           }
 
-          case IAuthorizationConstraintRecipeType.BOOLEAN: {
-            if (forbidMode) {
-              if (authorizationConstraintRecipe.value) {
-                forbid(caslAction, caslSubject);
-              } /* else {
-                allow(caslAction, caslSubject);
-              } */
+          case AuthorizationConstraintRecipeType.BOOLEAN: {
+            if (authorizationConstraintRecipe.value) {
+              allow(caslAction, caslSubject);
             } else {
-              if (authorizationConstraintRecipe.value) {
-                allow(caslAction, caslSubject);
-              } /* else {
-                forbid(caslAction, caslSubject);
-              } */
+              forbid(caslAction, caslSubject);
             }
 
             break;

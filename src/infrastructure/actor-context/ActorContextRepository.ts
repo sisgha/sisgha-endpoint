@@ -1,12 +1,12 @@
 import { pg } from '@ucast/sql';
-import { DataSource, ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 import {
+  AuthorizationConstraintInterpreterSQL,
   AuthorizationConstraintJoinMode,
+  AuthorizationConstraintRecipeType,
   IAuthorizationConstraintRecipe,
-  IAuthorizationConstraintRecipeType,
-} from '../../domain/authorization-constraints';
+} from 'recipe-guard/packages/core';
+import { DataSource, ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 import { getAppResource } from '../application/helpers';
-import { AuthorizationConstraintInterpreterSQL } from '../authorization/authorization-constraint-interpreter-sql';
 import { PermissaoDbEntity } from '../database/entities/permissao.db.entity';
 import { getPermissaoRepository } from '../database/repositories/permissao.repository';
 import { getPermissaoVerboRepository } from '../database/repositories/permissao_verbo.repository';
@@ -71,7 +71,7 @@ export class ActorContextRepository {
     const resourceRepository = getResourceRepository(this.dataSource) as Repository<ObjectLiteral>;
 
     switch (authorizationConstraintRecipe.type) {
-      case IAuthorizationConstraintRecipeType.BOOLEAN: {
+      case AuthorizationConstraintRecipeType.BOOLEAN: {
         const qb = resourceRepository.createQueryBuilder('resource');
 
         qb.select(['resource.id']);

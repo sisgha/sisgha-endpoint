@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { intersection } from 'lodash';
 import { FindOneOptions } from 'typeorm';
-import { ContextAction } from '../../../../domain/authorization-constraints';
+import { ContextAction } from '../../../../domain/authorization';
 import { IAddCargoToUsuarioInternoInput } from '../../../../domain/dtos';
 import { IFindUsuarioInternoCargoByIdInput } from '../../../../domain/dtos/IFindUsuarioInternoCargoByIdInput';
 import { IFindUsuarioInternoCargoByUsuarioInternoIdAndCargoIdInput } from '../../../../domain/dtos/IFindUsuarioInternoCargoByUsuarioInternoIdAndCargoIdInput';
