@@ -3,18 +3,18 @@ RUN apk update && apk add git
 WORKDIR /app
 
 FROM base as prod-deps
-COPY package.json yarn.lock ./
-RUN yarn install --production
+COPY package.json package-lock.json ./
+RUN npm install --production
 
 FROM prod-deps as dev-deps
-RUN yarn install
+RUN npm install
 
 FROM dev-deps as assets
 COPY . .
-RUN yarn build
+RUN npm run build
 RUN rm -rf node_modules
 
 FROM prod-deps
 COPY --from=assets /app /app
 WORKDIR /app
-CMD yarn db:migrate && yarn seed:run && yarn start:prod
+CMD npm run db:migrate && npm run seed:run && npm run start:prod
