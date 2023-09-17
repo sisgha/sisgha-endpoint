@@ -29,6 +29,11 @@
       "import": "recipe-guard/packages/core/dist/esm/index.js",
       "require": "recipe-guard/packages/core/dist/cjs/index.js",
       "default": "recipe-guard/packages/core"
+    },
+    "#recipe-guard-typeorm": {
+      "import": "recipe-guard/packages/typeorm/dist/esm/index.js",
+      "require": "recipe-guard/packages/typeorm/dist/cjs/index.js",
+      "default": "recipe-guard/packages/typeorm"
     }
   },
   "dependencies": {

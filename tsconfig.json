@@ -5,7 +5,9 @@
     "lib": ["esnext"],
     "paths": {
       "#recipe-guard-core": ["./node_modules/recipe-guard/packages/core"],
-      "#recipe-guard-core/*": ["./node_modules/recipe-guard/packages/core/*"]
+      "#recipe-guard-core/*": ["./node_modules/recipe-guard/packages/core/*"],
+      "#recipe-guard-typeorm": ["./node_modules/recipe-guard/packages/typeorm"],
+      "#recipe-guard-typeorm/*": ["./node_modules/recipe-guard/packages/typeorm/*"]
     },
     "moduleResolution": "node",
     "resolveJsonModule": true,
