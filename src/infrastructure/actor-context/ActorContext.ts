@@ -1,12 +1,14 @@
-import { AbilityBuilder, AnyAbility, subject as castSubject, createMongoAbility } from '@casl/ability';
-import { ForbiddenException, InternalServerErrorException } from '@nestjs/common';
-import { get, has, intersection, union, without } from 'lodash';
 import {
   AuthorizationConstraintRecipeResolutionMode,
   AuthorizationConstraintRecipeType,
   AuthorizationConstraintRecipeZod,
   IAuthorizationConstraintRecipe,
-} from 'recipe-guard/packages/core';
+} from '#recipe-guard-core';
+import { RecipeGuardTypeormAppResourceQueryBuilder } from '#recipe-guard-typeorm';
+import { AbilityBuilder, AnyAbility, subject as castSubject, createMongoAbility } from '@casl/ability';
+import { ForbiddenException, InternalServerErrorException } from '@nestjs/common';
+import { pg } from '@ucast/sql';
+import { get, has, intersection, union, without } from 'lodash';
 import { DataSource } from 'typeorm';
 import { IAppResource } from '../../domain/application-resources';
 import { AuthenticatedEntityType } from '../../domain/authentication';
@@ -14,7 +16,6 @@ import { ContextAction } from '../../domain/authorization';
 import { PermissaoModel } from '../../domain/models';
 import { getAppResource } from '../application/helpers';
 import { PermissaoDbEntity } from '../database/entities/permissao.db.entity';
-import { getPermissaoRepository } from '../database/repositories/permissao.repository';
 import { extractIds } from '../helpers/extract-ids';
 import { Actor } from './Actor';
 import { ActorContextRepository } from './ActorContextRepository';
@@ -97,10 +98,14 @@ export class ActorContext {
     }
 
     return this.databaseRun(async ({ entityManager }) => {
-      const permissaoRepository = getPermissaoRepository(entityManager);
-
-      const qb = await permissaoRepository.createActorQueryBuilderByConstraintRecipe<{ id: Id }>(
+      const recipeGuardTypeormAppResourceQueryBuilder = new RecipeGuardTypeormAppResourceQueryBuilder<{ id: Id }>(
+        entityManager,
         appResource,
+        getAppResource,
+      );
+
+      const qb = await recipeGuardTypeormAppResourceQueryBuilder.createActorQueryBuilderByConstraintRecipe(
+        { dbDialect: { ...pg } },
         authorizationConstraintRecipe,
         targetEntityId,
       );

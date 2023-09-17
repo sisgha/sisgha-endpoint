@@ -1,16 +1,7 @@
-import { pg } from '@ucast/sql';
-import {
-  AuthorizationConstraintInterpreterSQL,
-  AuthorizationConstraintJoinMode,
-  AuthorizationConstraintRecipeType,
-  IAuthorizationConstraintRecipe,
-} from 'recipe-guard/packages/core';
-import { Brackets, DataSource, EntityManager, ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
+import { Brackets, DataSource, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { IActor } from '../../../domain/actor';
-import { IAppResource } from '../../../domain/application-resources';
 import { AuthenticatedEntityType } from '../../../domain/authentication';
 import { ActorUser } from '../../actor-context/ActorUser';
-import { getAppResource } from '../../application/helpers';
 import { CargoDbEntity } from '../entities/cargo.db.entity';
 import { PermissaoDbEntity } from '../entities/permissao.db.entity';
 
@@ -45,10 +36,10 @@ export const getPermissaoRepository = (dataSource: DataSource | EntityManager) =
     },
 
     async filterQueryByUsuarioInternoId(qb: SelectQueryBuilder<PermissaoDbEntity>, usuarioInternoId: number) {
-      qb.innerJoin('permissao.cargoPermissao', 'cargo_permissao')
-        .innerJoin('cargo_permissao.cargo', 'cargo')
-        .innerJoin('cargo.usuarioInternoCargo', 'usuario_interno_cargo')
-        .innerJoin('usuario_interno_cargo.usuarioInterno', 'usuario_interno');
+      qb.innerJoin('permissao.cargoPermissao', 'cargo_permissao');
+      qb.innerJoin('cargo_permissao.cargo', 'cargo');
+      qb.innerJoin('cargo.usuarioInternoCargo', 'usuario_interno_cargo');
+      qb.innerJoin('usuario_interno_cargo.usuarioInterno', 'usuario_interno');
 
       qb.andWhere('usuario_interno.id = :usuarioInternoId', { usuarioInternoId: usuarioInternoId });
 
@@ -78,10 +69,10 @@ export const getPermissaoRepository = (dataSource: DataSource | EntityManager) =
     },
 
     async filterQueryByTipoEntidade(qb: SelectQueryBuilder<PermissaoDbEntity>, tipoEntidade: AuthenticatedEntityType) {
-      qb.innerJoin('permissao.cargoPermissao', 'cargo_permissao')
-        .innerJoin('cargo_permissao.cargo', 'cargo')
-        .innerJoin('cargo.usuarioInternoCargo', 'usuario_interno_cargo')
-        .innerJoin('usuario_interno_cargo.usuarioInterno', 'usuario_interno');
+      qb.innerJoin('permissao.cargoPermissao', 'cargo_permissao');
+      qb.innerJoin('cargo_permissao.cargo', 'cargo');
+      qb.innerJoin('cargo.usuarioInternoCargo', 'usuario_interno_cargo');
+      qb.innerJoin('usuario_interno_cargo.usuarioInterno', 'usuario_interno');
 
       qb.andWhere('usuario_interno.tipoEntidade = :tipoEntidade', { tipoEntidade: tipoEntidade });
 
@@ -172,71 +163,5 @@ export const getPermissaoRepository = (dataSource: DataSource | EntityManager) =
       await this.filterQueryByRecursoVerbo(qb, recurso, verbo);
 
       return qb;
-    },
-
-    async createActorQueryBuilderByConstraintRecipe<Entity extends ObjectLiteral = ObjectLiteral>(
-      appResource: IAppResource,
-      authorizationConstraintRecipe: IAuthorizationConstraintRecipe,
-      targetEntityId: unknown | null = null,
-    ): Promise<SelectQueryBuilder<Entity>> {
-      const getResourceRepository = appResource.database.getTypeormRepositoryFactory();
-      const resourceRepository = getResourceRepository(dataSource) as Repository<Entity>;
-
-      switch (authorizationConstraintRecipe.type) {
-        case AuthorizationConstraintRecipeType.BOOLEAN: {
-          const qb = resourceRepository.createQueryBuilder('resource');
-
-          qb.select(['resource.id']);
-
-          qb.where(authorizationConstraintRecipe.value ? 'TRUE' : 'FALSE');
-
-          if (authorizationConstraintRecipe.value && targetEntityId !== null) {
-            qb.andWhere('resource.id = :id', { id: targetEntityId });
-          }
-
-          return qb;
-        }
-
-        case AuthorizationConstraintRecipeType.FILTER: {
-          const authorizationConstraintInterpreterSQL = new AuthorizationConstraintInterpreterSQL({
-            dbDialect: {
-              ...pg,
-              paramPlaceholder: (index: number) => `:${index}`,
-            },
-          });
-
-          const interpretedConstraint = authorizationConstraintInterpreterSQL.interpret(authorizationConstraintRecipe);
-
-          const qb = resourceRepository.createQueryBuilder(interpretedConstraint.alias);
-
-          qb.select([`${interpretedConstraint.alias}.id`]);
-
-          for (const join of interpretedConstraint.joins) {
-            const joinAppResource = getAppResource(join.resource);
-
-            if (joinAppResource) {
-              const joinEntity = joinAppResource?.database.getTypeormEntity();
-
-              if (joinEntity) {
-                switch (join.mode) {
-                  case AuthorizationConstraintJoinMode.INNER: {
-                    qb.innerJoin(joinEntity, join.alias, join.on);
-                  }
-                }
-              }
-            }
-          }
-
-          qb.where(interpretedConstraint.condition);
-
-          if (targetEntityId !== null) {
-            qb.andWhere('id = :id', { id: targetEntityId });
-          }
-
-          qb.setParameters(interpretedConstraint.params);
-
-          return qb;
-        }
-      }
     },
   });
