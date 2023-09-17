@@ -7,7 +7,9 @@
       "#recipe-guard-core": ["./node_modules/recipe-guard/packages/core"],
       "#recipe-guard-core/*": ["./node_modules/recipe-guard/packages/core/*"],
       "#recipe-guard-typeorm": ["./node_modules/recipe-guard/packages/typeorm"],
-      "#recipe-guard-typeorm/*": ["./node_modules/recipe-guard/packages/typeorm/*"]
+      "#recipe-guard-typeorm/*": ["./node_modules/recipe-guard/packages/typeorm/*"],
+      "#recipe-guard-casl": ["./node_modules/recipe-guard/packages/casl"],
+      "#recipe-guard-casl/*": ["./node_modules/recipe-guard/packages/casl/*"]
     },
     "moduleResolution": "node",
     "resolveJsonModule": true,

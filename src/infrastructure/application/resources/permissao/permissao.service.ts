@@ -75,7 +75,7 @@ export class PermissaoService {
   }
 
   async listPermissao(actorContext: ActorContext, dto: IGenericListInput): Promise<ListPermissaoResultType> {
-    const allowedIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_PERMISSAO, ContextAction.READ);
+    const allowedIds = await actorContext.getResolvedIdsByRecursoVerbo(APP_RESOURCE_PERMISSAO, ContextAction.READ);
 
     const result = await this.meilisearchService.listResource<PermissaoType>(APP_RESOURCE_PERMISSAO, dto, allowedIds);
 

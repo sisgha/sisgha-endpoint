@@ -133,7 +133,7 @@ export class UsuarioInternoCargoService {
   async listCargoFromUsuarioInterno(actorContext: ActorContext, dto: IListCargoFromUsuarioInternoInput): Promise<ListCargoResultType> {
     const usuarioInterno = await this.usuarioInternoService.findUsuarioInternoByIdStrictSimple(actorContext, dto.usuarioInternoId);
 
-    const allowedCargoIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_CARGO, ContextAction.READ);
+    const allowedCargoIds = await actorContext.getResolvedIdsByRecursoVerbo(APP_RESOURCE_CARGO, ContextAction.READ);
 
     const allCargoIdsForUsuarioInterno = await actorContext.databaseRun(async ({ entityManager }) => {
       const cargoRepository = getCargoRepository(entityManager);

@@ -1,12 +1,4 @@
-import { pg } from '@ucast/sql';
-import {
-  AuthorizationConstraintInterpreterSQL,
-  AuthorizationConstraintJoinMode,
-  AuthorizationConstraintRecipeType,
-  IAuthorizationConstraintRecipe,
-} from '#recipe-guard-core';
-import { DataSource, ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
-import { getAppResource } from '../application/helpers';
+import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { PermissaoDbEntity } from '../database/entities/permissao.db.entity';
 import { getPermissaoRepository } from '../database/repositories/permissao.repository';
 import { getPermissaoVerboRepository } from '../database/repositories/permissao_verbo.repository';
@@ -54,75 +46,5 @@ export class ActorContextRepository {
   async getPermissoesByRecursoVerbo(recurso: string, verbo: string): Promise<PermissaoDbEntity[]> {
     const qb = await this.getQueryPermissionsForRecursoVerbo(recurso, verbo);
     return qb.getMany();
-  }
-
-  async createActorQueryBuilderByAuthorizationConstraintRecipe(
-    resource: string,
-    authorizationConstraintRecipe: IAuthorizationConstraintRecipe,
-    targetEntityId: unknown | null = null,
-  ) {
-    const appResource = getAppResource(resource);
-
-    if (!appResource) {
-      return null;
-    }
-
-    const getResourceRepository = appResource.database.getTypeormRepositoryFactory();
-    const resourceRepository = getResourceRepository(this.dataSource) as Repository<ObjectLiteral>;
-
-    switch (authorizationConstraintRecipe.type) {
-      case AuthorizationConstraintRecipeType.BOOLEAN: {
-        const qb = resourceRepository.createQueryBuilder('resource');
-
-        qb.select(['resource.id']);
-
-        qb.where(authorizationConstraintRecipe.value ? 'TRUE' : 'FALSE');
-
-        if (targetEntityId !== null) {
-          qb.andWhere('resource.id = :id', { id: targetEntityId });
-        }
-
-        return qb;
-      }
-    }
-
-    const authorizationConstraintInterpreterSQL = new AuthorizationConstraintInterpreterSQL({
-      dbDialect: {
-        ...pg,
-        paramPlaceholder: (index: number) => `:${index}`,
-      },
-    });
-
-    const interpretedConstraint = authorizationConstraintInterpreterSQL.interpret(authorizationConstraintRecipe);
-
-    const qb = resourceRepository.createQueryBuilder(interpretedConstraint.alias);
-
-    qb.select([`${interpretedConstraint.alias}.id`]);
-
-    for (const join of interpretedConstraint.joins) {
-      const joinResource = getAppResource(join.resource);
-
-      const joinEntity = joinResource?.database.getTypeormEntity();
-
-      if (!joinEntity) {
-        continue;
-      }
-
-      switch (join.mode) {
-        case AuthorizationConstraintJoinMode.INNER: {
-          qb.innerJoin(joinEntity, join.alias, join.on);
-        }
-      }
-    }
-
-    qb.where(interpretedConstraint.condition);
-
-    if (targetEntityId !== null) {
-      qb.andWhere('id = :id', { id: targetEntityId });
-    }
-
-    qb.setParameters(interpretedConstraint.params);
-
-    return qb;
   }
 }

@@ -24,7 +24,6 @@ import { getUsuarioCargoRepository } from '../../../database/repositories/usuari
 import { ValidationErrorCodes, ValidationFailedException } from '../../../exceptions';
 import { extractIds } from '../../../helpers/extract-ids';
 import { KCClientService } from '../../../kc-container/kc-client.service';
-import { KCContainerService } from '../../../kc-container/kc-container.service';
 import { MeiliSearchService } from '../../../meilisearch/meilisearch.service';
 import { ListUsuarioResultType } from '../../dtos/graphql/list_usuario_result.type';
 import { UsuarioType } from '../../dtos/graphql/usuario.type';
@@ -37,7 +36,7 @@ export class UsuarioService {
   constructor(
     // ...
     private meilisearchService: MeiliSearchService,
-    private kcContainerService: KCContainerService,
+
     private kcClientService: KCClientService,
   ) {}
 
@@ -166,7 +165,7 @@ export class UsuarioService {
   }
 
   async listUsuario(actorContext: ActorContext, dto: IGenericListInput): Promise<ListUsuarioResultType> {
-    const allowedUsuarioIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_USUARIO, ContextAction.READ);
+    const allowedUsuarioIds = await actorContext.getResolvedIdsByRecursoVerbo(APP_RESOURCE_USUARIO, ContextAction.READ);
 
     const result = await this.meilisearchService.listResource<UsuarioType>(APP_RESOURCE_USUARIO, dto, allowedUsuarioIds);
 
@@ -300,7 +299,7 @@ export class UsuarioService {
   async getUsuarioPermissoes(actorContext: ActorContext, usuarioId: number) {
     const usuario = await this.findUsuarioByIdStrictSimple(actorContext, usuarioId);
 
-    const allowedPermissaoIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_PERMISSAO, ContextAction.READ);
+    const allowedPermissaoIds = await actorContext.getResolvedIdsByRecursoVerbo(APP_RESOURCE_PERMISSAO, ContextAction.READ);
 
     const allUsuarioPermissaoIds = await actorContext.databaseRun(async ({ entityManager }) => {
       const permissaoRepository = getPermissaoRepository(entityManager);
@@ -328,7 +327,7 @@ export class UsuarioService {
   async getUsuarioCargos(actorContext: ActorContext, usuarioId: number, includeDeleted = false) {
     const usuario = await this.findUsuarioByIdStrictSimple(actorContext, usuarioId);
 
-    const allowedCargoIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_CARGO, ContextAction.READ);
+    const allowedCargoIds = await actorContext.getResolvedIdsByRecursoVerbo(APP_RESOURCE_CARGO, ContextAction.READ);
 
     const allUsuarioCargoIds = await actorContext.databaseRun(async ({ entityManager }) => {
       const cargoRepository = getCargoRepository(entityManager);

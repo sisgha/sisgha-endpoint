@@ -77,7 +77,7 @@ export class UsuarioInternoService {
   }
 
   async listUsuarioInterno(actorContext: ActorContext, dto: IGenericListInput): Promise<ListUsuarioInternoResultType> {
-    const allowedUsuarioInternoIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_USUARIO_INTERNO, ContextAction.READ);
+    const allowedUsuarioInternoIds = await actorContext.getResolvedIdsByRecursoVerbo(APP_RESOURCE_USUARIO_INTERNO, ContextAction.READ);
 
     const result = await this.meilisearchService.listResource<UsuarioInternoType>(
       APP_RESOURCE_USUARIO_INTERNO,
@@ -128,7 +128,7 @@ export class UsuarioInternoService {
   async getUsuarioInternoPermissoes(actorContext: ActorContext, usuarioInternoId: number) {
     const usuarioInterno = await this.findUsuarioInternoByIdStrictSimple(actorContext, usuarioInternoId);
 
-    const allowedPermissaoIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_PERMISSAO, ContextAction.READ);
+    const allowedPermissaoIds = await actorContext.getResolvedIdsByRecursoVerbo(APP_RESOURCE_PERMISSAO, ContextAction.READ);
 
     const allUsuarioPermissaoIds = await actorContext.databaseRun(async ({ entityManager }) => {
       const permissaoRepository = getPermissaoRepository(entityManager);

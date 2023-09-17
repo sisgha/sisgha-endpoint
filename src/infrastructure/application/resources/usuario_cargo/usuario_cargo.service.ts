@@ -137,7 +137,7 @@ export class UsuarioCargoService {
   async listCargoFromUsuario(actorContext: ActorContext, dto: IListCargoFromUsuarioInput): Promise<ListCargoResultType> {
     const usuario = await this.usuarioService.findUsuarioByIdStrictSimple(actorContext, dto.usuarioId);
 
-    const allowedCargoIds = await actorContext.getAllowedIdsByRecursoVerbo(APP_RESOURCE_CARGO, ContextAction.READ);
+    const allowedCargoIds = await actorContext.getResolvedIdsByRecursoVerbo(APP_RESOURCE_CARGO, ContextAction.READ);
 
     const allCargoIdsForUsuario = await actorContext.databaseRun(async ({ entityManager }) => {
       const cargoRepository = getCargoRepository(entityManager);

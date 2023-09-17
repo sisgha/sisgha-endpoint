@@ -34,6 +34,11 @@
       "import": "recipe-guard/packages/typeorm/dist/esm/index.js",
       "require": "recipe-guard/packages/typeorm/dist/cjs/index.js",
       "default": "recipe-guard/packages/typeorm"
+    },
+    "#recipe-guard-casl": {
+      "import": "recipe-guard/packages/casl/dist/esm/index.js",
+      "require": "recipe-guard/packages/casl/dist/cjs/index.js",
+      "default": "recipe-guard/packages/casl"
     }
   },
   "dependencies": {
