@@ -24,6 +24,13 @@
     "seed:run": "npm run typeorm-db-seed -- migration:run",
     "seed:rollback": "npm run typeorm-db-seed -- migration:revert"
   },
+  "imports": {
+    "#recipe-guard-core": {
+      "import": "recipe-guard/packages/core/dist/esm/index.js",
+      "require": "recipe-guard/packages/core/dist/cjs/index.js",
+      "default": "recipe-guard/packages/core"
+    }
+  },
   "dependencies": {
     "@apollo/server": "^4.7.3",
     "@casl/ability": "^6.5.0",

@@ -1,6 +1,6 @@
+import { IAuthorizationConstraintRecipe } from '#recipe-guard-core';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import GraphQLJSON from 'graphql-type-json';
-import { IAuthorizationConstraintRecipe } from 'recipe-guard/packages/core';
 import { PermissaoModel } from '../../../../domain/models/permissao.model';
 
 @ObjectType('Permissao')

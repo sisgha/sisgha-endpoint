@@ -1,5 +1,5 @@
+import { AuthorizationConstraintRecipeConditionSQLValueZod } from '#recipe-guard-core';
 import { Query } from '@ucast/sql';
-import { AuthorizationConstraintRecipeConditionSQLValueZod } from 'recipe-guard/packages/core';
 
 export function where(this: Query, field: string, operator: string, value?: unknown) {
   const fieldParsed = AuthorizationConstraintRecipeConditionSQLValueZod.safeParse(field);

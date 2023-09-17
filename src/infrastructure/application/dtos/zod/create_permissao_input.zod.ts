@@ -1,4 +1,4 @@
-import { AuthorizationConstraintRecipeZod } from 'recipe-guard/packages/core';
+import { AuthorizationConstraintRecipeZod } from '#recipe-guard-core';
 import { z } from 'zod';
 import { CASL_RECURSO_WILDCARD } from '../../../actor-context/interfaces/CASL_RECURSO_WILDCARD';
 import { CASL_VERBO_WILDCARD } from '../../../actor-context/interfaces/CASL_VERBO_WILDCARD';

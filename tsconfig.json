@@ -2,9 +2,11 @@
   "compilerOptions": {
     "strict": true,
     "module": "node16",
-    "lib": [
-      "esnext"
-    ],
+    "lib": ["esnext"],
+    "paths": {
+      "#recipe-guard-core": ["./node_modules/recipe-guard/packages/core"],
+      "#recipe-guard-core/*": ["./node_modules/recipe-guard/packages/core/*"]
+    },
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "declaration": true,

@@ -1,4 +1,4 @@
-import { IAuthorizationConstraintRecipe } from 'recipe-guard/packages/core';
+import { IAuthorizationConstraintRecipe } from '#recipe-guard-core';
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { PermissaoModel } from '../../../domain/models/permissao.model';
 import { CargoPermissaoDbEntity } from './cargo_permissao.db.entity';

@@ -1,4 +1,4 @@
-import { AuthorizationConstraintRecipeResolutionMode, IAuthorizationConstraintRecipeBoolean } from 'recipe-guard/packages/core';
+import { AuthorizationConstraintRecipeResolutionMode, IAuthorizationConstraintRecipeBoolean } from '#recipe-guard-core';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import { PermissaoModel } from '../../../domain/models/permissao.model';
 import { getPermissaoRepository } from '../repositories/permissao.repository';

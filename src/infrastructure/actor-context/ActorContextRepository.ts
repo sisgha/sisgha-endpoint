@@ -4,7 +4,7 @@ import {
   AuthorizationConstraintJoinMode,
   AuthorizationConstraintRecipeType,
   IAuthorizationConstraintRecipe,
-} from 'recipe-guard/packages/core';
+} from '#recipe-guard-core';
 import { DataSource, ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 import { getAppResource } from '../application/helpers';
 import { PermissaoDbEntity } from '../database/entities/permissao.db.entity';
