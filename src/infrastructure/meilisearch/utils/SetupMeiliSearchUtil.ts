@@ -1,5 +1,5 @@
 import { isEqual } from 'lodash';
-import { ErrorStatusCode, MeiliSearch } from 'meilisearch';
+import { MeiliSearch } from 'meilisearch';
 import { IAppResource } from '../../../domain/application-resources';
 import { APP_RESOURCES } from '../../application/helpers';
 
@@ -8,7 +8,7 @@ export class SetupMeiliSearchUtil {
     console.info(`[INFO] MeiliSearchClient: ${index} -> ensuring that it exists...`);
 
     await client.getIndex(index).catch((err) => {
-      if (err.code === ErrorStatusCode.INDEX_NOT_FOUND) {
+      if (err.code === 'index_not_found') {
         console.info(`[INFO] MeiliSearchClient: ${index} -> creating index...`);
 
         return client.createIndex(index, { primaryKey: 'id' }).then((task) => client.waitForTask(task.taskUid));
