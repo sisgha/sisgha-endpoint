@@ -93,7 +93,7 @@ export const getPermissaoRepository = (dataSource: DataSource | EntityManager) =
       switch (actor.type) {
         case AuthenticatedEntityType.USER: {
           const actorAsActorUser = <ActorUser>actor;
-          const usuarioId = actorAsActorUser.userRef.id;
+          const usuarioId = actorAsActorUser.usuarioRef.id;
           await this.filterQueryByUsuarioId(qb, usuarioId);
           return qb;
         }

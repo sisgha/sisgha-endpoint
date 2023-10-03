@@ -413,14 +413,16 @@ export class UsuarioService {
         const cargoRepository = getCargoRepository(entityManager);
         const usuarioCargoRepository = getUsuarioCargoRepository(entityManager);
 
-        const cargoDape = await cargoRepository.findOne({
+        const cargoInitial = await cargoRepository.findOne({
           where: { slug: 'dape' },
         });
 
-        if (cargoDape) {
+        if (cargoInitial) {
           const usuarioHasCargo = usuarioCargoRepository.create();
+
           usuarioHasCargo.usuario = newUsuario;
-          usuarioHasCargo.cargo = cargoDape;
+          usuarioHasCargo.cargo = cargoInitial;
+
           await usuarioCargoRepository.save(usuarioHasCargo);
         }
       });
@@ -582,7 +584,7 @@ export class UsuarioService {
   async updateUsuarioPassword(actorContext: ActorContext, dto: IUpdateUsuarioPasswordInput) {
     const usuario = await this.findUsuarioByIdStrictSimple(actorContext, dto.id);
 
-    const invokeContextUserRef = actorContext.actor instanceof ActorUser && actorContext.actor.userRef;
+    const invokeContextUserRef = actorContext.actor instanceof ActorUser && actorContext.actor.usuarioRef;
 
     if (!invokeContextUserRef || invokeContextUserRef.id !== usuario.id) {
       throw new ForbiddenException("You can't change other user password.");

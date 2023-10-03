@@ -8,6 +8,7 @@ import { DataSource } from 'typeorm';
 import { IAppResource } from '../../domain/application-resources';
 import { AuthenticatedEntityType } from '../../domain/authentication';
 import { ContextAction } from '../../domain/authorization';
+import { UsuarioModel } from '../../domain/models';
 import { getAppResource } from '../application/helpers';
 import { PermissaoDbEntity } from '../database/entities/permissao.db.entity';
 import { authorizationConstraintInterpreterSQLContextOptions, recipeGuardContext } from '../recipe-guard';
@@ -33,6 +34,10 @@ export class ActorContext {
     return new ActorContext(dataSource, Actor.forSystemEntity());
   }
 
+  static forUser(dataSource: DataSource, usuarioId: UsuarioModel['id']) {
+    return new ActorContext(dataSource, new ActorUser({ id: usuarioId }));
+  }
+
   // ...
 
   async databaseRun<T>(callback: IActorContextDatabaseRunCallback<T>): Promise<T> {
@@ -52,7 +57,7 @@ export class ActorContext {
           }
 
           case AuthenticatedEntityType.USER: {
-            const user = (<ActorUser>actor).userRef;
+            const user = (<ActorUser>actor).usuarioRef;
 
             if (user) {
               await queryRunner.query(`set local "request.auth.user.id" to ${user.id};`);

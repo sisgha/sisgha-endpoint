@@ -1,7 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { Client } from 'openid-client';
 import { DataSource } from 'typeorm';
-import { Actor } from '../actor-context/Actor';
 import { ActorContext } from '../actor-context/ActorContext';
 import { ActorUser } from '../actor-context/ActorUser';
 import { UsuarioService } from '../application/resources/usuario/usuario.service';
@@ -21,20 +20,22 @@ export class AuthenticationService {
     private dataSource: DataSource,
   ) {}
 
-  async getAuthedUser(actorContext: ActorContext) {
+  private get systemActorContext() {
+    return ActorContext.forSystem(this.dataSource);
+  }
+
+  async getAuthedUsuario(actorContext: ActorContext) {
     const { actor } = actorContext;
 
     if (actor instanceof ActorUser) {
-      const { userRef } = actor;
-      return this.usuarioService.findUsuarioByIdStrictSimple(actorContext, userRef.id);
+      const { usuarioRef } = actor;
+      return this.usuarioService.findUsuarioByIdStrictSimple(actorContext, usuarioRef.id);
     }
 
     throw new BadRequestException("You're not logged in");
   }
 
   async validateAccessToken(accessToken?: string | any) {
-    const appContext = new ActorContext(this.dataSource, Actor.forSystemEntity());
-
     try {
       if (typeof accessToken !== 'string' || accessToken?.length === 0) {
         throw new TypeError();
@@ -42,9 +43,9 @@ export class AuthenticationService {
 
       const userinfo = await this.openIDClient.userinfo(accessToken);
 
-      const user = await this.usuarioService.loadUsuarioFromKeycloakId(appContext, userinfo.sub);
+      const usuario = await this.usuarioService.loadUsuarioFromKeycloakId(this.systemActorContext, userinfo.sub);
 
-      return user;
+      return usuario;
     } catch (err) {
       if (!IS_PRODUCTION_MODE_TOKEN) {
         console.error('auth err:', { err });

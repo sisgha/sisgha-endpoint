@@ -87,6 +87,14 @@ export class CargoService {
     return null;
   }
 
+  async findCargoBySlugSimple<T = Pick<CargoDbEntity, 'id'>>(
+    actorContext: ActorContext,
+    cargoSlug: IFindCargoBySlugInput['slug'],
+  ): Promise<T | null> {
+    const cargo = await this.findCargoBySlug(actorContext, { slug: cargoSlug });
+    return <T>cargo;
+  }
+
   async findCargoBySlugStrict(
     actorContext: ActorContext,
     dto: IFindCargoBySlugInput,

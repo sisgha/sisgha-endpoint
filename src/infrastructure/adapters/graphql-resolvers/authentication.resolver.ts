@@ -6,16 +6,16 @@ import { ResolveActorContext } from '../../common/decorators';
 
 @Resolver()
 export class AuthenticationResolver {
-  constructor(private authService: AuthenticationService) {}
+  constructor(private authenticationService: AuthenticationService) {}
 
   // START: queries
 
   @Query(() => UsuarioType)
-  async authedUser(
+  async authedUsuario(
     @ResolveActorContext()
     actorContext: ActorContext,
   ) {
-    return this.authService.getAuthedUser(actorContext);
+    return this.authenticationService.getAuthedUsuario(actorContext);
   }
 
   // END: queries

@@ -165,16 +165,18 @@ export class UsuarioCargoService {
   async checkUsuarioHasCargoByUsuarioIdAndCargoSlug(actorContext: ActorContext, dto: ICheckUsuarioHasCargoByUsuarioidAndCargoSlugInput) {
     const usuario = await this.usuarioService.findUsuarioByIdStrictSimple(actorContext, dto.usuarioId);
 
-    const cargo = await this.cargoService.findCargoBySlugStrictSimple(actorContext, dto.cargoSlug);
+    const cargo = await this.cargoService.findCargoBySlugSimple(actorContext, dto.cargoSlug);
 
-    const usuarioDateDeleted = await this.usuarioService.getUsuarioDateDeleted(actorContext, usuario.id);
-    const cargoDateDeleted = await this.cargoService.getCargoDateDeleted(actorContext, cargo.id);
+    if (usuario && cargo) {
+      const usuarioDateDeleted = await this.usuarioService.getUsuarioDateDeleted(actorContext, usuario.id);
+      const cargoDateDeleted = await this.cargoService.getCargoDateDeleted(actorContext, cargo.id);
 
-    if (!usuarioDateDeleted && !cargoDateDeleted) {
-      const usuarioCargo = await this.findUsuarioCargoByUsuarioIdAndCargoId(actorContext, { usuarioId: usuario.id, cargoId: cargo.id });
+      if (!usuarioDateDeleted && !cargoDateDeleted) {
+        const usuarioCargo = await this.findUsuarioCargoByUsuarioIdAndCargoId(actorContext, { usuarioId: usuario.id, cargoId: cargo.id });
 
-      if (usuarioCargo) {
-        return true;
+        if (usuarioCargo) {
+          return true;
+        }
       }
     }
 

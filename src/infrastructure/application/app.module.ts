@@ -11,6 +11,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { AppResolver } from '../adapters/graphql-resolvers/app.resolver';
 import { AppController } from '../adapters/http-controllers/app.controller';
 import { AuthenticationModule } from '../authentication/authentication.module';
+import { AuthorizationModule } from '../authorization/authorization.module';
 import { HttpExceptionFilter } from '../common/filter/HttpExceptionFilter';
 import { EnvironmentConfigModule } from '../config/environment-config/environment-config.module';
 import { DatabaseModule } from '../database/database.module';
@@ -111,6 +112,7 @@ import { UsuarioInternoCargoModule } from './resources/usuario_interno_cargo/usu
     CargoModule,
     PermissaoModule,
     CargoPermissaoModule,
+    AuthorizationModule,
 
     UsuarioModule,
     UsuarioCargoModule,
