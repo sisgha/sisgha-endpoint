@@ -34,7 +34,7 @@ services:
       - 5432:5432
 
   endpoint-meilisearch:
-    image: getmeili/meilisearch:v1.0.2
+    image: getmeili/meilisearch:v1.3.5
     container_name: sisgha-endpoint-meilisearch
     # restart: always
     ports:
