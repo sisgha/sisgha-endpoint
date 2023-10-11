@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { omit } from 'lodash';
+import { get, has, omit } from 'lodash';
 import { FindOneOptions } from 'typeorm';
 import { ContextAction } from '../../../../domain/authorization';
 import {
+  ICheckCargoSlugAvailabilityInput,
   ICreateCargoInput,
   IDeleteCargoInput,
   IFindCargoByIdInput,
@@ -13,6 +14,7 @@ import { IGenericListInput } from '../../../../domain/search/IGenericListInput';
 import { ActorContext } from '../../../actor-context/ActorContext';
 import { CargoDbEntity } from '../../../database/entities/cargo.db.entity';
 import { getCargoRepository } from '../../../database/repositories/cargo.repository';
+import { ValidationErrorCodes, ValidationFailedException } from '../../../exceptions';
 import { MeiliSearchService } from '../../../meilisearch/meilisearch.service';
 import { CargoType, ListCargoResultType } from '../../dtos/graphql';
 import { APP_RESOURCE_CARGO } from './cargo.resource';
@@ -129,6 +131,28 @@ export class CargoService {
     };
   }
 
+  async checkCargoSlugAvailability(actorContext: ActorContext, dto: ICheckCargoSlugAvailabilityInput) {
+    const isSlugBeignUsedByOtherCargo = await actorContext.databaseRun(async ({ entityManager }) => {
+      const cargoRepository = getCargoRepository(entityManager);
+
+      const qb = cargoRepository.createQueryBuilder('cargo');
+
+      qb.select('cargo.id');
+
+      qb.where('cargo.slug = :slug', { slug: dto.slug });
+
+      if (dto.cargoId) {
+        qb.andWhere('cargo.id != :cargoId', { cargoId: dto.cargoId });
+      }
+
+      const count = await qb.getCount();
+
+      return count === 0;
+    });
+
+    return isSlugBeignUsedByOtherCargo;
+  }
+
   // ...
 
   async getCargoStrictGenericField<K extends keyof CargoDbEntity>(
@@ -168,6 +192,22 @@ export class CargoService {
   async createCargo(actorContext: ActorContext, dto: ICreateCargoInput) {
     const fieldsData = omit(dto, []);
 
+    if (has(fieldsData, 'slug')) {
+      const slug = get(fieldsData, 'slug')!;
+
+      const isSlugAvailable = await this.checkCargoSlugAvailability(actorContext, { slug: slug, cargoId: null });
+
+      if (!isSlugAvailable) {
+        throw new ValidationFailedException([
+          {
+            code: ValidationErrorCodes.CARGO_SLUG_ALREADY_IN_USE,
+            message: 'Já existe um cargo com o mesmo slug.',
+            path: ['slug'],
+          },
+        ]);
+      }
+    }
+
     const cargo = <CargoDbEntity>{
       ...fieldsData,
     };
@@ -187,6 +227,22 @@ export class CargoService {
     const cargo = await this.findCargoByIdStrictSimple(actorContext, dto.id);
 
     const fieldsData = omit(dto, ['id']);
+
+    if (has(fieldsData, 'slug')) {
+      const slug = get(fieldsData, 'slug')!;
+
+      const isSlugAvailable = await this.checkCargoSlugAvailability(actorContext, { slug: slug, cargoId: cargo.id });
+
+      if (!isSlugAvailable) {
+        throw new ValidationFailedException([
+          {
+            code: ValidationErrorCodes.CARGO_SLUG_ALREADY_IN_USE,
+            message: 'Já existe um cargo com o mesmo slug.',
+            path: ['slug'],
+          },
+        ]);
+      }
+    }
 
     const updatedCargo = <CargoDbEntity>{
       ...cargo,

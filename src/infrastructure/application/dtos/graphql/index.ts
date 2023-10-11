@@ -3,6 +3,7 @@ export * from './add_cargo_to_usuario_interno_input.type';
 export * from './add_permissao_to_cargo_input.type';
 export * from './cargo.type';
 export * from './cargo_permissao.type';
+export * from './check_cargo_slug_availability_input.type';
 export * from './check_usuario_authorizations_input.type';
 export * from './check_usuario_authorizations_result.type';
 export * from './check_usuario_email_availability_input.type';

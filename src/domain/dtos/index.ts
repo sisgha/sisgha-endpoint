@@ -1,6 +1,7 @@
 export * from './IAddCargoToUsuarioInput';
 export * from './IAddCargoToUsuarioInternoInput';
 export * from './IAddPermissaoToCargoInput';
+export * from './ICheckCargoSlugAvailabilityInput';
 export * from './ICheckUsuarioAuthorizationsResult';
 export * from './ICheckUsuarioAuthorizationsInput';
 export * from './ICheckUsuarioEmailAvailabilityInput';

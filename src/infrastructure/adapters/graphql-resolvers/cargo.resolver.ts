@@ -2,6 +2,7 @@ import { Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql
 import { ActorContext } from '../../actor-context/ActorContext';
 import {
   CargoType,
+  CheckCargoSlugAvailabilityInputType,
   CreateCargoInputType,
   CreateCargoInputZod,
   DeleteCargoInputType,
@@ -16,6 +17,7 @@ import {
   UpdateCargoInputType,
   UpdateCargoInputZod,
 } from '../../application/dtos';
+import { CheckCargoSlugAvailabilityInputZod } from '../../application/dtos/zod/check_cargo_slug_availability_input.zod';
 import { CargoService } from '../../application/resources/cargo/cargo.service';
 import { ResolveActorContext } from '../../common/decorators';
 import { ValidatedArgs } from '../../validation/ValidatedArgs.decorator';
@@ -54,6 +56,19 @@ export class CargoResolver {
     dto: GenericListInputType,
   ) {
     return this.cargoService.listCargo(actorContext, dto);
+  }
+
+  //
+
+  @Query(() => Boolean)
+  async checkCargoSlugAvailability(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+
+    @ValidatedArgs('dto', CheckCargoSlugAvailabilityInputZod)
+    dto: CheckCargoSlugAvailabilityInputType,
+  ) {
+    return this.cargoService.checkCargoSlugAvailability(actorContext, dto);
   }
 
   // END: queries

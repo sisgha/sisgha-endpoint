@@ -1,6 +1,7 @@
 export * from './add_cargo_to_usuario_input.zod';
 export * from './add_cargo_to_usuario_interno_input.zod';
 export * from './add_permissao_to_cargo_input.zod';
+export * from './check_cargo_slug_availability_input.zod';
 export * from './check_usuario_authorizations_input.zod';
 export * from './check_usuario_email_availability_input.zod';
 export * from './check_usuario_has_cargo_by_usuario_id_and_cargo_slug_input.zod';
