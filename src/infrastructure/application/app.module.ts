@@ -23,6 +23,7 @@ import { MeiliSearchModule } from '../meilisearch/meilisearch.module';
 import { OidcClientModule } from '../oidc-client/oidc-client.module';
 import { CargoModule } from './resources/cargo/cargo.module';
 import { CargoPermissaoModule } from './resources/cargo_permissao/cargo_permissao.module';
+import { ModalidadeModule } from './resources/modalidade/modalidade.module';
 import { PermissaoModule } from './resources/permissao/permissao.module';
 import { UsuarioModule } from './resources/usuario/usuario.module';
 import { UsuarioCargoModule } from './resources/usuario_cargo/usuario_cargo.module';
@@ -119,6 +120,8 @@ import { UsuarioInternoCargoModule } from './resources/usuario_interno_cargo/usu
 
     UsuarioInternoModule,
     UsuarioInternoCargoModule,
+
+    ModalidadeModule,
   ],
 
   controllers: [

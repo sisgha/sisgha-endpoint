@@ -1,6 +1,7 @@
 import { IAppResource } from '../../../domain/application-resources';
 import { CargoResource } from '../resources/cargo/cargo.resource';
 import { CargoPermissaoResource } from '../resources/cargo_permissao/cargo_permissao.resource';
+import { ModalidadeResource } from '../resources/modalidade/modalidade.resource';
 import { PermissaoResource } from '../resources/permissao/permissao.resource';
 import { UsuarioResource } from '../resources/usuario/usuario.resource';
 import { UsuarioCargoResource } from '../resources/usuario_cargo/usuario_cargo.resource';
@@ -16,4 +17,5 @@ export const APP_RESOURCES: IAppResource<any>[] = [
   UsuarioCargoResource,
   UsuarioInternoResource,
   UsuarioInternoCargoResource,
+  ModalidadeResource,
 ];

@@ -49,8 +49,6 @@ export class KCContainerService {
 
   async setup() {
     if (!this.#initialized) {
-      this.#initialized = true;
-
       const KcAdminClient = await getKeycloakAdminClient();
 
       const config = this.getConfigCredentials();
@@ -62,6 +60,8 @@ export class KCContainerService {
 
       await this.authenticate();
       await this.setupAuthInterval();
+
+      this.#initialized = true;
     }
   }
 
