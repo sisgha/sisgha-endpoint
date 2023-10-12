@@ -1,11 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { z } from 'zod';
-
-export const Create{{ pascalCase name }}InputZod = z.object({
-  field: z.string(),
-});
-
-export type ICreate{{ pascalCase name }}Input = z.infer<typeof Create{{ pascalCase name }}InputZod>;
+import { ICreate{{ pascalCase name }}Input } from '../../../../domain/dtos';
 
 @InputType('Create{{ pascalCase name }}Input')
 export class Create{{ pascalCase name }}InputType implements ICreate{{ pascalCase name }}Input {

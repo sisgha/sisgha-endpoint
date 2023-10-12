@@ -122,6 +122,8 @@ import { UsuarioInternoCargoModule } from './resources/usuario_interno_cargo/usu
     UsuarioInternoCargoModule,
 
     ModalidadeModule,
+
+    // END APPLICATION RESOURCES
   ],
 
   controllers: [

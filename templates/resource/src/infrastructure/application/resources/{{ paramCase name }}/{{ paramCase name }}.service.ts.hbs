@@ -1,26 +1,35 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { omit } from 'lodash';
-import { ActorContext } from 'src/actor-context/ActorContext';
-import { APP_RESOURCE_{{ constantCase name }} } from 'src/actor-context/providers';
-import { ContextAction } from 'src/authorization/interfaces';
-import { IGenericListInput } from 'src/meilisearch/dtos';
-import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
-import { {{ pascalCase name }}DbEntity } from '../../../database/entities/{{ camelCase name }}.db.entity';
-import { get{{ pascalCase name }}Repository } from '../../../database/repositories/{{ camelCase name }}.repository';
-import { {{ pascalCase name }}Type } from './{{ camelCase name }}.type';
-import { ICreate{{ pascalCase name }}Input, IDelete{{ pascalCase name }}Input, IFind{{ pascalCase name }}ByIdInput, IUpdate{{ pascalCase name }}Input, List{{ pascalCase name }}ResultType } from './dtos';
+import { ContextAction } from '../../../../domain/authorization';
+import {
+  ICreate{{ pascalCase name }}Input,
+  IDelete{{ pascalCase name }}Input,
+  IFind{{ pascalCase name }}ByIdInput,
+  IUpdate{{ pascalCase name }}Input,
+} from '../../../../domain/dtos';
+import { IGenericListInput } from '../../../../domain/search/IGenericListInput';
+import { ActorContext } from '../../../actor-context/ActorContext';
+import { {{ pascalCase name }}DbEntity } from '../../../database/entities/{{ paramCase name }}.db.entity';
+import { get{{ pascalCase name }}Repository } from '../../../database/repositories/{{ paramCase name }}.repository';
+import { MeiliSearchService } from '../../../meilisearch/meilisearch.service';
+import { List{{ pascalCase name }}ResultType, {{ pascalCase name }}Type } from '../../dtos/graphql';
+import { APP_RESOURCE_{{ constantCase name }} } from './{{ paramCase name }}.resource';
 
 @Injectable()
 export class {{ pascalCase name }}Service {
   constructor(
     // ...
-    private meilisearchService: MeiliSearchService,
+    private meiliSearchService: MeiliSearchService,
   ) {}
 
   // ...
 
-  async find{{ pascalCase name }}ById(actorContext: ActorContext, dto: IFind{{ pascalCase name }}ByIdInput, options: FindOneOptions<{{ pascalCase name }}DbEntity> | null = null) {
+  async find{{ pascalCase name }}ById(
+    actorContext: ActorContext,
+    dto: IFind{{ pascalCase name }}ByIdInput,
+    options: FindOneOptions<{{ pascalCase name }}DbEntity> | null = null,
+  ) {
     const target{{ pascalCase name }} = await actorContext.databaseRun(async ({ entityManager }) => {
       const {{ camelCase name }}Repository = get{{ pascalCase name }}Repository(entityManager);
 
@@ -48,7 +57,11 @@ export class {{ pascalCase name }}Service {
     return actorContext.readResource(APP_RESOURCE_{{ constantCase name }}, {{ camelCase name }});
   }
 
-  async find{{ pascalCase name }}ByIdStrict(actorContext: ActorContext, dto: IFind{{ pascalCase name }}ByIdInput, options: FindOneOptions<{{ pascalCase name }}DbEntity> | null = null) {
+  async find{{ pascalCase name }}ByIdStrict(
+    actorContext: ActorContext,
+    dto: IFind{{ pascalCase name }}ByIdInput,
+    options: FindOneOptions<{{ pascalCase name }}DbEntity> | null = null,
+  ) {
     const {{ camelCase name }} = await this.find{{ pascalCase name }}ById(actorContext, dto, options);
 
     if (!{{ camelCase name }}) {
@@ -66,9 +79,9 @@ export class {{ pascalCase name }}Service {
   //
 
   async list{{ pascalCase name }}(actorContext: ActorContext, dto: IGenericListInput): Promise<List{{ pascalCase name }}ResultType> {
-    const allowedIds = await actorContext.getAllowedResourcesIdsForResourceAction(APP_RESOURCE_{{ constantCase name }}, ContextAction.READ);
+    const allowedIds = await actorContext.getResolvedIdsByRecursoVerbo(APP_RESOURCE_{{ constantCase name }}, ContextAction.READ);
 
-    const result = await this.meilisearchService.listResource<{{ pascalCase name }}Type>(APP_RESOURCE_{{ constantCase name }}, dto, allowedIds);
+    const result = await this.meiliSearchService.listResource<{{ pascalCase name }}Type>(APP_RESOURCE_{{ constantCase name }}, dto, allowedIds);
 
     return {
       ...result,
@@ -83,6 +96,7 @@ export class {{ pascalCase name }}Service {
     field: K,
   ): Promise<{{ pascalCase name }}DbEntity[K]> {
     const {{ camelCase name }} = await this.find{{ pascalCase name }}ByIdStrict(actorContext, { id: {{ camelCase name }}Id }, { select: ['id', field] });
+
     return <{{ pascalCase name }}DbEntity[K]>{{ camelCase name }}[field];
   }
 
@@ -92,23 +106,21 @@ export class {{ pascalCase name }}Service {
     return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'field');
   }
 
-  // 
+  async get{{ pascalCase name }}DateCreated(actorContext: ActorContext, {{ camelCase name }}Id: number) {
+    return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'dateCreated');
+  }
 
-  // async get{{ pascalCase name }}DateCreated(actorContext: ActorContext, {{ camelCase name }}Id: number) {
-  //   return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'dateCreated');
-  // }
+  async get{{ pascalCase name }}DateUpdated(actorContext: ActorContext, {{ camelCase name }}Id: number) {
+    return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'dateUpdated');
+  }
 
-  // async get{{ pascalCase name }}DateUpdated(actorContext: ActorContext, {{ camelCase name }}Id: number) {
-  //   return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'dateUpdated');
-  // }
+  async get{{ pascalCase name }}DateDeleted(actorContext: ActorContext, {{ camelCase name }}Id: number) {
+    return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'dateDeleted');
+  }
 
-  // async get{{ pascalCase name }}DateDeleted(actorContext: ActorContext, {{ camelCase name }}Id: number) {
-  //   return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'dateDeleted');
-  // }
-
-  // async get{{ pascalCase name }}DateSearchSync(actorContext: ActorContext, {{ camelCase name }}Id: number) {
-  //   return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'dateSearchSync');
-  // }
+  async get{{ pascalCase name }}DateSearchSync(actorContext: ActorContext, {{ camelCase name }}Id: number) {
+    return this.get{{ pascalCase name }}StrictGenericField(actorContext, {{ camelCase name }}Id, 'dateSearchSync');
+  }
 
   // ...
 
@@ -156,11 +168,11 @@ export class {{ pascalCase name }}Service {
 
     await actorContext.ensurePermission(APP_RESOURCE_{{ constantCase name }}, ContextAction.DELETE, {{ camelCase name }});
 
-    return actorContext.databaseRun(async ({ entityManager }) => {
+    await actorContext.databaseRun(async ({ entityManager }) => {
       const {{ camelCase name }}Repository = get{{ pascalCase name }}Repository(entityManager);
 
       await {{ camelCase name }}Repository
-        .createQueryBuilder('{{ camelCase name }}')
+        .createQueryBuilder('{{ snakeCase name }}')
         .update()
         .set({
           dateDeleted: new Date(),
@@ -168,5 +180,7 @@ export class {{ pascalCase name }}Service {
         .where('id = :id', { id: {{ camelCase name }}.id })
         .execute();
     });
+
+    return true;
   }
 }

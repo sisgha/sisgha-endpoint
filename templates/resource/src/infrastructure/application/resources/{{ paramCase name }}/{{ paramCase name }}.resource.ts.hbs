@@ -1,0 +1,59 @@
+import { DataSource, EntityManager } from 'typeorm';
+import { IAppResource, IAppResourceDatabase } from '../../../../domain/application-resources';
+import { {{ pascalCase name }}Model } from '../../../../domain/models/{{ snakeCase name }}.model';
+import { {{ pascalCase name }}DbEntity } from '../../../database/entities/{{ paramCase name }}.db.entity';
+import { I{{ pascalCase name }}Repository, get{{ pascalCase name }}Repository } from '../../../database/repositories/{{ paramCase name }}.repository';
+import { {{ pascalCase name }}Presenter } from './{{ paramCase name }}.presenter';
+
+export const APP_RESOURCE_{{ constantCase name }} = '{{ snakeCase name }}';
+
+export type I{{ pascalCase name }}ResourceDatabase = IAppResourceDatabase<typeof {{ pascalCase name }}DbEntity, I{{ pascalCase name }}Repository, DataSource | EntityManager>;
+
+export const {{ pascalCase name }}ResourceDatabase: I{{ pascalCase name }}ResourceDatabase = {
+  getTypeormEntity: () => {{ pascalCase name }}DbEntity,
+  getTypeormRepositoryFactory: () => get{{ pascalCase name }}Repository,
+};
+
+export type I{{ pascalCase name }}Resource = IAppResource<{{ pascalCase name }}Model, I{{ pascalCase name }}ResourceDatabase>;
+
+export const {{ pascalCase name }}Resource: I{{ pascalCase name }}Resource = {
+  key: APP_RESOURCE_{{ constantCase name }},
+
+  search: {
+    meiliSearchIndex: '{{ snakeCase name }}',
+    searchable: [
+      'id',
+      //
+      'field',
+      //
+      'dateCreated',
+      'dateUpdated',
+      'dateDeleted',
+      'dateSearchSync',
+    ],
+    filterable: [
+      'id',
+      //
+      'field',
+      //
+      'dateCreated',
+      'dateUpdated',
+      'dateDeleted',
+      'dateSearchSync',
+    ],
+    sortable: [
+      'id',
+      //
+      'field',
+      //
+      'dateCreated',
+      'dateUpdated',
+      'dateDeleted',
+      'dateSearchSync',
+    ],
+  },
+
+  presenter: () => new {{ pascalCase name }}Presenter(),
+
+  database: {{ pascalCase name }}ResourceDatabase,
+};

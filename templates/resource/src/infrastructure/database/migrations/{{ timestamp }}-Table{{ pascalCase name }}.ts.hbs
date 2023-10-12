@@ -25,31 +25,31 @@ export class Table{{ pascalCase name }}{{ timestamp }} implements MigrationInter
 
           // ...
 
-          // {
-          //   name: 'date_created',
-          //   type: 'timestamptz',
-          //   default: 'now()',
-          //   isNullable: false,
-          // },
+          {
+            name: 'date_created',
+            type: 'timestamptz',
+            default: 'now()',
+            isNullable: false,
+          },
 
-          // {
-          //   name: 'date_updated',
-          //   type: 'timestamptz',
-          //   default: 'now()',
-          //   isNullable: false,
-          // },
+          {
+            name: 'date_updated',
+            type: 'timestamptz',
+            default: 'now()',
+            isNullable: false,
+          },
 
-          // {
-          //   name: 'date_deleted',
-          //   type: 'timestamptz',
-          //   isNullable: true,
-          // },
+          {
+            name: 'date_deleted',
+            type: 'timestamptz',
+            isNullable: true,
+          },
 
-          // {
-          //   name: 'date_search_sync',
-          //   type: 'timestamptz',
-          //   isNullable: true,
-          // },
+          {
+            name: 'date_search_sync',
+            type: 'timestamptz',
+            isNullable: true,
+          },
         ],
       }),
     );

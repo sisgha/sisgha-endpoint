@@ -1,0 +1,12 @@
+import { z } from 'zod';
+import { Create{{ pascalCase name }}InputZod } from './create_{{ snakeCase name }}_input.zod';
+import { Find{{ pascalCase name }}ByIdInputZod } from './find_{{ snakeCase name }}_by_id_input.zod';
+
+export const Update{{ pascalCase name }}InputZod = z
+  .object({})
+  .merge(Find{{ pascalCase name }}ByIdInputZod)
+  .merge(
+    Create{{ pascalCase name }}InputZod.pick({
+      field: true,
+    }).partial(),
+  );

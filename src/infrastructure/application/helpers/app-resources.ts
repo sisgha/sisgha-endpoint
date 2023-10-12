@@ -9,7 +9,8 @@ import { UsuarioInternoResource } from '../resources/usuario_interno/usuario_int
 import { UsuarioInternoCargoResource } from '../resources/usuario_interno_cargo/usuario_interno_cargo.resource';
 
 export const APP_RESOURCES: IAppResource<any>[] = [
-  // ...
+  // APPLICATION RESOURCES
+
   CargoResource,
   CargoPermissaoResource,
   PermissaoResource,
@@ -18,4 +19,6 @@ export const APP_RESOURCES: IAppResource<any>[] = [
   UsuarioInternoResource,
   UsuarioInternoCargoResource,
   ModalidadeResource,
+
+  // END APPLICATION RESOURCES
 ];

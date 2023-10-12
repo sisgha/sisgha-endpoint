@@ -1,9 +1,0 @@
-import { Module } from '@nestjs/common';
-import { {{ pascalCase name }}Resolver } from './{{ paramCase name }}.resolver';
-import { {{ pascalCase name }}Service } from './{{ paramCase name }}.service';
-
-@Module({
-  exports: [{{ pascalCase name }}Service],
-  providers: [{{ pascalCase name }}Service, {{ pascalCase name }}Resolver],
-})
-export class {{ pascalCase name }}Module {}

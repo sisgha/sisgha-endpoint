@@ -1,0 +1,21 @@
+import { IAppResourcePresenter } from '../../../../domain/application-resources';
+import { {{ pascalCase name }}Model } from '../../../../domain/models/{{ snakeCase name }}.model';
+
+export class {{ pascalCase name }}Presenter implements IAppResourcePresenter<{{ pascalCase name }}Model> {
+  async getSearchData(model: {{ pascalCase name }}Model) {
+    return {
+      id: model.id,
+
+      //
+
+      field: model.field,
+
+      //
+
+      dateCreated: model.dateCreated,
+      dateUpdated: model.dateUpdated,
+      dateDeleted: model.dateDeleted,
+      dateSearchSync: model.dateSearchSync,
+    };
+  }
+}

@@ -1,5 +1,5 @@
 import { DataSource, EntityManager } from 'typeorm';
-import { {{ pascalCase name }}DbEntity } from '../entities/{{ paramCase name }}.db.entity';
+import { {{ pascalCase name }}DbEntity } from '../entities/{{ snakeCase name }}.db.entity';
 
 export type I{{ pascalCase name }}Repository = ReturnType<typeof get{{ pascalCase name }}Repository>;
 
@@ -7,3 +7,4 @@ export const get{{ pascalCase name }}Repository = (dataSource: DataSource | Enti
   dataSource.getRepository({{ pascalCase name }}DbEntity).extend({
     // ...
   });
+

@@ -1,0 +1,29 @@
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { {{ pascalCase name }}Model } from '../../../../domain/models/{{ snakeCase name }}.model';
+
+@ObjectType('{{ pascalCase name }}')
+export class {{ pascalCase name }}Type implements {{ pascalCase name }}Model {
+  @Field(() => Int)
+  id!: number;
+
+  // ...
+
+  @Field(() => String)
+  field!: string;
+
+  // ...
+
+  @Field(() => Date)
+  dateCreated!: Date;
+
+  @Field(() => Date)
+  dateUpdated!: Date;
+
+  @Field(() => Date, { nullable: true })
+  dateDeleted!: Date | null;
+
+  @Field(() => Date, { nullable: true })
+  dateSearchSync!: Date | null;
+
+  // ...
+}

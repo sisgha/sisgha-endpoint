@@ -1,0 +1,5 @@
+import { Find{{ pascalCase name }}ByIdInputZod } from './find_{{ snakeCase name }}_by_id_input.zod';
+
+export const Delete{{ pascalCase name }}InputZod = Find{{ pascalCase name }}ByIdInputZod.pick({
+  id: true,
+});
