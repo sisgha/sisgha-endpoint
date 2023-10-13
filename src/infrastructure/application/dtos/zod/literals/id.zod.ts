@@ -1,3 +1,5 @@
 import { z } from 'zod';
 
-export const IdZod = z.number().int().positive();
+const msg = 'Deve ser um ID válido.';
+
+export const IdZod = z.number().int(msg).gt(0, msg);

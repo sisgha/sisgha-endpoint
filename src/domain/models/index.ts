@@ -1,5 +1,6 @@
 export * from './cargo.model';
 export * from './cargo_permissao.model';
+export * from './curso.model';
 export * from './modalidade.model';
 export * from './permissao.model';
 export * from './permissao_recurso.model';
