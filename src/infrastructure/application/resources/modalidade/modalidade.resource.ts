@@ -29,6 +29,7 @@ export const ModalidadeResource: IModalidadeResource = {
       // ...
       'id',
       'slug',
+      'nome',
       'dateCreated',
       'dateUpdated',
       'dateDeleted',
@@ -38,6 +39,7 @@ export const ModalidadeResource: IModalidadeResource = {
       // ...
       'id',
       'slug',
+      'nome',
       'dateCreated',
       'dateUpdated',
       'dateDeleted',
@@ -47,6 +49,7 @@ export const ModalidadeResource: IModalidadeResource = {
       // ...
       'id',
       'slug',
+      'nome',
       'dateCreated',
       'dateUpdated',
       'dateDeleted',

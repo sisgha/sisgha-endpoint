@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { ModalidadeModel } from '../../../domain/models';
+import { CursoDbEntity } from './curso.db.entity';
 
 @Entity('modalidade')
 export class ModalidadeDbEntity implements ModalidadeModel {
@@ -10,6 +11,9 @@ export class ModalidadeDbEntity implements ModalidadeModel {
 
   @Column({ name: 'slug', type: 'text' })
   slug!: string;
+
+  @Column({ name: 'nome', type: 'text' })
+  nome!: string;
 
   //
 
@@ -26,4 +30,7 @@ export class ModalidadeDbEntity implements ModalidadeModel {
   dateSearchSync!: Date | null;
 
   // ...
+
+  @OneToMany(() => CursoDbEntity, (curso) => curso.modalidade)
+  cursos!: CursoDbEntity[];
 }

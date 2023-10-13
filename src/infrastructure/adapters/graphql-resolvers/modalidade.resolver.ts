@@ -107,6 +107,16 @@ export class ModalidadeResolver {
     return this.modalidadeService.getModalidadeSlug(actorContext, parent.id);
   }
 
+  @ResolveField('nome', () => String)
+  async nome(
+    @ResolveActorContext()
+    actorContext: ActorContext,
+    @Parent()
+    parent: ModalidadeType,
+  ) {
+    return this.modalidadeService.getModalidadeNome(actorContext, parent.id);
+  }
+
   @ResolveField('dateCreated', () => Date)
   async dateCreated(
     @ResolveActorContext()

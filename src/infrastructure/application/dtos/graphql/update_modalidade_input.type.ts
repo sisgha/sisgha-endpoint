@@ -10,4 +10,7 @@ export class UpdateModalidadeInputType implements IUpdateModalidadeInput {
 
   @Field({ nullable: true })
   slug?: string;
+
+  @Field({ nullable: true })
+  nome?: string;
 }

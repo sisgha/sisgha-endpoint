@@ -8,5 +8,6 @@ export const UpdateModalidadeInputZod = z
   .merge(
     CreateModalidadeInputZod.pick({
       slug: true,
+      nome: true,
     }).partial(),
   );

@@ -36,9 +36,10 @@ export class ModalidadeService {
       const modalidadeRepository = getModalidadeRepository(entityManager);
 
       return modalidadeRepository.findOne({
-        where: { id: dto.id },
-        select: ['id'],
         cache: 20,
+        ...options,
+        where: { id: dto.id, ...options?.where },
+        select: ['id'],
       });
     });
 
@@ -50,9 +51,9 @@ export class ModalidadeService {
       const modalidadeRepository = getModalidadeRepository(entityManager);
 
       return modalidadeRepository.findOneOrFail({
-        where: { id: targetModalidade.id },
-        select: ['id'],
         ...options,
+        where: { id: targetModalidade.id },
+        select: ['id', ...(options && Array.isArray(options.select) ? options.select : [])],
       });
     });
 
@@ -128,6 +129,10 @@ export class ModalidadeService {
 
   async getModalidadeSlug(actorContext: ActorContext, modalidadeId: number) {
     return this.getModalidadeStrictGenericField(actorContext, modalidadeId, 'slug');
+  }
+
+  async getModalidadeNome(actorContext: ActorContext, modalidadeId: number) {
+    return this.getModalidadeStrictGenericField(actorContext, modalidadeId, 'nome');
   }
 
   async getModalidadeDateCreated(actorContext: ActorContext, modalidadeId: number) {

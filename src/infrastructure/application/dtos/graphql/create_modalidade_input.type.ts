@@ -5,4 +5,7 @@ import { ICreateModalidadeInput } from '../../../../domain/dtos';
 export class CreateModalidadeInputType implements ICreateModalidadeInput {
   @Field()
   slug!: string;
+
+  @Field()
+  nome!: string;
 }

@@ -20,7 +20,12 @@ export class TableModalidade1697059692272 implements MigrationInterface {
           {
             name: 'slug',
             type: 'text',
-            // isUnique: true,
+            isNullable: false,
+          },
+
+          {
+            name: 'nome',
+            type: 'text',
             isNullable: false,
           },
 

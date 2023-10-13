@@ -8,10 +8,12 @@ export class ModalidadesIniciais1697059751884 implements MigrationInterface {
 
     await modalidadeRepository.save(<ModalidadeDbEntity>{
       slug: 'tecnico-integrado',
+      nome: 'Técnico Integrado',
     });
 
     await modalidadeRepository.save(<ModalidadeDbEntity>{
       slug: 'graduacao',
+      nome: 'Graduação',
     });
   }
 

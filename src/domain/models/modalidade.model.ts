@@ -1,4 +1,5 @@
 import { ISearchableEntity } from '../search/ISearchableEntity';
+import { CursoModel } from './curso.model';
 
 export interface ModalidadeModel extends ISearchableEntity {
   id: number;
@@ -6,4 +7,9 @@ export interface ModalidadeModel extends ISearchableEntity {
   // ...
 
   slug: string;
+  nome: string;
+
+  // ...
+
+  cursos: CursoModel[];
 }

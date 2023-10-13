@@ -1,5 +1,6 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ModalidadeModel } from '../../../../domain/models';
+import { CursoType } from './curso.type';
 
 @ObjectType('Modalidade')
 export class ModalidadeType implements ModalidadeModel {
@@ -10,6 +11,9 @@ export class ModalidadeType implements ModalidadeModel {
 
   @Field(() => String)
   slug!: string;
+
+  @Field(() => String)
+  nome!: string;
 
   // ...
 
@@ -24,4 +28,8 @@ export class ModalidadeType implements ModalidadeModel {
 
   @Field(() => Date, { nullable: true })
   dateSearchSync!: Date | null;
+
+  //
+
+  cursos!: CursoType[];
 }

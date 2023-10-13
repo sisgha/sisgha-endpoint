@@ -7,6 +7,7 @@ export class ModalidadePresenter implements IAppResourcePresenter<ModalidadeMode
       id: modalidadeModel.id,
 
       slug: modalidadeModel.slug,
+      nome: modalidadeModel.nome,
 
       dateCreated: modalidadeModel.dateCreated,
       dateUpdated: modalidadeModel.dateUpdated,
