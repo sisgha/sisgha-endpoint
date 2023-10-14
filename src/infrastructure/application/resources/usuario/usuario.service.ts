@@ -45,9 +45,10 @@ export class UsuarioService {
       const usuarioRepository = getUsuarioRepository(entityManager);
 
       return usuarioRepository.findOne({
-        where: { id: dto.id },
-        select: ['id'],
         cache: 20,
+        ...options,
+        where: { id: dto.id, ...options?.where },
+        select: ['id'],
       });
     });
 
@@ -59,9 +60,9 @@ export class UsuarioService {
       const usuarioRepository = getUsuarioRepository(entityManager);
 
       return await usuarioRepository.findOneOrFail({
-        where: { id: targetUsuario.id },
         select: ['id'],
         ...options,
+        where: { id: targetUsuario.id },
       });
     });
 
@@ -97,7 +98,9 @@ export class UsuarioService {
       return null;
     }
 
-    return this.findUsuarioById(actorContext, { id: targetUsuario.id }, options);
+    const usuario = this.findUsuarioById(actorContext, { id: targetUsuario.id }, options);
+
+    return usuario;
   }
 
   async findUsuarioByKeycloakIdStrict(actorContext: ActorContext, keycloakId: string, options?: FindOneOptions<UsuarioDbEntity>) {
@@ -359,76 +362,82 @@ export class UsuarioService {
   // ...
 
   async loadUsuarioFromKeycloakId(actorContext: ActorContext, keycloakId: string) {
-    const kcUser = await this.kcClientService.findUserByKeycloakIdStrict(actorContext, keycloakId);
-
-    const kcUserId = kcUser.id;
-
-    if (!kcUserId) {
-      throw new InternalServerErrorException('The provided user was not found by keycloakId on the KeyCloak repository.');
-    }
-
-    const dbUsuarioByKeycloakId = await this.findUsuarioByKeycloakId(actorContext, keycloakId, {
-      where: {
-        dateDeleted: IsNull(),
-      },
-    });
+    const dbUsuarioByKeycloakId = await this.findUsuarioByKeycloakId(actorContext, keycloakId);
 
     if (dbUsuarioByKeycloakId) {
-      return this.findUsuarioByIdStrictSimple(actorContext, dbUsuarioByKeycloakId.id);
-    }
+      const dbUsuarioByKeycloakIdDateDeleted = await this.getUsuarioDateDeleted(actorContext, dbUsuarioByKeycloakId.id);
 
-    const username = kcUser.username;
-
-    if (username) {
-      const dbUsuarioByKeycloakUsername = await this.findUsuarioByMatriculaSiape(actorContext, username, {
-        where: {
-          dateDeleted: IsNull(),
-        },
-      });
-
-      if (dbUsuarioByKeycloakUsername) {
-        return this.findUsuarioByIdStrictSimple(actorContext, dbUsuarioByKeycloakUsername.id);
+      if (dbUsuarioByKeycloakIdDateDeleted === null) {
+        return {
+          id: dbUsuarioByKeycloakId.id,
+        };
+      } else {
+        throw new ForbiddenException('The provided usuario is inactive.');
       }
-    }
+    } else {
+      const kcUser = await this.kcClientService.findUserByKeycloakIdStrict(actorContext, keycloakId);
 
-    const hasUsuarios = await this.getHasUsuarios(actorContext, false);
+      const kcUserId = kcUser.id;
 
-    const newUsuario = await actorContext.databaseRun(async ({ entityManager }) => {
-      const usuarioRepository = getUsuarioRepository(entityManager);
+      if (!kcUserId) {
+        throw new InternalServerErrorException('The provided user was not found by keycloakId on the KeyCloak repository.');
+      }
 
-      const newUsuario = usuarioRepository.create();
+      const username = kcUser.username;
 
-      newUsuario.keycloakId = keycloakId;
-      newUsuario.nome = KCClientService.buildUserFullName(kcUser);
-      newUsuario.email = kcUser.email ?? null;
-      newUsuario.matriculaSiape = kcUser.username ?? null;
-
-      await usuarioRepository.save(newUsuario);
-
-      return newUsuario;
-    });
-
-    if (!hasUsuarios) {
-      await actorContext.databaseRun(async ({ entityManager }) => {
-        const cargoRepository = getCargoRepository(entityManager);
-        const usuarioCargoRepository = getUsuarioCargoRepository(entityManager);
-
-        const cargoInitial = await cargoRepository.findOne({
-          where: { slug: 'dape' },
+      if (username) {
+        const dbUsuarioByKeycloakUsername = await this.findUsuarioByMatriculaSiape(actorContext, username, {
+          where: {
+            dateDeleted: IsNull(),
+          },
         });
 
-        if (cargoInitial) {
-          const usuarioHasCargo = usuarioCargoRepository.create();
-
-          usuarioHasCargo.usuario = newUsuario;
-          usuarioHasCargo.cargo = cargoInitial;
-
-          await usuarioCargoRepository.save(usuarioHasCargo);
+        if (dbUsuarioByKeycloakUsername) {
+          return this.findUsuarioByIdStrictSimple(actorContext, dbUsuarioByKeycloakUsername.id);
         }
-      });
-    }
+      }
 
-    return this.findUsuarioByIdStrictSimple(actorContext, newUsuario.id);
+      const hasUsuarios = await this.getHasUsuarios(actorContext, false);
+
+      const newUsuario = await actorContext.databaseRun(async ({ entityManager }) => {
+        const usuarioRepository = getUsuarioRepository(entityManager);
+
+        const newUsuario = usuarioRepository.create();
+
+        newUsuario.keycloakId = keycloakId;
+        newUsuario.nome = KCClientService.buildUserFullName(kcUser);
+        newUsuario.email = kcUser.email ?? null;
+        newUsuario.matriculaSiape = kcUser.username ?? null;
+
+        await usuarioRepository.save(newUsuario);
+
+        return newUsuario;
+      });
+
+      if (!hasUsuarios) {
+        await actorContext.databaseRun(async ({ entityManager }) => {
+          const cargoRepository = getCargoRepository(entityManager);
+          const usuarioCargoRepository = getUsuarioCargoRepository(entityManager);
+
+          const cargoInitial = await cargoRepository.findOne({
+            where: { slug: 'dape' },
+          });
+
+          if (cargoInitial) {
+            const usuarioHasCargo = usuarioCargoRepository.create();
+
+            usuarioHasCargo.usuario = newUsuario;
+            usuarioHasCargo.cargo = cargoInitial;
+
+            await usuarioCargoRepository.save(usuarioHasCargo);
+          }
+        });
+      }
+
+      return {
+        id: newUsuario.id,
+      };
+    }
   }
 
   async createUsuario(actorContext: ActorContext, dto: ICreateUsuarioInput) {
