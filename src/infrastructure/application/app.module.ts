@@ -13,6 +13,7 @@ import { AppController } from '../adapters/http-controllers/app.controller';
 import { AuthenticationModule } from '../authentication/authentication.module';
 import { AuthorizationModule } from '../authorization/authorization.module';
 import { HttpExceptionFilter } from '../common/filter/HttpExceptionFilter';
+import { IS_PRODUCTION_MODE_TOKEN } from '../config/IS_PRODUCTION_MODE_TOKEN';
 import { EnvironmentConfigModule } from '../config/environment-config/environment-config.module';
 import { DatabaseModule } from '../database/database.module';
 import { EventsModule } from '../events/events.module';
@@ -52,19 +53,20 @@ import { UsuarioInternoCargoModule } from './resources/usuario_interno_cargo/usu
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
 
-      playground: true,
-      introspection: true,
+      playground: !IS_PRODUCTION_MODE_TOKEN,
 
+      introspection: true,
       autoSchemaFile: true,
 
-      resolvers: { JSON: GraphQLJSON },
+      resolvers: {
+        JSON: GraphQLJSON,
+      },
 
       cache: new InMemoryLRUCache({
         // ~100MiB
         maxSize: Math.pow(2, 20) * 100,
-
         // 5 minutes (in milliseconds)
-        ttl: 300_000,
+        ttl: 5 * 60 * 1000,
       }),
 
       formatError: (formattedError: GraphQLFormattedError, error: unknown) => {
